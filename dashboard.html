@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maharashtra RERA Intel</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060810;
+      --bg2: #0c0f1a;
+      --bg3: #121628;
+      --border: rgba(255, 255, 255, 0.07);
+      --border2: rgba(255, 255, 255, 0.12);
+      --gold: #c9a84c;
+      --gold2: #f0cc7a;
+      --red: #e05252;
+      --green: #4ecba8;
+      --blue: #5b8def;
+      --muted: rgba(255, 255, 255, 0.35);
+      --text: rgba(255, 255, 255, 0.88);
+      --critical: #e05252;
+      --high: #c9a84c;
+      --medium: #5b8def;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* Glow blob */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201, 168, 76, 0.06) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ──────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 8, 16, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .wordmark-main {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .wordmark-state {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* City tabs */
+    .city-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .city-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .city-tab:hover {
+      color: var(--text);
+      background: var(--bg2);
+    }
+
+    .city-tab.active {
+      background: var(--gold);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      letter-spacing: 0.1em;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2.5s ease-in-out infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.3;
+        transform: scale(0.7);
+      }
+    }
+
+    .btn-refresh {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-refresh:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 40px 60px;
+    }
+
+    .city-header {
+      margin-bottom: 32px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .city-name {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .city-name span {
+      color: var(--gold);
+    }
+
+    .city-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-top: 6px;
+    }
+
+    /* Section label */
+    .sec {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sec::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── STAT CARDS ──────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .stat:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent, var(--gold));
+    }
+
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .stat-val {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .stat.s-red {
+      --accent: var(--red);
+    }
+
+    .stat.s-green {
+      --accent: var(--green);
+    }
+
+    .stat.s-blue {
+      --accent: var(--blue);
+    }
+
+    .stat.s-gold {
+      --accent: var(--gold);
+    }
+
+    /* ── STATUS ROW ──────────────────────────────────── */
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .status-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .status-card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .status-card-val {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── TWO COLUMN ──────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    /* ── PANEL ───────────────────────────────────────── */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .panel-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .panel-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Filter chips */
+    .chips {
+      display: flex;
+      gap: 6px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      color: var(--text);
+    }
+
+    .chip.on {
+      background: var(--gold);
+      color: #000;
+      border-color: var(--gold);
+      font-weight: 700;
+    }
+
+    .chip.on-critical {
+      background: rgba(224, 82, 82, 0.15);
+      color: var(--critical);
+      border-color: rgba(224, 82, 82, 0.4);
+    }
+
+    .chip.on-high {
+      background: rgba(201, 168, 76, 0.12);
+      color: var(--high);
+      border-color: rgba(201, 168, 76, 0.35);
+    }
+
+    .chip.on-medium {
+      background: rgba(91, 141, 239, 0.12);
+      color: var(--blue);
+      border-color: rgba(91, 141, 239, 0.35);
+    }
+
+    /* Table */
+    .tbl-wrap {
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg2);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 3px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .b-critical {
+      background: rgba(224, 82, 82, 0.12);
+      color: var(--critical);
+      border: 1px solid rgba(224, 82, 82, 0.25);
+    }
+
+    .b-high {
+      background: rgba(201, 168, 76, 0.10);
+      color: var(--high);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+    }
+
+    .b-medium {
+      background: rgba(91, 141, 239, 0.10);
+      color: var(--blue);
+      border: 1px solid rgba(91, 141, 239, 0.25);
+    }
+
+    .b-low {
+      background: rgba(78, 203, 168, 0.10);
+      color: var(--green);
+      border: 1px solid rgba(78, 203, 168, 0.25);
+    }
+
+    .b-flagged {
+      background: rgba(201, 168, 76, 0.10);
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+    }
+
+    .flag-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 3px;
+      color: #fff;
+    }
+
+    .flag-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 400px;
+    }
+
+    .flag-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Promoter leaderboard */
+    .promoter-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 12px;
+      transition: background 0.15s;
+    }
+
+    .promoter-item:last-child {
+      border-bottom: none;
+    }
+
+    .promoter-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .p-rank {
+      font-size: 20px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.1);
+      width: 28px;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .p-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .p-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .p-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .p-bar {
+      width: 64px;
+      flex-shrink: 0;
+    }
+
+    .p-bar-bg {
+      height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .p-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+
+    .p-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+      width: 22px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Utility */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 10px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .spin {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stagger */
+    .stats-row .stat:nth-child(1) {
+      animation-delay: .04s
+    }
+
+    .stats-row .stat:nth-child(2) {
+      animation-delay: .08s
+    }
+
+    .stats-row .stat:nth-child(3) {
+      animation-delay: .12s
+    }
+
+    .stats-row .stat:nth-child(4) {
+      animation-delay: .16s
+    }
+
+    .stats-row .stat:nth-child(5) {
+      animation-delay: .20s
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="wordmark">
+      <span class="wordmark-main">RERA Intel</span>
+      <span class="wordmark-state">Maharashtra</span>
+    </div>
+
+    <div class="city-tabs" id="cityTabs"></div>
+
+    <div class="header-right">
+      <span class="live-indicator"><span class="live-dot"></span>Live</span>
+      <span id="lastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">—</span>
+      <button class="btn-refresh" onclick="loadCity(activeCity)">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="city-header">
+      <div class="city-name" id="cityTitle">—</div>
+      <div class="city-meta" id="cityMeta">Loading data...</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="sec">Overview</div>
+    <div class="stats-row" id="statsRow">
+      <div class="stat">
+        <div class="stat-label">Loading</div>
+        <div class="stat-val">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Loading</div>
+        <div class="stat-val">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Loading</div>
+        <div class="stat-val">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Loading</div>
+        <div class="stat-val">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Loading</div>
+        <div class="stat-val">—</div>
+      </div>
+    </div>
+
+    <!-- RERA Status breakdown -->
+    <div class="sec">RERA Project Status</div>
+    <div class="status-row" id="statusRow">
+      <div class="status-card"><span class="status-card-label">Loading</span><span class="status-card-val">—</span>
+      </div>
+      <div class="status-card"><span class="status-card-label">Loading</span><span class="status-card-val">—</span>
+      </div>
+      <div class="status-card"><span class="status-card-label">Loading</span><span class="status-card-val">—</span>
+      </div>
+      <div class="status-card"><span class="status-card-label">Loading</span><span class="status-card-val">—</span>
+      </div>
+    </div>
+
+    <!-- Flags + Promoters -->
+    <div class="sec">Intelligence</div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">⚠ Suspicious Flags</span>
+          <span class="panel-count" id="flagCount">—</span>
+        </div>
+        <div class="chips">
+          <button class="chip on" onclick="setFilter('all',this)">All</button>
+          <button class="chip" onclick="setFilter('critical',this)">Critical</button>
+          <button class="chip" onclick="setFilter('high',this)">High</button>
+          <button class="chip" onclick="setFilter('medium',this)">Medium</button>
+        </div>
+        <div class="tbl-wrap" id="flagsTable">
+          <div class="loading">
+            <div class="spin"></div>Fetching flags...
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🎯 Promoter Risk</span>
+          <span class="panel-count" id="promoterCount">—</span>
+        </div>
+        <div id="promoterList">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RERA Projects -->
+    <div class="sec">RERA Projects</div>
+    <div class="panel" style="margin-bottom:40px">
+      <div class="panel-head">
+        <span class="panel-title">📋 All Projects</span>
+        <span class="panel-count" id="projCount">—</span>
+      </div>
+      <div class="tbl-wrap" id="projectsTable">
+        <div class="loading">
+          <div class="spin"></div>Fetching projects...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ── Config ────────────────────────────────────────────────────────────────
+    const SB_URL = 'https://bmiunaojlqwscybcayyk.supabase.co';
+    // Use anon key — RLS policies allow public read-only
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
+
+    const CITIES = [
+      { id: 1, name: 'Akola' },
+      { id: 9, name: 'Amravati' },
+    ];
+
+    let activeCity = CITIES[0];
+    let allFlags = [];
+    let activeFilter = 'all';
+
+    // ── API ───────────────────────────────────────────────────────────────────
+    async function sb(path) {
+      const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
+        headers: {
+          apikey: SB_KEY,
+          Authorization: `Bearer ${SB_KEY}`,
+        }
+      });
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }
+
+    // ── City tabs ─────────────────────────────────────────────────────────────
+    function buildCityTabs() {
+      const wrap = document.getElementById('cityTabs');
+      wrap.innerHTML = CITIES.map(c => `
+    <button class="city-tab ${c.id === activeCity.id ? 'active' : ''}"
+      onclick="switchCity(${c.id})">${c.name}</button>
+  `).join('');
+    }
+
+    function switchCity(id) {
+      activeCity = CITIES.find(c => c.id === id);
+      buildCityTabs();
+      loadCity(activeCity);
+    }
+
+    // ── Load city ─────────────────────────────────────────────────────────────
+    async function loadCity(city) {
+      document.getElementById('cityTitle').innerHTML =
+        city.name.slice(0, -1) + `<span>${city.name.slice(-1)}</span>`;
+      document.getElementById('cityMeta').textContent = 'Loading...';
+      document.getElementById('lastUpdate').textContent = 'Refreshing...';
+
+      await Promise.all([
+        loadFlags(city),
+        loadProjects(city),
+        loadListings(city),
+      ]);
+
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent =
+        now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Flags ─────────────────────────────────────────────────────────────────
+    async function loadFlags(city) {
+      try {
+        allFlags = await sb(
+          `suspicious_flags?city_id=eq.${city.id}&order=created_at.desc&limit=300`
+        );
+        renderFlags();
+        renderPromoterLeaderboard();
+      } catch (e) {
+        document.getElementById('flagsTable').innerHTML =
+          `<div class="empty">Error: ${e.message}</div>`;
+      }
+    }
+
+    function setFilter(f, btn) {
+      activeFilter = f;
+      document.querySelectorAll('.chip').forEach(b => {
+        b.className = 'chip';
+      });
+      btn.classList.add('on');
+      if (f !== 'all') btn.classList.add(`on-${f}`);
+      renderFlags();
+    }
+
+    function renderFlags() {
+      const list = activeFilter === 'all'
+        ? allFlags
+        : allFlags.filter(f => f.severity === activeFilter);
+
+      document.getElementById('flagCount').textContent = `${list.length} flags`;
+
+      if (!list.length) {
+        document.getElementById('flagsTable').innerHTML =
+          `<div class="empty">No ${activeFilter === 'all' ? '' : activeFilter + ' '}flags.</div>`;
+        return;
+      }
+
+      const rows = list.map(f => {
+        const dt = f.created_at
+          ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })
+          : '—';
+        const type = (f.flag_type || '—').replace(/_/g, ' ');
+        return `<tr>
+      <td>
+        <div class="flag-title">${esc(f.title || '—')}</div>
+        <div class="flag-desc">${esc(f.description || '')}</div>
+      </td>
+      <td><span class="badge b-${f.severity || 'medium'}">${f.severity || '—'}</span></td>
+      <td><span class="flag-type">${type}</span></td>
+      <td><span class="ts">${dt}</span></td>
+    </tr>`;
+      }).join('');
+
+      document.getElementById('flagsTable').innerHTML = `
+    <table>
+      <thead><tr><th>Flag</th><th>Severity</th><th>Type</th><th>Date</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+    }
+
+    // ── Promoter leaderboard ──────────────────────────────────────────────────
+    function renderPromoterLeaderboard() {
+      const counts = {};
+      allFlags.forEach(f => {
+        const m = (f.title || '').match(/for (.+)$/) || (f.title || '').match(/: (.+?) —/);
+        const name = m ? m[1] : (f.title || 'Unknown');
+        counts[name] = (counts[name] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const max = sorted[0]?.[1] || 1;
+
+      document.getElementById('promoterCount').textContent = `${sorted.length} at-risk`;
+
+      if (!sorted.length) {
+        document.getElementById('promoterList').innerHTML = `<div class="empty">No data.</div>`;
+        return;
+      }
+
+      document.getElementById('promoterList').innerHTML = sorted.map(([name, cnt], i) => `
+    <div class="promoter-item">
+      <div class="p-rank">${String(i + 1).padStart(2, '0')}</div>
+      <div class="p-info">
+        <div class="p-name">${esc(name)}</div>
+        <div class="p-meta">${cnt} flag${cnt > 1 ? 's' : ''}</div>
+      </div>
+      <div class="p-bar">
+        <div class="p-bar-bg">
+          <div class="p-bar-fill" style="width:${Math.round(cnt / max * 100)}%"></div>
+        </div>
+      </div>
+      <div class="p-count">${cnt}</div>
+    </div>`).join('');
+    }
+
+    // ── Projects ──────────────────────────────────────────────────────────────
+    async function loadProjects(city) {
+      try {
+        const projects = await sb(
+          `rera_projects?city_id=eq.${city.id}&order=created_at.desc&limit=500`
+        );
+        renderStats(projects, city);
+        renderProjects(projects);
+      } catch (e) {
+        document.getElementById('projectsTable').innerHTML =
+          `<div class="empty">Error: ${e.message}</div>`;
+      }
+    }
+
+    function renderStats(projects, city) {
+      const total = projects.length;
+      const registered = projects.filter(p => (p.rera_status || '').toLowerCase().includes('registered')).length;
+      const lapsed = projects.filter(p => (p.rera_status || '').toLowerCase().includes('lapsed')).length;
+      const completed = projects.filter(p => (p.rera_status || '').toLowerCase().includes('completed')).length;
+      const flagged = projects.filter(p => p.is_flagged).length;
+      const critical = allFlags.filter(f => f.severity === 'critical').length;
+      const high = allFlags.filter(f => f.severity === 'high').length;
+
+      document.getElementById('cityMeta').textContent =
+        `Maharashtra · ${total} RERA projects · ${allFlags.length} flags · Updated now`;
+
+      document.getElementById('statsRow').innerHTML = `
+    <div class="stat s-green" style="animation-delay:.04s">
+      <div class="stat-label">RERA Projects</div>
+      <div class="stat-val">${total}</div>
+      <div class="stat-sub">${city.name}</div>
+    </div>
+    <div class="stat s-blue" id="listingStatCard" style="animation-delay:.08s">
+      <div class="stat-label">99acres Listings</div>
+      <div class="stat-val" id="listingStatVal">—</div>
+      <div class="stat-sub">Active</div>
+    </div>
+    <div class="stat ${flagged > 0 ? 's-gold' : 's-green'}" style="animation-delay:.12s">
+      <div class="stat-label">Flagged Projects</div>
+      <div class="stat-val">${flagged}</div>
+      <div class="stat-sub">of ${total} total</div>
+    </div>
+    <div class="stat ${critical > 0 ? 's-red' : 's-gold'}" style="animation-delay:.16s">
+      <div class="stat-label">Active Flags</div>
+      <div class="stat-val">${allFlags.length}</div>
+      <div class="stat-sub">${critical} critical · ${high} high</div>
+    </div>
+    <div class="stat ${lapsed > 0 ? 's-gold' : 's-green'}" style="animation-delay:.20s">
+      <div class="stat-label">Lapsed</div>
+      <div class="stat-val">${lapsed}</div>
+      <div class="stat-sub">${completed} completed</div>
+    </div>`;
+
+      document.getElementById('statusRow').innerHTML = `
+    <div class="status-card">
+      <span class="status-card-label">Registered</span>
+      <span class="status-card-val" style="color:var(--green)">${registered}</span>
+    </div>
+    <div class="status-card">
+      <span class="status-card-label">Completed</span>
+      <span class="status-card-val" style="color:var(--blue)">${completed}</span>
+    </div>
+    <div class="status-card">
+      <span class="status-card-label">Lapsed</span>
+      <span class="status-card-val" style="color:var(--gold)">${lapsed}</span>
+    </div>
+    <div class="status-card">
+      <span class="status-card-label">Other</span>
+      <span class="status-card-val" style="color:var(--muted)">${total - registered - completed - lapsed}</span>
+    </div>`;
+    }
+
+    function renderProjects(projects) {
+      document.getElementById('projCount').textContent = `${projects.length} projects`;
+
+      if (!projects.length) {
+        document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects.</div>`;
+        return;
+      }
+
+      const rows = projects.map(p => {
+        const st = (p.rera_status || '—').toLowerCase();
+        const sc = st.includes('registered') ? 'var(--green)'
+          : st.includes('lapsed') || st.includes('revoked') ? 'var(--gold)'
+            : st.includes('completed') ? 'var(--blue)'
+              : 'var(--muted)';
+        const flagBadge = p.is_flagged
+          ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
+        return `<tr>
+      <td style="max-width:220px">
+        <div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div>
+      </td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
+      <td style="color:${sc};font-size:12px;font-weight:600;text-transform:capitalize">${esc(p.rera_status || '—')}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
+      <td>${flagBadge}</td>
+    </tr>`;
+      }).join('');
+
+      document.getElementById('projectsTable').innerHTML = `
+    <table>
+      <thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+    }
+
+    // ── Listings ──────────────────────────────────────────────────────────────
+    async function loadListings(city) {
+      try {
+        const data = await sb(`listings?city_id=eq.${city.id}&select=id&limit=500`);
+        const el = document.getElementById('listingStatVal');
+        if (el) el.textContent = data.length;
+      } catch (e) { }
+    }
+
+    // ── Utils ─────────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    buildCityTabs();
+    loadCity(activeCity);
+  </script>
+</body>
+
+</html>

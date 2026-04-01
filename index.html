@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <style>
     :root {
       --bg: #060810;
@@ -719,6 +720,138 @@
       background: var(--border2);
       border-radius: 2px;
     }
+
+    /* ── MAP ──────────────────────────────────────────── */
+    .map-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .map-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .map-toolbar-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      flex: 1;
+    }
+
+    .map-toggle {
+      display: flex;
+      gap: 6px;
+    }
+
+    .map-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+
+    .map-btn:hover { color: var(--text); border-color: var(--border2); }
+    .map-btn.active-all  { background: rgba(201,168,76,0.12); border-color: var(--gold); color: var(--gold); }
+    .map-btn.active-flagged { background: rgba(224,82,82,0.12); border-color: var(--red); color: var(--red); }
+    .map-btn.active-clean   { background: rgba(78,203,168,0.12); border-color: var(--green); color: var(--green); }
+
+    .map-legend {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .legend-dot {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .legend-dot span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    #cityMap {
+      height: 420px;
+      width: 100%;
+      background: var(--bg3);
+    }
+
+    /* Override Leaflet popup to match dark theme */
+    .leaflet-popup-content-wrapper {
+      background: var(--bg2) !important;
+      border: 1px solid var(--border2) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+      color: var(--text) !important;
+    }
+
+    .leaflet-popup-tip { background: var(--bg2) !important; }
+    .leaflet-popup-close-button { color: var(--muted) !important; }
+
+    .map-popup-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .map-popup-row {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    .map-popup-row b {
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+    }
+
+    .map-popup-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .map-count-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
   </style>
 </head>
 
@@ -815,6 +948,26 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Project Map -->
+    <div class="sec">Project Map</div>
+    <div class="map-panel">
+      <div class="map-toolbar">
+        <span class="map-toolbar-title">📍 Projects by location</span>
+        <div class="map-toggle">
+          <button class="map-btn active-all" id="mapBtnAll"     onclick="setMapFilter('all',this)">All</button>
+          <button class="map-btn"            id="mapBtnFlagged" onclick="setMapFilter('flagged',this)">Flagged</button>
+          <button class="map-btn"            id="mapBtnClean"   onclick="setMapFilter('clean',this)">Clean</button>
+        </div>
+        <div class="map-legend">
+          <span class="legend-dot"><span style="background:#e05252"></span>Flagged</span>
+          <span class="legend-dot"><span style="background:#4ecba8"></span>Clean</span>
+          <span class="legend-dot"><span style="background:#c9a84c"></span>Lapsed</span>
+        </div>
+        <span class="map-count-chip" id="mapCount">— projects</span>
+      </div>
+      <div id="cityMap"></div>
     </div>
 
     <!-- RERA Projects -->
@@ -995,6 +1148,7 @@
         );
         renderStats(projects, city);
         renderProjects(projects);
+        updateMap(projects, city);
       } catch (e) {
         document.getElementById('projectsTable').innerHTML =
           `<div class="empty">Error: ${e.message}</div>`;
@@ -1113,6 +1267,187 @@
     // ── Boot ──────────────────────────────────────────────────────────────────
     buildCityTabs();
     loadCity(activeCity);
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    // ── Pincode → coordinates (Akola district pincodes) ───────────────────────
+    const PINCODE_COORDS = {
+      // Akola city
+      '444001': [20.7068, 77.0040],
+      '444002': [20.7110, 77.0130],
+      '444004': [20.6980, 76.9980],
+      '444005': [20.7200, 77.0200],
+      // Outlying areas
+      '444101': [20.7750, 77.0850],
+      '444104': [20.6500, 77.1200],
+      '444107': [20.7400, 76.9200],
+      '445206': [20.5300, 77.2100],
+      // Amravati city centre
+      '444601': [20.9374, 77.7796],
+      '444602': [20.9300, 77.7700],
+      '444603': [20.9450, 77.7900],
+      '444604': [20.9200, 77.7600],
+      '444605': [20.9550, 77.8000],
+      '444606': [20.9100, 77.7500],
+    };
+
+    // City centre fallback coordinates
+    const CITY_CENTRES = {
+      'Akola':    [20.7068, 77.0040],
+      'Amravati': [20.9374, 77.7796],
+    };
+
+    let mapInstance = null;
+    let allMarkers  = [];
+    let mapProjects = [];
+    let mapFilter   = 'all';
+
+    function initMap(city) {
+      const centre = CITY_CENTRES[city.name] || [20.7068, 77.0040];
+
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
+
+      mapInstance = L.map('cityMap', {
+        center: centre,
+        zoom: 12,
+        zoomControl: true,
+        scrollWheelZoom: true,
+      });
+
+      // Dark-toned tile layer (CartoDB Dark Matter)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(mapInstance);
+    }
+
+    function makeIcon(color) {
+      return L.divIcon({
+        className: '',
+        html: `<svg width="22" height="28" viewBox="0 0 22 28" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="11" cy="26" rx="4" ry="2" fill="rgba(0,0,0,0.35)"/>
+          <path d="M11 1C6.03 1 2 5.03 2 10c0 6.5 9 17 9 17s9-10.5 9-17c0-4.97-4.03-9-9-9z"
+            fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+          <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.35)"/>
+        </svg>`,
+        iconSize:   [22, 28],
+        iconAnchor: [11, 28],
+        popupAnchor:[0, -30],
+      });
+    }
+
+    const ICONS = {
+      flagged:   makeIcon('#e05252'),
+      clean:     makeIcon('#4ecba8'),
+      lapsed:    makeIcon('#c9a84c'),
+      completed: makeIcon('#5b8def'),
+      active:    makeIcon('#4ecba8'),
+    };
+
+    function getIcon(project) {
+      if (project.is_flagged) return ICONS.flagged;
+      const st = (project.rera_status || '').toLowerCase();
+      if (st.includes('lapsed'))    return ICONS.lapsed;
+      if (st.includes('completed')) return ICONS.completed;
+      return ICONS.active;
+    }
+
+    function getMarkerColor(project) {
+      if (project.is_flagged) return '#e05252';
+      const st = (project.rera_status || '').toLowerCase();
+      if (st.includes('lapsed'))    return '#c9a84c';
+      if (st.includes('completed')) return '#5b8def';
+      return '#4ecba8';
+    }
+
+    function jitter(coord, idx) {
+      // Slightly scatter pins at the same pincode so they don't all stack
+      const angle = (idx * 137.5) * Math.PI / 180;
+      const radius = 0.0008 * Math.sqrt(idx % 12 + 1);
+      return [coord[0] + radius * Math.sin(angle), coord[1] + radius * Math.cos(angle)];
+    }
+
+    function renderMapMarkers() {
+      if (!mapInstance) return;
+
+      // Clear existing markers
+      allMarkers.forEach(m => m.remove());
+      allMarkers = [];
+
+      const filtered = mapFilter === 'all'     ? mapProjects
+                     : mapFilter === 'flagged' ? mapProjects.filter(p => p.is_flagged)
+                     :                           mapProjects.filter(p => !p.is_flagged);
+
+      document.getElementById('mapCount').textContent = `${filtered.length} project${filtered.length !== 1 ? 's' : ''}`;
+
+      // Group by pincode for jitter indexing
+      const pinGroups = {};
+      filtered.forEach(p => {
+        const pin = p.pin_code || 'unknown';
+        pinGroups[pin] = (pinGroups[pin] || 0) + 1;
+      });
+      const pinIdx = {};
+
+      filtered.forEach(p => {
+        const pin = p.pin_code || '';
+        const coords = PINCODE_COORDS[pin];
+        if (!coords) return;
+
+        pinIdx[pin] = (pinIdx[pin] || 0);
+        const pos = jitter(coords, pinIdx[pin]);
+        pinIdx[pin]++;
+
+        const st = (p.rera_status || '—').toLowerCase();
+        const badgeColor = p.is_flagged ? '#e05252' : getMarkerColor(p);
+        const badgeLabel = p.is_flagged ? '⚠ FLAGGED' : st.toUpperCase();
+
+        const popup = `
+          <div class="map-popup-name">${p.project_name || '—'}</div>
+          <div class="map-popup-row"><b>Promoter:</b> ${p.promoter_name || '—'}</div>
+          <div class="map-popup-row"><b>PIN:</b> ${pin} &nbsp;·&nbsp; <b>Status:</b> ${st}</div>
+          ${p.complaint_count > 0 ? `<div class="map-popup-row"><b>Complaints:</b> <span style="color:#c9a84c">${p.complaint_count}</span></div>` : ''}
+          <div><span class="map-popup-badge" style="background:${badgeColor}22;border:1px solid ${badgeColor};color:${badgeColor}">${badgeLabel}</span></div>
+        `;
+
+        const marker = L.marker(pos, { icon: getIcon(p) })
+          .bindPopup(popup, { maxWidth: 240 })
+          .addTo(mapInstance);
+
+        allMarkers.push(marker);
+      });
+
+      // Fit map to markers if any exist
+      if (allMarkers.length > 0) {
+        const group = L.featureGroup(allMarkers);
+        mapInstance.fitBounds(group.getBounds().pad(0.15));
+      }
+    }
+
+    function setMapFilter(f, btn) {
+      mapFilter = f;
+      document.querySelectorAll('.map-btn').forEach(b => {
+        b.className = 'map-btn';
+      });
+      btn.classList.add(`active-${f}`);
+      renderMapMarkers();
+    }
+
+    // Called from loadProjects — passes projects into map
+    function updateMap(projects, city) {
+      mapProjects = projects;
+      if (!mapInstance) {
+        initMap(city);
+      } else {
+        const centre = CITY_CENTRES[city.name] || [20.7068, 77.0040];
+        mapInstance.setView(centre, 12);
+      }
+      renderMapMarkers();
+    }
   </script>
 </body>
 

@@ -8,7 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <style>
     :root {
       --bg: #060810;
@@ -767,10 +767,28 @@
       text-transform: uppercase;
     }
 
-    .map-btn:hover { color: var(--text); border-color: var(--border2); }
-    .map-btn.active-all  { background: rgba(201,168,76,0.12); border-color: var(--gold); color: var(--gold); }
-    .map-btn.active-flagged { background: rgba(224,82,82,0.12); border-color: var(--red); color: var(--red); }
-    .map-btn.active-clean   { background: rgba(78,203,168,0.12); border-color: var(--green); color: var(--green); }
+    .map-btn:hover {
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    .map-btn.active-all {
+      background: rgba(201, 168, 76, 0.12);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .map-btn.active-flagged {
+      background: rgba(224, 82, 82, 0.12);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .map-btn.active-clean {
+      background: rgba(78, 203, 168, 0.12);
+      border-color: var(--green);
+      color: var(--green);
+    }
 
     .map-legend {
       display: flex;
@@ -806,12 +824,17 @@
       background: var(--bg2) !important;
       border: 1px solid var(--border2) !important;
       border-radius: 8px !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
       color: var(--text) !important;
     }
 
-    .leaflet-popup-tip { background: var(--bg2) !important; }
-    .leaflet-popup-close-button { color: var(--muted) !important; }
+    .leaflet-popup-tip {
+      background: var(--bg2) !important;
+    }
+
+    .leaflet-popup-close-button {
+      color: var(--muted) !important;
+    }
 
     .map-popup-name {
       font-family: 'Syne', sans-serif;
@@ -823,12 +846,12 @@
     .map-popup-row {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       margin-top: 2px;
     }
 
     .map-popup-row b {
-      color: rgba(255,255,255,0.8);
+      color: rgba(255, 255, 255, 0.8);
       font-weight: 500;
     }
 
@@ -956,9 +979,9 @@
       <div class="map-toolbar">
         <span class="map-toolbar-title">📍 Projects by location</span>
         <div class="map-toggle">
-          <button class="map-btn active-all" id="mapBtnAll"     onclick="setMapFilter('all',this)">All</button>
-          <button class="map-btn"            id="mapBtnFlagged" onclick="setMapFilter('flagged',this)">Flagged</button>
-          <button class="map-btn"            id="mapBtnClean"   onclick="setMapFilter('clean',this)">Clean</button>
+          <button class="map-btn active-all" id="mapBtnAll" onclick="setMapFilter('all',this)">All</button>
+          <button class="map-btn" id="mapBtnFlagged" onclick="setMapFilter('flagged',this)">Flagged</button>
+          <button class="map-btn" id="mapBtnClean" onclick="setMapFilter('clean',this)">Clean</button>
         </div>
         <div class="map-legend">
           <span class="legend-dot"><span style="background:#e05252"></span>Flagged</span>
@@ -1144,7 +1167,7 @@
     async function loadProjects(city) {
       try {
         const projects = await sb(
-          `rera_projects?city_id=eq.${city.id}&order=created_at.desc&limit=500`
+          `rera_projects?city_id=eq.${city.id}&select=*,latitude,longitude&order=created_at.desc&limit=500`
         );
         renderStats(projects, city);
         renderProjects(projects);
@@ -1294,14 +1317,14 @@
 
     // City centre fallback coordinates
     const CITY_CENTRES = {
-      'Akola':    [20.7068, 77.0040],
+      'Akola': [20.7068, 77.0040],
       'Amravati': [20.9374, 77.7796],
     };
 
     let mapInstance = null;
-    let allMarkers  = [];
+    let allMarkers = [];
     let mapProjects = [];
-    let mapFilter   = 'all';
+    let mapFilter = 'all';
 
     function initMap(city) {
       const centre = CITY_CENTRES[city.name] || [20.7068, 77.0040];
@@ -1335,24 +1358,24 @@
             fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
           <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.35)"/>
         </svg>`,
-        iconSize:   [22, 28],
+        iconSize: [22, 28],
         iconAnchor: [11, 28],
-        popupAnchor:[0, -30],
+        popupAnchor: [0, -30],
       });
     }
 
     const ICONS = {
-      flagged:   makeIcon('#e05252'),
-      clean:     makeIcon('#4ecba8'),
-      lapsed:    makeIcon('#c9a84c'),
+      flagged: makeIcon('#e05252'),
+      clean: makeIcon('#4ecba8'),
+      lapsed: makeIcon('#c9a84c'),
       completed: makeIcon('#5b8def'),
-      active:    makeIcon('#4ecba8'),
+      active: makeIcon('#4ecba8'),
     };
 
     function getIcon(project) {
       if (project.is_flagged) return ICONS.flagged;
       const st = (project.rera_status || '').toLowerCase();
-      if (st.includes('lapsed'))    return ICONS.lapsed;
+      if (st.includes('lapsed')) return ICONS.lapsed;
       if (st.includes('completed')) return ICONS.completed;
       return ICONS.active;
     }
@@ -1360,7 +1383,7 @@
     function getMarkerColor(project) {
       if (project.is_flagged) return '#e05252';
       const st = (project.rera_status || '').toLowerCase();
-      if (st.includes('lapsed'))    return '#c9a84c';
+      if (st.includes('lapsed')) return '#c9a84c';
       if (st.includes('completed')) return '#5b8def';
       return '#4ecba8';
     }
@@ -1379,9 +1402,9 @@
       allMarkers.forEach(m => m.remove());
       allMarkers = [];
 
-      const filtered = mapFilter === 'all'     ? mapProjects
-                     : mapFilter === 'flagged' ? mapProjects.filter(p => p.is_flagged)
-                     :                           mapProjects.filter(p => !p.is_flagged);
+      const filtered = mapFilter === 'all' ? mapProjects
+        : mapFilter === 'flagged' ? mapProjects.filter(p => p.is_flagged)
+          : mapProjects.filter(p => !p.is_flagged);
 
       document.getElementById('mapCount').textContent = `${filtered.length} project${filtered.length !== 1 ? 's' : ''}`;
 
@@ -1395,7 +1418,9 @@
 
       filtered.forEach(p => {
         const pin = p.pin_code || '';
-        const coords = PINCODE_COORDS[pin];
+        const coords = p.latitude && p.longitude
+          ? [p.latitude, p.longitude]
+          : PINCODE_COORDS[p.pin_code];
         if (!coords) return;
 
         pinIdx[pin] = (pinIdx[pin] || 0);

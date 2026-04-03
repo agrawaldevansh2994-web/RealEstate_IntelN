@@ -17,21 +17,22 @@
       --border: rgba(255, 255, 255, 0.07);
       --border2: rgba(255, 255, 255, 0.12);
       --gold: #c9a84c;
-      --gold2: #f0cc7a;
       --red: #e05252;
       --green: #4ecba8;
       --blue: #5b8def;
+      --purple: #a78bfa;
+      --amber: #f59e0b;
       --muted: rgba(255, 255, 255, 0.35);
       --text: rgba(255, 255, 255, 0.88);
       --critical: #e05252;
       --high: #c9a84c;
-      --medium: #5b8def;
+      --medium: #5b8def
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0;
+      padding: 0
     }
 
     body {
@@ -39,10 +40,9 @@
       color: var(--text);
       font-family: 'Syne', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow-x: hidden
     }
 
-    /* Noise texture overlay */
     body::after {
       content: '';
       position: fixed;
@@ -50,10 +50,9 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none;
       z-index: 999;
-      opacity: 0.4;
+      opacity: 0.4
     }
 
-    /* Glow blob */
     body::before {
       content: '';
       position: fixed;
@@ -63,10 +62,9 @@
       top: -100px;
       right: -100px;
       pointer-events: none;
-      z-index: 0;
+      z-index: 0
     }
 
-    /* ── HEADER ──────────────────────────────────────── */
     header {
       position: sticky;
       top: 0;
@@ -78,13 +76,13 @@
       height: 60px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: space-between
     }
 
     .wordmark {
       display: flex;
       align-items: baseline;
-      gap: 12px;
+      gap: 12px
     }
 
     .wordmark-main {
@@ -92,7 +90,7 @@
       font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--gold)
     }
 
     .wordmark-state {
@@ -100,17 +98,16 @@
       font-size: 10px;
       color: var(--muted);
       letter-spacing: 0.2em;
-      text-transform: uppercase;
+      text-transform: uppercase
     }
 
-    /* City tabs */
     .city-tabs {
       display: flex;
       gap: 4px;
       background: var(--bg3);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 4px;
+      padding: 4px
     }
 
     .city-tab {
@@ -126,24 +123,24 @@
       background: transparent;
       color: var(--muted);
       transition: all 0.2s;
-      white-space: nowrap;
+      white-space: nowrap
     }
 
     .city-tab:hover {
       color: var(--text);
-      background: var(--bg2);
+      background: var(--bg2)
     }
 
     .city-tab.active {
       background: var(--gold);
       color: #000;
-      font-weight: 700;
+      font-weight: 700
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 16px
     }
 
     .live-indicator {
@@ -153,7 +150,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--green);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.1em
     }
 
     .live-dot {
@@ -162,7 +159,7 @@
       background: var(--green);
       border-radius: 50%;
       animation: pulse 2.5s ease-in-out infinite;
-      box-shadow: 0 0 6px var(--green);
+      box-shadow: 0 0 6px var(--green)
     }
 
     @keyframes pulse {
@@ -170,12 +167,12 @@
       0%,
       100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1)
       }
 
       50% {
         opacity: 0.3;
-        transform: scale(0.7);
+        transform: scale(0.7)
       }
     }
 
@@ -190,26 +187,25 @@
       color: var(--muted);
       border-radius: 5px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s
     }
 
     .btn-refresh:hover {
       border-color: var(--gold);
-      color: var(--gold);
+      color: var(--gold)
     }
 
-    /* ── LAYOUT ──────────────────────────────────────── */
     main {
       position: relative;
       z-index: 1;
       max-width: 1440px;
       margin: 0 auto;
-      padding: 32px 40px 60px;
+      padding: 32px 40px 60px
     }
 
     .city-header {
       margin-bottom: 32px;
-      animation: fadeUp 0.4s ease both;
+      animation: fadeUp 0.4s ease both
     }
 
     .city-name {
@@ -217,11 +213,11 @@
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1;
-      color: #fff;
+      color: #fff
     }
 
     .city-name span {
-      color: var(--gold);
+      color: var(--gold)
     }
 
     .city-meta {
@@ -229,10 +225,9 @@
       font-size: 11px;
       color: var(--muted);
       letter-spacing: 0.12em;
-      margin-top: 6px;
+      margin-top: 6px
     }
 
-    /* Section label */
     .sec {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
@@ -242,22 +237,21 @@
       margin-bottom: 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 10px
     }
 
     .sec::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: var(--border)
     }
 
-    /* ── STAT CARDS ──────────────────────────────────── */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 12px;
-      margin-bottom: 28px;
+      margin-bottom: 28px
     }
 
     .stat {
@@ -268,12 +262,12 @@
       position: relative;
       overflow: hidden;
       animation: fadeUp 0.4s ease both;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.2s, transform 0.2s
     }
 
     .stat:hover {
       border-color: var(--border2);
-      transform: translateY(-2px);
+      transform: translateY(-2px)
     }
 
     .stat::before {
@@ -283,7 +277,7 @@
       left: 0;
       right: 0;
       height: 2px;
-      background: var(--accent, var(--gold));
+      background: var(--accent, var(--gold))
     }
 
     .stat-label {
@@ -292,400 +286,39 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 10px;
+      margin-bottom: 10px
     }
 
     .stat-val {
       font-size: 38px;
       font-weight: 800;
       line-height: 1;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.02em
     }
 
     .stat-sub {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--muted);
-      margin-top: 6px;
+      margin-top: 6px
     }
 
     .stat.s-red {
-      --accent: var(--red);
+      --accent: var(--red)
     }
 
     .stat.s-green {
-      --accent: var(--green);
+      --accent: var(--green)
     }
 
     .stat.s-blue {
-      --accent: var(--blue);
+      --accent: var(--blue)
     }
 
     .stat.s-gold {
-      --accent: var(--gold);
+      --accent: var(--gold)
     }
 
-    /* ── STATUS ROW ──────────────────────────────────── */
-    .status-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-
-    .status-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .status-card-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .status-card-val {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    /* ── TWO COLUMN ──────────────────────────────────── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    /* ── PANEL ───────────────────────────────────────── */
-    .panel {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .panel-head {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .panel-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
-
-    .panel-count {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    /* Filter chips */
-    .chips {
-      display: flex;
-      gap: 6px;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    .chip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 4px;
-      border: 1px solid var(--border2);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .chip:hover {
-      color: var(--text);
-    }
-
-    .chip.on {
-      background: var(--gold);
-      color: #000;
-      border-color: var(--gold);
-      font-weight: 700;
-    }
-
-    .chip.on-critical {
-      background: rgba(224, 82, 82, 0.15);
-      color: var(--critical);
-      border-color: rgba(224, 82, 82, 0.4);
-    }
-
-    .chip.on-high {
-      background: rgba(201, 168, 76, 0.12);
-      color: var(--high);
-      border-color: rgba(201, 168, 76, 0.35);
-    }
-
-    .chip.on-medium {
-      background: rgba(91, 141, 239, 0.12);
-      color: var(--blue);
-      border-color: rgba(91, 141, 239, 0.35);
-    }
-
-    /* Table */
-    .tbl-wrap {
-      overflow: auto;
-      max-height: 420px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 10px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg2);
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 11px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      vertical-align: top;
-      line-height: 1.45;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .badge {
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 3px 7px;
-      border-radius: 3px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .b-critical {
-      background: rgba(224, 82, 82, 0.12);
-      color: var(--critical);
-      border: 1px solid rgba(224, 82, 82, 0.25);
-    }
-
-    .b-high {
-      background: rgba(201, 168, 76, 0.10);
-      color: var(--high);
-      border: 1px solid rgba(201, 168, 76, 0.25);
-    }
-
-    .b-medium {
-      background: rgba(91, 141, 239, 0.10);
-      color: var(--blue);
-      border: 1px solid rgba(91, 141, 239, 0.25);
-    }
-
-    .b-low {
-      background: rgba(78, 203, 168, 0.10);
-      color: var(--green);
-      border: 1px solid rgba(78, 203, 168, 0.25);
-    }
-
-    .b-flagged {
-      background: rgba(201, 168, 76, 0.10);
-      color: var(--gold);
-      border: 1px solid rgba(201, 168, 76, 0.25);
-    }
-
-    .flag-title {
-      font-weight: 600;
-      font-size: 13px;
-      margin-bottom: 3px;
-      color: #fff;
-    }
-
-    .flag-desc {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      line-height: 1.5;
-      max-width: 400px;
-    }
-
-    .flag-type {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-    }
-
-    .ts {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    /* Promoter leaderboard */
-    .promoter-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      gap: 12px;
-      transition: background 0.15s;
-    }
-
-    .promoter-item:last-child {
-      border-bottom: none;
-    }
-
-    .promoter-item:hover {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .p-rank {
-      font-size: 20px;
-      font-weight: 800;
-      color: rgba(255, 255, 255, 0.1);
-      width: 28px;
-      flex-shrink: 0;
-      letter-spacing: -0.02em;
-    }
-
-    .p-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .p-name {
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .p-meta {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .p-bar {
-      width: 64px;
-      flex-shrink: 0;
-    }
-
-    .p-bar-bg {
-      height: 3px;
-      background: var(--border2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .p-bar-fill {
-      height: 100%;
-      background: var(--gold);
-      border-radius: 2px;
-      transition: width 1s ease;
-    }
-
-    .p-count {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--gold);
-      width: 22px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    /* Utility */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      gap: 10px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-    }
-
-    .spin {
-      width: 14px;
-      height: 14px;
-      border: 2px solid var(--border2);
-      border-top-color: var(--gold);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .empty {
-      padding: 30px;
-      text-align: center;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Stagger */
     .stats-row .stat:nth-child(1) {
       animation-delay: .04s
     }
@@ -706,28 +339,532 @@
       animation-delay: .20s
     }
 
-    /* Scrollbar */
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px
+    }
+
+    .status-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeUp 0.5s ease both
+    }
+
+    .status-card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    .status-card-val {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      margin-bottom: 24px
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px
+    }
+
+    @media(max-width:900px) {
+
+      .three-col,
+      .two-col {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both
+    }
+
+    .panel-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold)
+    }
+
+    .panel-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .chips {
+      display: flex;
+      gap: 6px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap
+    }
+
+    .chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s
+    }
+
+    .chip:hover {
+      color: var(--text)
+    }
+
+    .chip.on {
+      background: var(--gold);
+      color: #000;
+      border-color: var(--gold);
+      font-weight: 700
+    }
+
+    .chip.on-critical {
+      background: rgba(224, 82, 82, 0.15);
+      color: var(--critical);
+      border-color: rgba(224, 82, 82, 0.4)
+    }
+
+    .chip.on-high {
+      background: rgba(201, 168, 76, 0.12);
+      color: var(--high);
+      border-color: rgba(201, 168, 76, 0.35)
+    }
+
+    .chip.on-medium {
+      background: rgba(91, 141, 239, 0.12);
+      color: var(--blue);
+      border-color: rgba(91, 141, 239, 0.35)
+    }
+
+    .tbl-wrap {
+      overflow: auto;
+      max-height: 420px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg2);
+      white-space: nowrap
+    }
+
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: top;
+      line-height: 1.45
+    }
+
+    tr:last-child td {
+      border-bottom: none
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02)
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 3px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .b-critical {
+      background: rgba(224, 82, 82, 0.12);
+      color: var(--critical);
+      border: 1px solid rgba(224, 82, 82, 0.25)
+    }
+
+    .b-high {
+      background: rgba(201, 168, 76, 0.10);
+      color: var(--high);
+      border: 1px solid rgba(201, 168, 76, 0.25)
+    }
+
+    .b-medium {
+      background: rgba(91, 141, 239, 0.10);
+      color: var(--blue);
+      border: 1px solid rgba(91, 141, 239, 0.25)
+    }
+
+    .b-flagged {
+      background: rgba(201, 168, 76, 0.10);
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.25)
+    }
+
+    .flag-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 3px;
+      color: #fff
+    }
+
+    .flag-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 400px
+    }
+
+    .flag-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted)
+    }
+
+    .ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap
+    }
+
+    .promoter-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 12px;
+      transition: background 0.15s
+    }
+
+    .promoter-item:last-child {
+      border-bottom: none
+    }
+
+    .promoter-item:hover {
+      background: rgba(255, 255, 255, 0.02)
+    }
+
+    .p-rank {
+      font-size: 20px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.1);
+      width: 28px;
+      flex-shrink: 0;
+      letter-spacing: -0.02em
+    }
+
+    .p-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .p-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .p-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .p-bar {
+      width: 64px;
+      flex-shrink: 0
+    }
+
+    .p-bar-bg {
+      height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden
+    }
+
+    .p-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1s ease
+    }
+
+    .p-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      width: 22px;
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 10px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em
+    }
+
+    .spin {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
     ::-webkit-scrollbar {
       width: 4px;
-      height: 4px;
+      height: 4px
     }
 
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: transparent
     }
 
     ::-webkit-scrollbar-thumb {
       background: var(--border2);
-      border-radius: 2px;
+      border-radius: 2px
     }
 
-    /* ── MAP ──────────────────────────────────────────── */
+    .price-locality-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s
+    }
+
+    .price-locality-row:last-child {
+      border-bottom: none
+    }
+
+    .price-locality-row:hover {
+      background: rgba(255, 255, 255, 0.02)
+    }
+
+    .plr-rank {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      width: 18px;
+      flex-shrink: 0
+    }
+
+    .plr-name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .plr-bar-wrap {
+      width: 60px;
+      flex-shrink: 0
+    }
+
+    .plr-bar-bg {
+      height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden
+    }
+
+    .plr-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease
+    }
+
+    .plr-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gold);
+      width: 72px;
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .prop-type-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .prop-type-row:last-child {
+      border-bottom: none
+    }
+
+    .pt-icon {
+      font-size: 16px;
+      width: 24px;
+      flex-shrink: 0
+    }
+
+    .pt-info {
+      flex: 1
+    }
+
+    .pt-name {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize
+    }
+
+    .pt-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .pt-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue)
+    }
+
+    .listing-filters {
+      display: flex;
+      gap: 6px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap
+    }
+
+    .listing-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green)
+    }
+
+    .listing-psqft {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .listing-type-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(91, 141, 239, 0.12);
+      border: 1px solid rgba(91, 141, 239, 0.3);
+      color: var(--blue)
+    }
+
+    .listing-type-badge.rent {
+      background: rgba(201, 168, 76, 0.12);
+      border-color: rgba(201, 168, 76, 0.3);
+      color: var(--gold)
+    }
+
     .map-panel {
       background: var(--bg2);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 24px;
+      margin-bottom: 24px
     }
 
     .map-toolbar {
@@ -736,7 +873,7 @@
       gap: 10px;
       padding: 14px 20px;
       border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
+      flex-wrap: wrap
     }
 
     .map-toolbar-title {
@@ -745,12 +882,12 @@
       letter-spacing: 0.12em;
       color: var(--muted);
       text-transform: uppercase;
-      flex: 1;
+      flex: 1
     }
 
     .map-toggle {
       display: flex;
-      gap: 6px;
+      gap: 6px
     }
 
     .map-btn {
@@ -764,37 +901,41 @@
       color: var(--muted);
       cursor: pointer;
       transition: all 0.15s;
-      text-transform: uppercase;
+      text-transform: uppercase
     }
 
     .map-btn:hover {
-      color: var(--text);
-      border-color: var(--border2);
+      color: var(--text)
     }
 
     .map-btn.active-all {
       background: rgba(201, 168, 76, 0.12);
       border-color: var(--gold);
-      color: var(--gold);
+      color: var(--gold)
+    }
+
+    .map-btn.active-rera {
+      background: rgba(78, 203, 168, 0.12);
+      border-color: var(--green);
+      color: var(--green)
+    }
+
+    .map-btn.active-listings {
+      background: rgba(167, 139, 250, 0.12);
+      border-color: var(--purple);
+      color: var(--purple)
     }
 
     .map-btn.active-flagged {
       background: rgba(224, 82, 82, 0.12);
       border-color: var(--red);
-      color: var(--red);
-    }
-
-    .map-btn.active-clean {
-      background: rgba(78, 203, 168, 0.12);
-      border-color: var(--green);
-      color: var(--green);
+      color: var(--red)
     }
 
     .map-legend {
       display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-left: auto;
+      gap: 14px;
+      align-items: center
     }
 
     .legend-dot {
@@ -803,56 +944,65 @@
       gap: 5px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: var(--muted);
+      color: var(--muted)
     }
 
     .legend-dot span {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      display: inline-block;
+      display: inline-block
     }
 
     #cityMap {
       height: 420px;
       width: 100%;
-      background: var(--bg3);
+      background: var(--bg3)
     }
 
-    /* Override Leaflet popup to match dark theme */
+    .map-count-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px
+    }
+
     .leaflet-popup-content-wrapper {
       background: var(--bg2) !important;
       border: 1px solid var(--border2) !important;
       border-radius: 8px !important;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
-      color: var(--text) !important;
+      color: var(--text) !important
     }
 
     .leaflet-popup-tip {
-      background: var(--bg2) !important;
+      background: var(--bg2) !important
     }
 
     .leaflet-popup-close-button {
-      color: var(--muted) !important;
+      color: var(--muted) !important
     }
 
     .map-popup-name {
       font-family: 'Syne', sans-serif;
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-bottom: 4px
     }
 
     .map-popup-row {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: rgba(255, 255, 255, 0.5);
-      margin-top: 2px;
+      margin-top: 2px
     }
 
     .map-popup-row b {
       color: rgba(255, 255, 255, 0.8);
-      font-weight: 500;
+      font-weight: 500
     }
 
     .map-popup-badge {
@@ -863,17 +1013,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .map-count-chip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
+      text-transform: uppercase
     }
   </style>
 </head>
@@ -885,11 +1025,9 @@
       <span class="wordmark-main">RERA Intel</span>
       <span class="wordmark-state">Maharashtra</span>
     </div>
-
     <div class="city-tabs" id="cityTabs"></div>
-
     <div class="header-right">
-      <span class="live-indicator"><span class="live-dot"></span>Live</span>
+      <span class="live-indicator"><span class="live-dot"></span>Live Data</span>
       <span id="lastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">—</span>
       <button class="btn-refresh" onclick="loadCity(activeCity)">↻ Refresh</button>
     </div>
@@ -901,7 +1039,6 @@
       <div class="city-meta" id="cityMeta">Loading data...</div>
     </div>
 
-    <!-- Stats -->
     <div class="sec">Overview</div>
     <div class="stats-row" id="statsRow">
       <div class="stat">
@@ -926,7 +1063,6 @@
       </div>
     </div>
 
-    <!-- RERA Status breakdown -->
     <div class="sec">RERA Project Status</div>
     <div class="status-row" id="statusRow">
       <div class="status-card"><span class="status-card-label">Loading</span><span class="status-card-val">—</span>
@@ -939,32 +1075,50 @@
       </div>
     </div>
 
-    <!-- Flags + Promoters -->
-    <div class="sec">Intelligence</div>
-    <div class="two-col">
+    <div class="sec">Price Intelligence</div>
+    <div class="three-col">
       <div class="panel">
-        <div class="panel-head">
-          <span class="panel-title">⚠ Suspicious Flags</span>
-          <span class="panel-count" id="flagCount">—</span>
-        </div>
-        <div class="chips">
-          <button class="chip on" onclick="setFilter('all',this)">All</button>
-          <button class="chip" onclick="setFilter('critical',this)">Critical</button>
-          <button class="chip" onclick="setFilter('high',this)">High</button>
-          <button class="chip" onclick="setFilter('medium',this)">Medium</button>
-        </div>
-        <div class="tbl-wrap" id="flagsTable">
+        <div class="panel-head"><span class="panel-title">📍 Locality Prices</span><span class="panel-count"
+            id="localityCount" style="font-size:9px">99acres</span></div>
+        <div id="localityPriceList">
           <div class="loading">
-            <div class="spin"></div>Fetching flags...
+            <div class="spin"></div>Loading...
           </div>
         </div>
       </div>
-
       <div class="panel">
-        <div class="panel-head">
-          <span class="panel-title">🎯 Promoter Risk</span>
-          <span class="panel-count" id="promoterCount">—</span>
+        <div class="panel-head"><span class="panel-title">🏠 Property Types</span><span class="panel-count"
+            id="propTypeCount" style="font-size:9px">99acres</span></div>
+        <div id="propTypeList">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
         </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">📊 Market Summary</span><span class="panel-count"
+            id="marketSummaryLabel" style="font-size:9px">99acres</span></div>
+        <div id="marketSummary">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">🏗 RERA Intelligence</span><span class="panel-count"
+            id="reraIntelLabel" style="font-size:9px">RERA</span></div>
+        <div id="reraIntel">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">🎯 Promoter Risk</span><span class="panel-count"
+            id="promoterCount">—</span></div>
         <div id="promoterList">
           <div class="loading">
             <div class="spin"></div>Loading...
@@ -973,33 +1127,68 @@
       </div>
     </div>
 
-    <!-- Project Map -->
+    <div class="sec">Suspicious Flags</div>
+    <div class="panel" style="margin-bottom:24px">
+      <div class="panel-head"><span class="panel-title">⚠ Suspicious Flags</span><span class="panel-count"
+          id="flagCount">—</span></div>
+      <div class="chips">
+        <button class="chip on" onclick="setFilter('all',this)">All</button>
+        <button class="chip" onclick="setFilter('critical',this)">Critical</button>
+        <button class="chip" onclick="setFilter('high',this)">High</button>
+        <button class="chip" onclick="setFilter('medium',this)">Medium</button>
+      </div>
+      <div class="tbl-wrap" id="flagsTable">
+        <div class="loading">
+          <div class="spin"></div>Fetching flags...
+        </div>
+      </div>
+    </div>
+
     <div class="sec">Project Map</div>
     <div class="map-panel">
       <div class="map-toolbar">
-        <span class="map-toolbar-title">📍 Projects by location</span>
+        <span class="map-toolbar-title">📍 RERA projects + 99acres listings</span>
         <div class="map-toggle">
-          <button class="map-btn active-all" id="mapBtnAll" onclick="setMapFilter('all',this)">All</button>
-          <button class="map-btn" id="mapBtnFlagged" onclick="setMapFilter('flagged',this)">Flagged</button>
-          <button class="map-btn" id="mapBtnClean" onclick="setMapFilter('clean',this)">Clean</button>
+          <button class="map-btn active-all" onclick="setMapFilter('all',this)">All</button>
+          <button class="map-btn" onclick="setMapFilter('rera',this)">RERA only</button>
+          <button class="map-btn" onclick="setMapFilter('listings',this)">Listings only</button>
+          <button class="map-btn" onclick="setMapFilter('flagged',this)">Flagged only</button>
         </div>
         <div class="map-legend">
           <span class="legend-dot"><span style="background:#e05252"></span>Flagged</span>
-          <span class="legend-dot"><span style="background:#4ecba8"></span>Clean</span>
           <span class="legend-dot"><span style="background:#c9a84c"></span>Lapsed</span>
+          <span class="legend-dot"><span style="background:#4ecba8"></span>Active RERA</span>
+          <span class="legend-dot"><span style="background:#a78bfa;border-radius:2px"></span>Sale</span>
+          <span class="legend-dot"><span style="background:#f59e0b;border-radius:2px"></span>Rent</span>
         </div>
-        <span class="map-count-chip" id="mapCount">— projects</span>
+        <span class="map-count-chip" id="mapCount">— pins</span>
       </div>
       <div id="cityMap"></div>
     </div>
 
-    <!-- RERA Projects -->
+    <div class="sec">99acres Listings</div>
+    <div class="panel" style="margin-bottom:24px">
+      <div class="panel-head"><span class="panel-title">🏷 Active Listings</span><span class="panel-count"
+          id="listingsTableCount">—</span></div>
+      <div class="listing-filters">
+        <button class="chip on" onclick="setListingFilter('all',this)">All</button>
+        <button class="chip" onclick="setListingFilter('sale',this)">Sale</button>
+        <button class="chip" onclick="setListingFilter('rent',this)">Rent</button>
+        <button class="chip" onclick="setListingFilter('flat',this)">Flat</button>
+        <button class="chip" onclick="setListingFilter('plot',this)">Plot</button>
+        <button class="chip" onclick="setListingFilter('house_villa',this)">House/Villa</button>
+      </div>
+      <div class="tbl-wrap" id="listingsTable">
+        <div class="loading">
+          <div class="spin"></div>Fetching listings...
+        </div>
+      </div>
+    </div>
+
     <div class="sec">RERA Projects</div>
     <div class="panel" style="margin-bottom:40px">
-      <div class="panel-head">
-        <span class="panel-title">📋 All Projects</span>
-        <span class="panel-count" id="projCount">—</span>
-      </div>
+      <div class="panel-head"><span class="panel-title">📋 All Projects</span><span class="panel-count"
+          id="projCount">—</span></div>
       <div class="tbl-wrap" id="projectsTable">
         <div class="loading">
           <div class="spin"></div>Fetching projects...
@@ -1009,172 +1198,98 @@
   </main>
 
   <script>
-    // ── Config ────────────────────────────────────────────────────────────────
     const SB_URL = 'https://bmiunaojlqwscybcayyk.supabase.co';
-    // Use anon key — RLS policies allow public read-only
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
+    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }];
+    let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
+    let activeFilter = 'all', activeListingFilter = 'all';
 
-    const CITIES = [
-      { id: 1, name: 'Akola' },
-      { id: 9, name: 'Amravati' },
-    ];
-
-    let activeCity = CITIES[0];
-    let allFlags = [];
-    let activeFilter = 'all';
-
-    // ── API ───────────────────────────────────────────────────────────────────
     async function sb(path) {
-      const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
-        headers: {
-          apikey: SB_KEY,
-          Authorization: `Bearer ${SB_KEY}`,
-        }
-      });
+      const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json();
     }
 
-    // ── City tabs ─────────────────────────────────────────────────────────────
     function buildCityTabs() {
-      const wrap = document.getElementById('cityTabs');
-      wrap.innerHTML = CITIES.map(c => `
-    <button class="city-tab ${c.id === activeCity.id ? 'active' : ''}"
-      onclick="switchCity(${c.id})">${c.name}</button>
-  `).join('');
+      document.getElementById('cityTabs').innerHTML = CITIES.map(c =>
+        `<button class="city-tab ${c.id === activeCity.id ? 'active' : ''}" onclick="switchCity(${c.id})">${c.name}</button>`
+      ).join('');
     }
 
     function switchCity(id) {
       activeCity = CITIES.find(c => c.id === id);
+      activeListingFilter = 'all';
       buildCityTabs();
       loadCity(activeCity);
     }
 
-    // ── Load city ─────────────────────────────────────────────────────────────
     async function loadCity(city) {
-      document.getElementById('cityTitle').innerHTML =
-        city.name.slice(0, -1) + `<span>${city.name.slice(-1)}</span>`;
+      document.getElementById('cityTitle').innerHTML = city.name.slice(0, -1) + `<span>${city.name.slice(-1)}</span>`;
       document.getElementById('cityMeta').textContent = 'Loading...';
       document.getElementById('lastUpdate').textContent = 'Refreshing...';
-
-      await Promise.all([
-        loadFlags(city),
-        loadProjects(city),
-        loadListings(city),
-      ]);
-
-      const now = new Date();
+      // listings first — its count feeds into renderStats
+      await loadListings(city);
+      await Promise.all([loadFlags(city), loadProjects(city)]);
       document.getElementById('lastUpdate').textContent =
-        now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // ── Flags ─────────────────────────────────────────────────────────────────
+    async function loadListings(city) {
+      try {
+        allListings = await sb(`listings?city_id=eq.${city.id}&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude&order=created_at.desc&limit=500`);
+        renderLocalityPrices();
+        renderPropertyTypes();
+        renderMarketSummary();
+        renderListingsTable();
+      } catch (e) {
+        document.getElementById('listingsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+      }
+    }
+
     async function loadFlags(city) {
       try {
-        allFlags = await sb(
-          `suspicious_flags?city_id=eq.${city.id}&order=created_at.desc&limit=300`
-        );
+        allFlags = await sb(`suspicious_flags?city_id=eq.${city.id}&order=created_at.desc&limit=300`);
         renderFlags();
-        renderPromoterLeaderboard();
       } catch (e) {
-        document.getElementById('flagsTable').innerHTML =
-          `<div class="empty">Error: ${e.message}</div>`;
+        document.getElementById('flagsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
       }
     }
 
     function setFilter(f, btn) {
       activeFilter = f;
-      document.querySelectorAll('.chip').forEach(b => {
-        b.className = 'chip';
-      });
+      document.querySelectorAll('.chips .chip').forEach(b => b.className = 'chip');
       btn.classList.add('on');
       if (f !== 'all') btn.classList.add(`on-${f}`);
       renderFlags();
     }
 
     function renderFlags() {
-      const list = activeFilter === 'all'
-        ? allFlags
-        : allFlags.filter(f => f.severity === activeFilter);
-
+      const list = activeFilter === 'all' ? allFlags : allFlags.filter(f => f.severity === activeFilter);
       document.getElementById('flagCount').textContent = `${list.length} flags`;
-
-      if (!list.length) {
-        document.getElementById('flagsTable').innerHTML =
-          `<div class="empty">No ${activeFilter === 'all' ? '' : activeFilter + ' '}flags.</div>`;
-        return;
-      }
-
+      if (!list.length) { document.getElementById('flagsTable').innerHTML = `<div class="empty">No ${activeFilter === 'all' ? '' : activeFilter + ' '}flags.</div>`; return; }
       const rows = list.map(f => {
-        const dt = f.created_at
-          ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })
-          : '—';
-        const type = (f.flag_type || '—').replace(/_/g, ' ');
+        const dt = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
         return `<tr>
-      <td>
-        <div class="flag-title">${esc(f.title || '—')}</div>
-        <div class="flag-desc">${esc(f.description || '')}</div>
-      </td>
-      <td><span class="badge b-${f.severity || 'medium'}">${f.severity || '—'}</span></td>
-      <td><span class="flag-type">${type}</span></td>
-      <td><span class="ts">${dt}</span></td>
-    </tr>`;
+        <td><div class="flag-title">${esc(f.title || '—')}</div><div class="flag-desc">${esc(f.description || '')}</div></td>
+        <td><span class="badge b-${f.severity || 'medium'}">${f.severity || '—'}</span></td>
+        <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span></td>
+        <td><span class="ts">${dt}</span></td>
+      </tr>`;
       }).join('');
-
-      document.getElementById('flagsTable').innerHTML = `
-    <table>
-      <thead><tr><th>Flag</th><th>Severity</th><th>Type</th><th>Date</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+      document.getElementById('flagsTable').innerHTML =
+        `<table><thead><tr><th>Flag</th><th>Severity</th><th>Type</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    // ── Promoter leaderboard ──────────────────────────────────────────────────
-    function renderPromoterLeaderboard() {
-      const counts = {};
-      allFlags.forEach(f => {
-        const m = (f.title || '').match(/for (.+)$/) || (f.title || '').match(/: (.+?) —/);
-        const name = m ? m[1] : (f.title || 'Unknown');
-        counts[name] = (counts[name] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-      const max = sorted[0]?.[1] || 1;
-
-      document.getElementById('promoterCount').textContent = `${sorted.length} at-risk`;
-
-      if (!sorted.length) {
-        document.getElementById('promoterList').innerHTML = `<div class="empty">No data.</div>`;
-        return;
-      }
-
-      document.getElementById('promoterList').innerHTML = sorted.map(([name, cnt], i) => `
-    <div class="promoter-item">
-      <div class="p-rank">${String(i + 1).padStart(2, '0')}</div>
-      <div class="p-info">
-        <div class="p-name">${esc(name)}</div>
-        <div class="p-meta">${cnt} flag${cnt > 1 ? 's' : ''}</div>
-      </div>
-      <div class="p-bar">
-        <div class="p-bar-bg">
-          <div class="p-bar-fill" style="width:${Math.round(cnt / max * 100)}%"></div>
-        </div>
-      </div>
-      <div class="p-count">${cnt}</div>
-    </div>`).join('');
-    }
-
-    // ── Projects ──────────────────────────────────────────────────────────────
     async function loadProjects(city) {
       try {
-        const projects = await sb(
-          `rera_projects?city_id=eq.${city.id}&select=*,latitude,longitude&order=created_at.desc&limit=500`
-        );
-        renderStats(projects, city);
-        renderProjects(projects);
-        updateMap(projects, city);
+        allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=500`);
+        renderStats(allProjects, city);
+        renderRERAIntelligence(allProjects);
+        loadPromoterRisk(city);
+        renderProjects(allProjects);
+        updateMap(allProjects, allListings, city);
       } catch (e) {
-        document.getElementById('projectsTable').innerHTML =
-          `<div class="empty">Error: ${e.message}</div>`;
+        document.getElementById('projectsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
       }
     }
 
@@ -1186,291 +1301,341 @@
       const flagged = projects.filter(p => p.is_flagged).length;
       const critical = allFlags.filter(f => f.severity === 'critical').length;
       const high = allFlags.filter(f => f.severity === 'high').length;
-
-      document.getElementById('cityMeta').textContent =
-        `Maharashtra · ${total} RERA projects · ${allFlags.length} flags · Updated now`;
-
+      const validP = allListings.filter(l => l.price_per_sqft && Number(l.price_per_sqft) < 200000);
+      const avgPsqft = validP.length ? Math.round(validP.reduce((s, l) => s + Number(l.price_per_sqft), 0) / validP.length) : null;
+      document.getElementById('cityMeta').textContent = `Maharashtra · ${total} RERA projects · ${allFlags.length} flags · ${allListings.length} listings · Updated now`;
       document.getElementById('statsRow').innerHTML = `
-    <div class="stat s-green" style="animation-delay:.04s">
-      <div class="stat-label">RERA Projects</div>
-      <div class="stat-val">${total}</div>
-      <div class="stat-sub">${city.name}</div>
-    </div>
-    <div class="stat s-blue" id="listingStatCard" style="animation-delay:.08s">
-      <div class="stat-label">99acres Listings</div>
-      <div class="stat-val" id="listingStatVal">—</div>
-      <div class="stat-sub">Active</div>
-    </div>
-    <div class="stat ${flagged > 0 ? 's-gold' : 's-green'}" style="animation-delay:.12s">
-      <div class="stat-label">Flagged Projects</div>
-      <div class="stat-val">${flagged}</div>
-      <div class="stat-sub">of ${total} total</div>
-    </div>
-    <div class="stat ${critical > 0 ? 's-red' : 's-gold'}" style="animation-delay:.16s">
-      <div class="stat-label">Active Flags</div>
-      <div class="stat-val">${allFlags.length}</div>
-      <div class="stat-sub">${critical} critical · ${high} high</div>
-    </div>
-    <div class="stat ${lapsed > 0 ? 's-gold' : 's-green'}" style="animation-delay:.20s">
-      <div class="stat-label">Lapsed</div>
-      <div class="stat-val">${lapsed}</div>
-      <div class="stat-sub">${completed} completed</div>
-    </div>`;
-
+      <div class="stat s-green" style="animation-delay:.04s"><div class="stat-label">RERA Projects</div><div class="stat-val">${total}</div><div class="stat-sub">${city.name}</div></div>
+      <div class="stat s-blue" style="animation-delay:.08s"><div class="stat-label">99acres Listings</div><div class="stat-val">${allListings.length || '—'}</div><div class="stat-sub">${avgPsqft ? '₹' + avgPsqft.toLocaleString('en-IN') + '/sqft avg' : 'Active'}</div></div>
+      <div class="stat ${flagged > 0 ? 's-gold' : 's-green'}" style="animation-delay:.12s"><div class="stat-label">Flagged Projects</div><div class="stat-val">${flagged}</div><div class="stat-sub">of ${total} total</div></div>
+      <div class="stat ${critical > 0 ? 's-red' : 's-gold'}" style="animation-delay:.16s"><div class="stat-label">Active Flags</div><div class="stat-val">${allFlags.length}</div><div class="stat-sub">${critical} critical · ${high} high</div></div>
+      <div class="stat ${lapsed > 0 ? 's-gold' : 's-green'}" style="animation-delay:.20s"><div class="stat-label">Lapsed</div><div class="stat-val">${lapsed}</div><div class="stat-sub">${completed} completed</div></div>`;
       document.getElementById('statusRow').innerHTML = `
-    <div class="status-card">
-      <span class="status-card-label">Registered</span>
-      <span class="status-card-val" style="color:var(--green)">${registered}</span>
-    </div>
-    <div class="status-card">
-      <span class="status-card-label">Completed</span>
-      <span class="status-card-val" style="color:var(--blue)">${completed}</span>
-    </div>
-    <div class="status-card">
-      <span class="status-card-label">Lapsed</span>
-      <span class="status-card-val" style="color:var(--gold)">${lapsed}</span>
-    </div>
-    <div class="status-card">
-      <span class="status-card-label">Other</span>
-      <span class="status-card-val" style="color:var(--muted)">${total - registered - completed - lapsed}</span>
+      <div class="status-card"><span class="status-card-label">Registered</span><span class="status-card-val" style="color:var(--green)">${registered}</span></div>
+      <div class="status-card"><span class="status-card-label">Completed</span><span class="status-card-val" style="color:var(--blue)">${completed}</span></div>
+      <div class="status-card"><span class="status-card-label">Lapsed</span><span class="status-card-val" style="color:var(--gold)">${lapsed}</span></div>
+      <div class="status-card"><span class="status-card-label">Other</span><span class="status-card-val" style="color:var(--muted)">${total - registered - completed - lapsed}</span></div>`;
+    }
+
+    function renderRERAIntelligence(projects) {
+      const wu = projects.filter(p => p.total_units > 0);
+      const tu = wu.reduce((s, p) => s + (p.total_units || 0), 0);
+      const su = wu.reduce((s, p) => s + (p.units_sold || 0), 0);
+      const sr = tu ? Math.round(su / tu * 100) : 0;
+      const wd = projects.filter(p => p.delay_months > 0);
+      const ad = wd.length ? Math.round(wd.reduce((s, p) => s + p.delay_months, 0) / wd.length) : 0;
+      const tc = projects.reduce((s, p) => s + (p.complaint_count || 0), 0);
+      const wc = projects.filter(p => (p.complaint_count || 0) > 0).length;
+      const we = projects.filter(p => p.escrow_balance !== null && p.escrow_balance !== undefined && Number(p.escrow_balance) > 0);
+      const te = we.reduce((s, p) => s + Number(p.escrow_balance), 0);
+      const lc = projects.filter(p => (p.rera_status || '').toLowerCase().includes('lapsed')).length;
+      const row = (l, v, c = 'var(--text)') => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${l}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:${c}">${v}</span></div>`;
+      document.getElementById('reraIntelLabel').textContent = `${projects.length} projects`;
+      document.getElementById('reraIntel').innerHTML = `<div style="padding:4px 20px 8px">
+      ${row('UNITS SOLD / TOTAL', `${su.toLocaleString('en-IN')} / ${tu.toLocaleString('en-IN')}`, sr > 60 ? 'var(--green)' : sr > 30 ? 'var(--gold)' : 'var(--red)')}
+      ${row('SALE RATE', `${sr}%`, sr > 60 ? 'var(--green)' : sr > 30 ? 'var(--gold)' : 'var(--red)')}
+      ${row('AVG DELAY', ad ? `${ad} months` : 'None', ad > 6 ? 'var(--red)' : ad > 0 ? 'var(--gold)' : 'var(--green)')}
+      ${row('TOTAL COMPLAINTS', `${tc} (${wc} projects)`, tc > 10 ? 'var(--red)' : tc > 0 ? 'var(--gold)' : 'var(--muted)')}
+      ${we.length ? row('ESCROW BALANCE', '₹' + formatPrice(te), 'var(--blue)') : ''}
+      ${row('LAPSED PROJECTS', `${lc}`, 'var(--gold)')}
     </div>`;
+    }
+
+    async function loadPromoterRisk(city) {
+      try {
+        const data = await sb(`rera_projects?city_id=eq.${city.id}&select=promoter_name,rera_status,complaint_count,is_flagged&limit=500`);
+        const map = {};
+        data.forEach(p => {
+          if (!p.promoter_name) return;
+          const k = p.promoter_name.trim();
+          if (!map[k]) map[k] = { projects: 0, lapsed: 0, complaints: 0, flagged: 0 };
+          map[k].projects++;
+          if ((p.rera_status || '').toLowerCase().includes('lapsed')) map[k].lapsed++;
+          map[k].complaints += Number(p.complaint_count || 0);
+          if (p.is_flagged) map[k].flagged++;
+        });
+        const scored = Object.entries(map)
+          .map(([name, d]) => ({ name, ...d, score: d.flagged * 3 + d.lapsed * 2 + d.complaints }))
+          .filter(p => p.score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
+        const max = scored[0]?.score || 1;
+        document.getElementById('promoterCount').textContent = `${scored.length} at-risk`;
+        if (!scored.length) { document.getElementById('promoterList').innerHTML = `<div class="empty">No at-risk promoters.</div>`; return; }
+        document.getElementById('promoterList').innerHTML = scored.map((p, i) => {
+          const tags = [];
+          if (p.flagged) tags.push(`<span style="color:var(--red);font-size:9px">${p.flagged} flagged</span>`);
+          if (p.lapsed) tags.push(`<span style="color:var(--gold);font-size:9px">${p.lapsed} lapsed</span>`);
+          if (p.complaints) tags.push(`<span style="color:var(--blue);font-size:9px">${p.complaints} complaints</span>`);
+          return `<div class="promoter-item">
+          <div class="p-rank">${String(i + 1).padStart(2, '0')}</div>
+          <div class="p-info"><div class="p-name">${esc(p.name)}</div><div class="p-meta">${tags.join('')}</div></div>
+          <div class="p-bar"><div class="p-bar-bg"><div class="p-bar-fill" style="width:${Math.round(p.score / max * 100)}%;background:var(--red)"></div></div></div>
+          <div class="p-count" style="color:var(--red)">${p.projects}</div>
+        </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('promoterList').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+      }
     }
 
     function renderProjects(projects) {
       document.getElementById('projCount').textContent = `${projects.length} projects`;
-
-      if (!projects.length) {
-        document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects.</div>`;
-        return;
-      }
-
+      if (!projects.length) { document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects.</div>`; return; }
       const rows = projects.map(p => {
         const st = (p.rera_status || '—').toLowerCase();
-        const sc = st.includes('registered') ? 'var(--green)'
-          : st.includes('lapsed') || st.includes('revoked') ? 'var(--gold)'
-            : st.includes('completed') ? 'var(--blue)'
-              : 'var(--muted)';
-        const flagBadge = p.is_flagged
-          ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
+        const sc = st.includes('registered') ? 'var(--green)' : st.includes('lapsed') || st.includes('revoked') ? 'var(--gold)' : st.includes('completed') ? 'var(--blue)' : 'var(--muted)';
+        const flag = p.is_flagged ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
         return `<tr>
-      <td style="max-width:220px">
-        <div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div>
-      </td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
-      <td style="color:${sc};font-size:12px;font-weight:600;text-transform:capitalize">${esc(p.rera_status || '—')}</td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
-      <td>${flagBadge}</td>
-    </tr>`;
+        <td style="max-width:220px"><div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
+        <td style="color:${sc};font-size:12px;font-weight:600;text-transform:capitalize">${esc(p.rera_status || '—')}</td>
+        <td>${p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
+        <td>${flag}</td>
+      </tr>`;
       }).join('');
-
-      document.getElementById('projectsTable').innerHTML = `
-    <table>
-      <thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+      document.getElementById('projectsTable').innerHTML =
+        `<table><thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    // ── Listings ──────────────────────────────────────────────────────────────
-    async function loadListings(city) {
-      try {
-        const data = await sb(`listings?city_id=eq.${city.id}&select=id&limit=500`);
-        const el = document.getElementById('listingStatVal');
-        if (el) el.textContent = data.length;
-      } catch (e) { }
+    function renderLocalityPrices() {
+      const lmap = {};
+      allListings.forEach(l => {
+        if (!l.locality || !l.price_per_sqft) return;
+        const loc = l.locality.replace(/,\s*[A-Za-z\s]+$/, '').trim();
+        if (!lmap[loc]) lmap[loc] = [];
+        const v = Number(l.price_per_sqft);
+        if (v > 0 && v < 200000) lmap[loc].push(v);
+      });
+      const rows = Object.entries(lmap).filter(([, v]) => v.length >= 1)
+        .map(([loc, vals]) => ({ loc, avg: Math.round(vals.reduce((s, v) => s + v, 0) / vals.length), count: vals.length }))
+        .sort((a, b) => b.avg - a.avg).slice(0, 10);
+      document.getElementById('localityCount').textContent = `${rows.length} localities`;
+      if (!rows.length) { document.getElementById('localityPriceList').innerHTML = `<div class="empty">No data.</div>`; return; }
+      const max = rows[0].avg;
+      document.getElementById('localityPriceList').innerHTML = rows.map((r, i) => `
+      <div class="price-locality-row">
+        <div class="plr-rank">${i + 1}</div><div class="plr-name">${esc(r.loc)}</div>
+        <div class="plr-bar-wrap"><div class="plr-bar-bg"><div class="plr-bar-fill" style="width:${Math.round(r.avg / max * 100)}%;background:var(--gold)"></div></div></div>
+        <div class="plr-val">₹${r.avg.toLocaleString('en-IN')}</div>
+      </div>`).join('');
     }
 
-    // ── Utils ─────────────────────────────────────────────────────────────────
-    function esc(s) {
-      return String(s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    function renderPropertyTypes() {
+      const ICON = { flat: '🏢', plot: '🌐', house_villa: '🏠', 'residential apartment': '🏢' };
+      const tmap = {};
+      allListings.forEach(l => {
+        const t = l.property_type || 'other';
+        if (!tmap[t]) tmap[t] = { count: 0, prices: [] };
+        tmap[t].count++;
+        const v = Number(l.price_per_sqft);
+        if (v > 0 && v < 200000) tmap[t].prices.push(v);
+      });
+      const sorted = Object.entries(tmap).sort((a, b) => b[1].count - a[1].count);
+      document.getElementById('propTypeCount').textContent = `${sorted.length} types`;
+      if (!sorted.length) { document.getElementById('propTypeList').innerHTML = `<div class="empty">No data.</div>`; return; }
+      document.getElementById('propTypeList').innerHTML = sorted.map(([type, d]) => {
+        const avg = d.prices.length ? Math.round(d.prices.reduce((s, v) => s + v, 0) / d.prices.length) : null;
+        return `<div class="prop-type-row">
+        <div class="pt-icon">${ICON[type] || '🏗'}</div>
+        <div class="pt-info"><div class="pt-name">${type.replace(/_/g, ' ')}</div>
+          <div class="pt-meta">${avg ? '₹' + avg.toLocaleString('en-IN') + '/sqft avg' : 'No price data'}</div></div>
+        <div class="pt-count">${d.count}</div>
+      </div>`;
+      }).join('');
     }
 
-    // ── Boot ──────────────────────────────────────────────────────────────────
+    function renderMarketSummary() {
+      const valid = allListings.filter(l => l.price_per_sqft && Number(l.price_per_sqft) > 0 && Number(l.price_per_sqft) < 200000);
+      const prices = valid.map(l => Number(l.price_per_sqft)).sort((a, b) => a - b);
+      const avg = prices.length ? Math.round(prices.reduce((s, v) => s + v, 0) / prices.length) : null;
+      const median = prices.length ? prices[Math.floor(prices.length / 2)] : null;
+      const sale = allListings.filter(l => l.listing_type === 'sale').length;
+      const rent = allListings.filter(l => l.listing_type === 'rent').length;
+      const beds = allListings.filter(l => l.bedrooms);
+      const avgBed = beds.length ? (beds.reduce((s, l) => s + l.bedrooms, 0) / beds.length).toFixed(1) : null;
+      document.getElementById('marketSummaryLabel').textContent = `${allListings.length} total`;
+      const r = (l, v, c = 'var(--text)') => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${l}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${c}">${v}</span></div>`;
+      document.getElementById('marketSummary').innerHTML = `<div style="padding:8px 20px">
+      ${avg ? `<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">AVG PRICE/SQFT</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--gold)">₹${avg.toLocaleString('en-IN')}</span></div>` : ''}
+      ${median ? r('MEDIAN', '₹' + median.toLocaleString('en-IN')) : ''}
+      ${r('SALE / RENT', `<span style="color:var(--green)">${sale}</span> / <span style="color:var(--gold)">${rent}</span>`)}
+      ${avgBed ? r('AVG BEDROOMS', avgBed + ' BHK') : ''}
+    </div>`;
+    }
+
+    function setListingFilter(f, btn) {
+      activeListingFilter = f;
+      document.querySelectorAll('.listing-filters .chip').forEach(b => b.className = 'chip');
+      btn.classList.add('on');
+      renderListingsTable();
+    }
+
+    function renderListingsTable() {
+      const tf = ['flat', 'plot', 'house_villa'];
+      const list = activeListingFilter === 'all' ? allListings
+        : tf.includes(activeListingFilter) ? allListings.filter(l => l.property_type === activeListingFilter)
+          : allListings.filter(l => l.listing_type === activeListingFilter);
+      document.getElementById('listingsTableCount').textContent = `${list.length} listings`;
+      if (!list.length) { document.getElementById('listingsTable').innerHTML = `<div class="empty">No listings.</div>`; return; }
+      const rows = list.slice(0, 100).map(l => {
+        const price = l.listed_price ? '₹' + formatPrice(Number(l.listed_price)) : '—';
+        const psqft = l.price_per_sqft ? '₹' + Math.round(l.price_per_sqft).toLocaleString('en-IN') + '/sqft' : '';
+        const badge = `<span class="listing-type-badge ${l.listing_type === 'rent' ? 'rent' : ''}">${l.listing_type || '—'}</span>`;
+        const beds = l.bedrooms ? `${l.bedrooms} BHK · ` : '';
+        const area = l.area_sqft ? Math.round(l.area_sqft).toLocaleString('en-IN') + ' sqft' : '—';
+        const loc = (l.locality || '—').replace(/,\s*[A-Za-z\s]+$/, '').trim();
+        return `<tr>
+        <td style="max-width:200px"><div style="font-weight:600;font-size:13px">${esc(loc)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:capitalize">${beds}${(l.property_type || '').replace(/_/g, ' ')}</div></td>
+        <td><div class="listing-price">${price}</div><div class="listing-psqft">${psqft}</div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${area}</td>
+        <td>${badge}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:capitalize">${esc(l.listed_by || '—')}</td>
+      </tr>`;
+      }).join('');
+      const note = list.length > 100 ? `<div style="padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Showing 100 of ${list.length}</div>` : '';
+      document.getElementById('listingsTable').innerHTML =
+        `<table><thead><tr><th>Locality / Type</th><th>Price</th><th>Area</th><th>Listing</th><th>By</th></tr></thead><tbody>${rows}</tbody></table>${note}`;
+    }
+
+    function formatPrice(n) {
+      if (n >= 10000000) return (n / 10000000).toFixed(2) + ' Cr';
+      if (n >= 100000) return (n / 100000).toFixed(1) + ' L';
+      return n.toLocaleString('en-IN');
+    }
+
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
     buildCityTabs();
     loadCity(activeCity);
   </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script>
-    // ── Pincode → coordinates (Akola district pincodes) ───────────────────────
     const PINCODE_COORDS = {
-      // Akola city
-      '444001': [20.7068, 77.0040],
-      '444002': [20.7110, 77.0130],
-      '444004': [20.6980, 76.9980],
-      '444005': [20.7200, 77.0200],
-      // Outlying areas
-      '444101': [20.7750, 77.0850],
-      '444104': [20.6500, 77.1200],
-      '444107': [20.7400, 76.9200],
-      '445206': [20.5300, 77.2100],
-      // Amravati city centre
-      '444601': [20.9374, 77.7796],
-      '444602': [20.9300, 77.7700],
-      '444603': [20.9450, 77.7900],
-      '444604': [20.9200, 77.7600],
-      '444605': [20.9550, 77.8000],
-      '444606': [20.9100, 77.7500],
+      '444001': [20.7068, 77.0040], '444002': [20.7110, 77.0130], '444004': [20.6980, 76.9980],
+      '444005': [20.7200, 77.0200], '444101': [20.7750, 77.0850], '444104': [20.6500, 77.1200],
+      '444107': [20.7400, 76.9200], '445206': [20.5300, 77.2100],
+      '444601': [20.9374, 77.7796], '444602': [20.9300, 77.7700], '444603': [20.9450, 77.7900],
+      '444604': [20.9200, 77.7600], '444605': [20.9550, 77.8000], '444606': [20.9100, 77.7500],
     };
-
-    // City centre fallback coordinates
-    const CITY_CENTRES = {
-      'Akola': [20.7068, 77.0040],
-      'Amravati': [20.9374, 77.7796],
-    };
-
-    let mapInstance = null;
-    let allMarkers = [];
-    let mapProjects = [];
-    let mapFilter = 'all';
+    const CITY_CENTRES = { 'Akola': [20.7068, 77.0040], 'Amravati': [20.9374, 77.7796] };
+    let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [], mapFilter = 'all';
 
     function initMap(city) {
-      const centre = CITY_CENTRES[city.name] || [20.7068, 77.0040];
-
-      if (mapInstance) {
-        mapInstance.remove();
-        mapInstance = null;
-      }
-
-      mapInstance = L.map('cityMap', {
-        center: centre,
-        zoom: 12,
-        zoomControl: true,
-        scrollWheelZoom: true,
-      });
-
-      // Dark-toned tile layer (CartoDB Dark Matter)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap contributors © CARTO',
-        subdomains: 'abcd',
-        maxZoom: 19,
-      }).addTo(mapInstance);
+      if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+      mapInstance = L.map('cityMap', { center: CITY_CENTRES[city.name] || [20.7068, 77.0040], zoom: 12, scrollWheelZoom: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 19 }).addTo(mapInstance);
     }
 
-    function makeIcon(color) {
+    function mkPin(color) {
       return L.divIcon({
         className: '',
         html: `<svg width="22" height="28" viewBox="0 0 22 28" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="11" cy="26" rx="4" ry="2" fill="rgba(0,0,0,0.35)"/>
-          <path d="M11 1C6.03 1 2 5.03 2 10c0 6.5 9 17 9 17s9-10.5 9-17c0-4.97-4.03-9-9-9z"
-            fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
-          <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.35)"/>
-        </svg>`,
-        iconSize: [22, 28],
-        iconAnchor: [11, 28],
-        popupAnchor: [0, -30],
+        <ellipse cx="11" cy="26" rx="4" ry="2" fill="rgba(0,0,0,0.35)"/>
+        <path d="M11 1C6.03 1 2 5.03 2 10c0 6.5 9 17 9 17s9-10.5 9-17c0-4.97-4.03-9-9-9z" fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+        <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.3)"/>
+      </svg>`, iconSize: [22, 28], iconAnchor: [11, 28], popupAnchor: [0, -30]
+      });
+    }
+    function mkSq(color) {
+      return L.divIcon({
+        className: '',
+        html: `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="14" height="14" rx="3" fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+        <rect x="4" y="4" width="8" height="8" rx="1" fill="rgba(255,255,255,0.25)"/>
+      </svg>`, iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -10]
       });
     }
 
-    const ICONS = {
-      flagged: makeIcon('#e05252'),
-      clean: makeIcon('#4ecba8'),
-      lapsed: makeIcon('#c9a84c'),
-      completed: makeIcon('#5b8def'),
-      active: makeIcon('#4ecba8'),
-    };
+    const RI = { flagged: mkPin('#e05252'), lapsed: mkPin('#c9a84c'), completed: mkPin('#5b8def'), active: mkPin('#4ecba8') };
+    const LI = { sale: mkSq('#a78bfa'), rent: mkSq('#f59e0b') };
 
-    function getIcon(project) {
-      if (project.is_flagged) return ICONS.flagged;
-      const st = (project.rera_status || '').toLowerCase();
-      if (st.includes('lapsed')) return ICONS.lapsed;
-      if (st.includes('completed')) return ICONS.completed;
-      return ICONS.active;
+    function rIcon(p) {
+      if (p.is_flagged) return RI.flagged;
+      const s = (p.rera_status || '').toLowerCase();
+      if (s.includes('lapsed')) return RI.lapsed;
+      if (s.includes('completed')) return RI.completed;
+      return RI.active;
     }
 
-    function getMarkerColor(project) {
-      if (project.is_flagged) return '#e05252';
-      const st = (project.rera_status || '').toLowerCase();
-      if (st.includes('lapsed')) return '#c9a84c';
-      if (st.includes('completed')) return '#5b8def';
-      return '#4ecba8';
-    }
-
-    function jitter(coord, idx) {
-      // Slightly scatter pins at the same pincode so they don't all stack
-      const angle = (idx * 137.5) * Math.PI / 180;
-      const radius = 0.0008 * Math.sqrt(idx % 12 + 1);
-      return [coord[0] + radius * Math.sin(angle), coord[1] + radius * Math.cos(angle)];
+    function jitter(lat, lon, i) {
+      const a = (i * 137.5) * Math.PI / 180, r = 0.0004 * Math.sqrt(i % 12 + 1);
+      return [lat + r * Math.sin(a), lon + r * Math.cos(a)];
     }
 
     function renderMapMarkers() {
       if (!mapInstance) return;
+      allMapMarkers.forEach(m => m.remove());
+      allMapMarkers = [];
+      const showR = mapFilter === 'all' || mapFilter === 'rera' || mapFilter === 'flagged';
+      const showL = mapFilter === 'all' || mapFilter === 'listings';
+      const onlyF = mapFilter === 'flagged';
+      const pi = {};
 
-      // Clear existing markers
-      allMarkers.forEach(m => m.remove());
-      allMarkers = [];
-
-      const filtered = mapFilter === 'all' ? mapProjects
-        : mapFilter === 'flagged' ? mapProjects.filter(p => p.is_flagged)
-          : mapProjects.filter(p => !p.is_flagged);
-
-      document.getElementById('mapCount').textContent = `${filtered.length} project${filtered.length !== 1 ? 's' : ''}`;
-
-      // Group by pincode for jitter indexing
-      const pinGroups = {};
-      filtered.forEach(p => {
-        const pin = p.pin_code || 'unknown';
-        pinGroups[pin] = (pinGroups[pin] || 0) + 1;
-      });
-      const pinIdx = {};
-
-      filtered.forEach(p => {
-        const pin = p.pin_code || '';
-        const coords = p.latitude && p.longitude
-          ? [p.latitude, p.longitude]
-          : PINCODE_COORDS[p.pin_code];
-        if (!coords) return;
-
-        pinIdx[pin] = (pinIdx[pin] || 0);
-        const pos = jitter(coords, pinIdx[pin]);
-        pinIdx[pin]++;
-
-        const st = (p.rera_status || '—').toLowerCase();
-        const badgeColor = p.is_flagged ? '#e05252' : getMarkerColor(p);
-        const badgeLabel = p.is_flagged ? '⚠ FLAGGED' : st.toUpperCase();
-
-        const popup = `
-          <div class="map-popup-name">${p.project_name || '—'}</div>
-          <div class="map-popup-row"><b>Promoter:</b> ${p.promoter_name || '—'}</div>
-          <div class="map-popup-row"><b>PIN:</b> ${pin} &nbsp;·&nbsp; <b>Status:</b> ${st}</div>
+      if (showR) {
+        const list = onlyF ? mapRERA.filter(p => p.is_flagged) : mapRERA;
+        list.forEach(p => {
+          let lat, lon;
+          if (p.latitude && p.longitude) { lat = Number(p.latitude); lon = Number(p.longitude); }
+          else if (PINCODE_COORDS[p.pin_code]) {
+            [lat, lon] = PINCODE_COORDS[p.pin_code];
+            const k = p.pin_code; pi[k] = (pi[k] || 0);
+            [lat, lon] = jitter(lat, lon, pi[k]++);
+          } else return;
+          const st = (p.rera_status || '').toLowerCase();
+          const bc = p.is_flagged ? '#e05252' : st.includes('lapsed') ? '#c9a84c' : st.includes('completed') ? '#5b8def' : '#4ecba8';
+          const popup = `<div class="map-popup-name">${esc(p.project_name || '—')}</div>
+          <div class="map-popup-row"><b>Promoter:</b> ${esc(p.promoter_name || '—')}</div>
+          <div class="map-popup-row"><b>Status:</b> ${st} · <b>PIN:</b> ${p.pin_code || '—'}</div>
           ${p.complaint_count > 0 ? `<div class="map-popup-row"><b>Complaints:</b> <span style="color:#c9a84c">${p.complaint_count}</span></div>` : ''}
-          <div><span class="map-popup-badge" style="background:${badgeColor}22;border:1px solid ${badgeColor};color:${badgeColor}">${badgeLabel}</span></div>
-        `;
-
-        const marker = L.marker(pos, { icon: getIcon(p) })
-          .bindPopup(popup, { maxWidth: 240 })
-          .addTo(mapInstance);
-
-        allMarkers.push(marker);
-      });
-
-      // Fit map to markers if any exist
-      if (allMarkers.length > 0) {
-        const group = L.featureGroup(allMarkers);
-        mapInstance.fitBounds(group.getBounds().pad(0.15));
+          <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${p.is_flagged ? '⚠ FLAGGED' : st.toUpperCase()}</span>
+          <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">RERA</span></div>`;
+          allMapMarkers.push(L.marker([lat, lon], { icon: rIcon(p) }).bindPopup(popup, { maxWidth: 260 }).addTo(mapInstance));
+        });
       }
+
+      if (showL) {
+        mapL99.forEach((l, i) => {
+          const lat = l.latitude ? Number(l.latitude) : null;
+          const lon = l.longitude ? Number(l.longitude) : null;
+          if (!lat || !lon) return;
+          const [jlat, jlon] = jitter(lat, lon, i % 10);
+          const price = l.listed_price ? '₹' + formatPrice(Number(l.listed_price)) : '—';
+          const psqft = l.price_per_sqft ? '₹' + Math.round(l.price_per_sqft).toLocaleString('en-IN') + '/sqft' : '';
+          const beds = l.bedrooms ? `${l.bedrooms} BHK · ` : '';
+          const bc = l.listing_type === 'rent' ? '#f59e0b' : '#a78bfa';
+          const popup = `<div class="map-popup-name">${esc(l.locality || '—')}</div>
+          <div class="map-popup-row"><b>Price:</b> ${price}${psqft ? ' · ' + psqft : ''}</div>
+          <div class="map-popup-row">${beds}${(l.property_type || '').replace(/_/g, ' ')}</div>
+          <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${(l.listing_type || 'sale').toUpperCase()}</span>
+          <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">99ACRES</span></div>`;
+          allMapMarkers.push(L.marker([jlat, jlon], { icon: l.listing_type === 'rent' ? LI.rent : LI.sale }).bindPopup(popup, { maxWidth: 260 }).addTo(mapInstance));
+        });
+      }
+
+      document.getElementById('mapCount').textContent = `${allMapMarkers.length} pins`;
+      if (allMapMarkers.length > 0) mapInstance.fitBounds(L.featureGroup(allMapMarkers).getBounds().pad(0.15));
     }
 
     function setMapFilter(f, btn) {
       mapFilter = f;
-      document.querySelectorAll('.map-btn').forEach(b => {
-        b.className = 'map-btn';
-      });
+      document.querySelectorAll('.map-btn').forEach(b => b.className = 'map-btn');
       btn.classList.add(`active-${f}`);
       renderMapMarkers();
     }
 
-    // Called from loadProjects — passes projects into map
-    function updateMap(projects, city) {
-      mapProjects = projects;
-      if (!mapInstance) {
-        initMap(city);
-      } else {
-        const centre = CITY_CENTRES[city.name] || [20.7068, 77.0040];
-        mapInstance.setView(centre, 12);
-      }
+    function updateMap(projects, listings, city) {
+      mapRERA = projects;
+      mapL99 = listings;
+      if (!mapInstance) initMap(city);
+      else mapInstance.setView(CITY_CENTRES[city.name] || [20.7068, 77.0040], 12);
       renderMapMarkers();
     }
   </script>

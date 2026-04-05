@@ -1236,7 +1236,7 @@
 
     async function loadListings(city) {
       try {
-        allListings = await sb(`listings?city_id=eq.${city.id}&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude&order=created_at.desc&limit=500`);
+        allListings = await sb(`listings?city_id=eq.${city.id}&source=eq.99acres&listing_status=eq.active&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at&order=last_seen_at.desc.nullslast&limit=500`);
         renderLocalityPrices();
         renderPropertyTypes();
         renderMarketSummary();

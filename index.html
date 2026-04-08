@@ -1015,6 +1015,327 @@
       letter-spacing: 0.08em;
       text-transform: uppercase
     }
+
+    /* ── CONFIDENCE BADGE ─────────────────────────────── */
+    .conf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .conf-high {
+      background: rgba(78, 203, 168, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(78, 203, 168, 0.25)
+    }
+
+    .conf-mid {
+      background: rgba(201, 168, 76, 0.10);
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.2)
+    }
+
+    .conf-low {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.1)
+    }
+
+    /* Downgraded: high severity + low confidence → dimmed */
+    .flag-row-downgraded td {
+      opacity: 0.45
+    }
+
+    .flag-row-downgraded:hover td {
+      opacity: 0.75
+    }
+
+    .flag-row-confirmed td:first-child::before {
+      content: '✓ ';
+      color: var(--green);
+      font-size: 10px
+    }
+
+    .flag-row-dismissed {
+      display: none
+    }
+
+    .flag-row-dismissed.show-dismissed {
+      display: table-row
+    }
+
+    .flag-row-dismissed td {
+      opacity: 0.3
+    }
+
+    /* ── REVIEW BUTTONS ───────────────────────────────── */
+    .review-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 3px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s
+    }
+
+    .review-btn:hover {
+      color: var(--text);
+      border-color: var(--border2)
+    }
+
+    .review-btn.btn-confirm {
+      border-color: rgba(78, 203, 168, 0.3);
+      color: var(--green)
+    }
+
+    .review-btn.btn-confirm:hover {
+      background: rgba(78, 203, 168, 0.1)
+    }
+
+    .review-btn.btn-dismiss {
+      border-color: rgba(224, 82, 82, 0.3);
+      color: var(--red)
+    }
+
+    .review-btn.btn-dismiss:hover {
+      background: rgba(224, 82, 82, 0.08)
+    }
+
+    .review-btn.btn-reopen {
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--muted)
+    }
+
+    .review-btn-wrap {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap
+    }
+
+    .dismiss-toggle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: auto
+    }
+
+    .dismiss-toggle:hover {
+      color: var(--text)
+    }
+
+    /* ── CONFIDENCE × SEVERITY MATRIX ────────────────── */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      padding: 16px
+    }
+
+    .matrix-cell {
+      border-radius: 8px;
+      padding: 14px 16px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: transform 0.15s
+    }
+
+    .matrix-cell:hover {
+      transform: scale(1.02)
+    }
+
+    .mc-act {
+      background: rgba(224, 82, 82, 0.12);
+      border: 1px solid rgba(224, 82, 82, 0.3)
+    }
+
+    .mc-inv {
+      background: rgba(201, 168, 76, 0.10);
+      border: 1px solid rgba(201, 168, 76, 0.25)
+    }
+
+    .mc-mon {
+      background: rgba(91, 141, 239, 0.10);
+      border: 1px solid rgba(91, 141, 239, 0.2)
+    }
+
+    .mc-noi {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border)
+    }
+
+    .mc-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px
+    }
+
+    .mc-count {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1
+    }
+
+    .mc-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    .matrix-axes {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      grid-template-rows: 1fr 24px;
+      gap: 0;
+      padding: 0 16px 12px
+    }
+
+    .matrix-yaxis {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      padding-bottom: 24px
+    }
+
+    .matrix-xaxis {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 8px
+    }
+
+    /* ── CHARTS (SVG) ─────────────────────────────────── */
+    .chart-wrap {
+      padding: 16px 20px
+    }
+
+    .chart-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px
+    }
+
+    .chart-bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      width: 160px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: right
+    }
+
+    .chart-bar-track {
+      flex: 1;
+      height: 20px;
+      background: var(--bg3);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      padding-left: 8px
+    }
+
+    .chart-bar-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .chart-bhk-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 0 0 8px;
+      height: 120px
+    }
+
+    .chart-bhk-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end
+    }
+
+    .chart-bhk-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.8s ease;
+      min-height: 4px
+    }
+
+    .chart-bhk-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--muted)
+    }
+
+    .chart-bhk-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .chart-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px
+    }
   </style>
 </head>
 
@@ -1127,15 +1448,79 @@
       </div>
     </div>
 
+    <div class="sec">Analytics</div>
+    <div class="three-col" style="margin-bottom:24px">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">⊞ Confidence × Severity Matrix</span><span class="panel-count"
+            id="matrixTotal">—</span></div>
+        <div class="matrix-axes">
+          <div class="matrix-yaxis">Severity</div>
+          <div>
+            <div class="matrix-grid" id="matrixGrid">
+              <div class="loading" style="grid-column:1/-1">
+                <div class="spin"></div>Loading...
+              </div>
+            </div>
+            <div class="matrix-xaxis"><span>Low confidence</span><span>High confidence</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">📊 Flag Type Breakdown</span><span class="panel-count"
+            id="flagTypeTotal">—</span></div>
+        <div class="chart-wrap" id="flagTypeChart">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">🛏 BHK Demand Distribution</span><span class="panel-count"
+            id="bhkTotal">—</span></div>
+        <div class="chart-wrap" id="bhkChart">
+          <div class="loading">
+            <div class="spin"></div>Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:24px">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📈 Price Trend</span>
+          <span class="panel-count" id="trendLabel" style="font-size:9px">avg ₹/sqft over time</span>
+        </div>
+        <div id="trendChart" style="padding:16px 20px 12px">
+          <div class="loading"><div class="spin"></div>Loading...</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">⚡ Act Now</span>
+          <span class="panel-count" id="actNowCount">—</span>
+        </div>
+        <div class="tbl-wrap" id="actNowList" style="max-height:220px">
+          <div class="loading"><div class="spin"></div>Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <div class="sec">Suspicious Flags</div>
     <div class="panel" style="margin-bottom:24px">
-      <div class="panel-head"><span class="panel-title">⚠ Suspicious Flags</span><span class="panel-count"
-          id="flagCount">—</span></div>
+      <div class="panel-head">
+        <span class="panel-title">⚠ Suspicious Flags</span>
+        <span class="panel-count" id="flagCount">—</span>
+        <button class="dismiss-toggle" onclick="toggleDismissed(this)">Show dismissed</button>
+      </div>
+      <div id="flagReviewSummary" style="padding:8px 20px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;flex-wrap:wrap;gap:0;min-height:34px">—</div>
       <div class="chips">
         <button class="chip on" onclick="setFilter('all',this)">All</button>
         <button class="chip" onclick="setFilter('critical',this)">Critical</button>
         <button class="chip" onclick="setFilter('high',this)">High</button>
         <button class="chip" onclick="setFilter('medium',this)">Medium</button>
+        <button class="chip" onclick="setFilter('open',this)">Open</button>
+        <button class="chip" onclick="setFilter('confirmed',this)">Confirmed</button>
       </div>
       <div class="tbl-wrap" id="flagsTable">
         <div class="loading">
@@ -1202,12 +1587,21 @@
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
     const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }];
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
-    let activeFilter = 'all', activeListingFilter = 'all';
+    let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
 
     async function sb(path) {
       const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json();
+    }
+
+    async function sbPatch(table, id, body) {
+      const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(body)
+      });
+      return r.ok;
     }
 
     function buildCityTabs() {
@@ -1218,68 +1612,261 @@
 
     function switchCity(id) {
       activeCity = CITIES.find(c => c.id === id);
-      activeListingFilter = 'all';
-      buildCityTabs();
-      loadCity(activeCity);
+      activeListingFilter = 'all'; activeFilter = 'all';
+      buildCityTabs(); loadCity(activeCity);
     }
 
     async function loadCity(city) {
       document.getElementById('cityTitle').innerHTML = city.name.slice(0, -1) + `<span>${city.name.slice(-1)}</span>`;
       document.getElementById('cityMeta').textContent = 'Loading...';
       document.getElementById('lastUpdate').textContent = 'Refreshing...';
-      // listings first — its count feeds into renderStats
       await loadListings(city);
       await Promise.all([loadFlags(city), loadProjects(city)]);
       document.getElementById('lastUpdate').textContent =
         new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     }
 
+    // ── Listings ──────────────────────────────────────────────────────────────
     async function loadListings(city) {
       try {
         allListings = await sb(`listings?city_id=eq.${city.id}&source=eq.99acres&listing_status=eq.active&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at&order=last_seen_at.desc.nullslast&limit=500`);
-        renderLocalityPrices();
-        renderPropertyTypes();
-        renderMarketSummary();
-        renderListingsTable();
-      } catch (e) {
-        document.getElementById('listingsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-      }
+        renderLocalityPrices(); renderPropertyTypes(); renderMarketSummary();
+        renderListingsTable(); renderBHKChart(); renderPriceTrend();
+      } catch (e) { document.getElementById('listingsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
+    // ── Flags ─────────────────────────────────────────────────────────────────
     async function loadFlags(city) {
       try {
-        allFlags = await sb(`suspicious_flags?city_id=eq.${city.id}&order=created_at.desc&limit=300`);
-        renderFlags();
-      } catch (e) {
-        document.getElementById('flagsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-      }
+        allFlags = await sb(`suspicious_flags?city_id=eq.${city.id}&order=created_at.desc&limit=500`);
+        renderFlags(); renderMatrix(); renderFlagTypeChart(); renderActNow();
+      } catch (e) { document.getElementById('flagsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
     function setFilter(f, btn) {
       activeFilter = f;
       document.querySelectorAll('.chips .chip').forEach(b => b.className = 'chip');
       btn.classList.add('on');
-      if (f !== 'all') btn.classList.add(`on-${f}`);
+      if (f === 'critical' || f === 'high' || f === 'medium') btn.classList.add(`on-${f}`);
       renderFlags();
     }
 
-    function renderFlags() {
-      const list = activeFilter === 'all' ? allFlags : allFlags.filter(f => f.severity === activeFilter);
-      document.getElementById('flagCount').textContent = `${list.length} flags`;
-      if (!list.length) { document.getElementById('flagsTable').innerHTML = `<div class="empty">No ${activeFilter === 'all' ? '' : activeFilter + ' '}flags.</div>`; return; }
-      const rows = list.map(f => {
-        const dt = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
-        return `<tr>
-        <td><div class="flag-title">${esc(f.title || '—')}</div><div class="flag-desc">${esc(f.description || '')}</div></td>
-        <td><span class="badge b-${f.severity || 'medium'}">${f.severity || '—'}</span></td>
-        <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span></td>
-        <td><span class="ts">${dt}</span></td>
-      </tr>`;
-      }).join('');
-      document.getElementById('flagsTable').innerHTML =
-        `<table><thead><tr><th>Flag</th><th>Severity</th><th>Type</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
+    function toggleDismissed(btn) {
+      showDismissed = !showDismissed;
+      btn.textContent = showDismissed ? 'Hide dismissed' : 'Show dismissed';
+      document.querySelectorAll('.flag-row-dismissed').forEach(r => {
+        r.classList.toggle('show-dismissed', showDismissed);
+      });
     }
 
+    // Confidence badge helper
+    function confBadge(c) {
+      if (c === null || c === undefined) return '';
+      const cls = c >= 70 ? 'conf-high' : c >= 40 ? 'conf-mid' : 'conf-low';
+      const bar = '█'.repeat(Math.round(c / 20)) + '░'.repeat(5 - Math.round(c / 20));
+      return `<span class="conf-badge ${cls}" title="Confidence: ${c}%">${c}%</span>`;
+    }
+
+    // Effective display severity — downgrade high/critical with conf<30
+    function effectiveSeverity(f) {
+      if ((f.confidence !== null && f.confidence < 30) && (f.severity === 'high' || f.severity === 'critical')) return 'downgraded';
+      return f.severity || 'medium';
+    }
+
+    function renderFlags() {
+      const sevFilter = ['critical', 'high', 'medium', 'low'];
+      let list = allFlags;
+      if (activeFilter === 'open') list = allFlags.filter(f => f.status === 'open' || !f.status);
+      else if (activeFilter === 'confirmed') list = allFlags.filter(f => f.status === 'confirmed');
+      else if (sevFilter.includes(activeFilter)) list = allFlags.filter(f => f.severity === activeFilter);
+
+      // apply matrix quadrant filter on top
+      if (activeMatrixFilter) {
+        list = list.filter(f => {
+          const hs = f.severity === 'critical' || f.severity === 'high';
+          const hc = (f.confidence ?? 0) >= 50;
+          return ((hs ? 'H' : 'L') + (hc ? 'H' : 'L')) === activeMatrixFilter;
+        });
+      }
+
+      // sort: confirmed first, then confidence×severity
+      list = [...list].sort((a, b) => {
+        const score = f => ({ critical: 4, high: 3, medium: 2, low: 1 }[f.severity] || 1) * ((f.confidence ?? 50) / 100);
+        if (a.status === 'confirmed' && b.status !== 'confirmed') return -1;
+        if (b.status === 'confirmed' && a.status !== 'confirmed') return 1;
+        return score(b) - score(a);
+      });
+
+      const visible   = list.filter(f => f.status !== 'dismissed');
+      const dismissed = list.filter(f => f.status === 'dismissed');
+
+      // review counters
+      const tOpen = allFlags.filter(f => f.status === 'open' || !f.status).length;
+      const tConf = allFlags.filter(f => f.status === 'confirmed').length;
+      const tDism = allFlags.filter(f => f.status === 'dismissed').length;
+      const actN  = allFlags.filter(f => (f.severity==='critical'||f.severity==='high') && (f.confidence??0)>=70 && f.status!=='dismissed').length;
+      const matrixNames = { HH:'Act Now', HL:'Investigate', LH:'Monitor', LL:'Noise' };
+
+      document.getElementById('flagCount').textContent = `${visible.length}${activeMatrixFilter ? ' filtered' : ''} flags`;
+      document.getElementById('flagReviewSummary').innerHTML =
+        `<span style="color:var(--gold)">${tOpen} open</span>
+         <span style="color:var(--muted);margin:0 5px">·</span>
+         <span style="color:var(--green)">${tConf} confirmed</span>
+         <span style="color:var(--muted);margin:0 5px">·</span>
+         <span style="color:var(--muted)">${tDism} dismissed</span>
+         <span style="color:var(--muted);margin:0 10px">|</span>
+         <span style="color:var(--red)">⚡ ${actN} act now</span>
+         ${activeMatrixFilter ? `<span style="color:var(--muted);margin:0 8px">·</span><span style="color:var(--blue);cursor:pointer;text-decoration:underline" onclick="activeMatrixFilter=null;document.querySelectorAll('.matrix-cell').forEach(c=>c.style.outline='none');renderFlags()">✕ clear: ${matrixNames[activeMatrixFilter]}</span>` : ''}`;
+
+      if (!list.length) {
+        document.getElementById('flagsTable').innerHTML = `<div class="empty">No flags${activeMatrixFilter ? ' in this quadrant' : ''}.</div>`;
+        return;
+      }
+
+      const renderRow = f => {
+        const dt = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
+        const eff = effectiveSeverity(f);
+        const isDismissed = f.status === 'dismissed';
+        const isConfirmed = f.status === 'confirmed';
+        const rowClass = `${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''}`.trim();
+        const sevDisplay = eff === 'downgraded' ? 'medium' : f.severity || 'medium';
+
+        const reviewBtns = isDismissed
+          ? `<div class="review-btn-wrap"><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Reopen</button></div>`
+          : isConfirmed
+            ? `<div class="review-btn-wrap"><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Open</button></div>`
+            : `<div class="review-btn-wrap"><button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓ Confirm</button><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button></div>`;
+
+        return `<tr class="${rowClass}" data-id="${f.id}" data-status="${f.status || 'open'}">
+          <td><div class="flag-title">${esc(f.title || '—')}</div><div class="flag-desc">${esc(f.description || '')}</div></td>
+          <td><span class="badge b-${sevDisplay}">${f.severity || '—'}</span>${eff === 'downgraded' ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">low conf</span>' : ''}</td>
+          <td>${confBadge(f.confidence)}</td>
+          <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span></td>
+          <td><span class="ts">${dt}</span></td>
+          <td>${reviewBtns}</td>
+        </tr>`;
+      };
+
+      document.getElementById('flagsTable').innerHTML =
+        `<table><thead><tr><th>Flag</th><th>Severity</th><th>Confidence</th><th>Type</th><th>Date</th><th>Review</th></tr></thead>
+         <tbody>${[...visible.map(renderRow), ...dismissed.map(renderRow)].join('')}</tbody></table>`;
+
+      document.querySelectorAll('.flag-row-dismissed').forEach(r => r.classList.toggle('show-dismissed', showDismissed));
+    }
+
+    async function reviewFlag(id, newStatus, btn) {
+      const ok = await sbPatch('suspicious_flags', id, { status: newStatus, reviewed_at: new Date().toISOString(), reviewed_by: 'dashboard' });
+      if (!ok) { btn.textContent = 'Error'; return; }
+      const flag = allFlags.find(f => f.id === id);
+      if (flag) flag.status = newStatus;
+      renderFlags(); renderMatrix(); renderActNow();
+    }
+
+    // ── Confidence × Severity Matrix ──────────────────────────────────────────
+    function renderMatrix() {
+      // High severity = critical/high, Low = medium/low
+      // High confidence = >=50, Low = <50
+      const cells = {
+        HH: { label: 'Act Now', desc: 'High sev · High conf', cls: 'mc-act', color: 'var(--red)', flags: [] },
+        HL: { label: 'Investigate', desc: 'High sev · Low conf', cls: 'mc-inv', color: 'var(--gold)', flags: [] },
+        LH: { label: 'Monitor', desc: 'Low sev · High conf', cls: 'mc-mon', color: 'var(--blue)', flags: [] },
+        LL: { label: 'Noise', desc: 'Low sev · Low conf', cls: 'mc-noi', color: 'var(--muted)', flags: [] },
+      };
+      const openFlags = allFlags.filter(f => f.status !== 'dismissed');
+      openFlags.forEach(f => {
+        const highSev = f.severity === 'critical' || f.severity === 'high';
+        const highConf = (f.confidence ?? 0) >= 50;
+        const key = (highSev ? 'H' : 'L') + (highConf ? 'H' : 'L');
+        cells[key].flags.push(f);
+      });
+      document.getElementById('matrixTotal').textContent = `${openFlags.length} open`;
+      // Layout: top-left=HH, top-right=HL, bottom-left=LH, bottom-right=LL
+      const order = ['HH', 'HL', 'LH', 'LL'];
+      document.getElementById('matrixGrid').innerHTML = order.map(k => {
+        const c = cells[k]; const n = c.flags.length;
+        return `<div class="matrix-cell ${c.cls}" onclick="filterByMatrix('${k}')" title="Click to filter flags">
+        <div class="mc-label" style="color:${c.color}">${c.label}</div>
+        <div class="mc-count" style="color:${c.color}">${n}</div>
+        <div class="mc-desc">${c.desc}</div>
+      </div>`;
+      }).join('');
+    }
+
+    function filterByMatrix(quadrant) {
+      activeMatrixFilter = activeMatrixFilter === quadrant ? null : quadrant;
+      document.querySelectorAll('.matrix-cell').forEach((cell, i) => {
+        const keys = ['HH','HL','LH','LL'];
+        cell.style.outline = keys[i] === activeMatrixFilter ? '2px solid rgba(255,255,255,0.35)' : 'none';
+        cell.style.outlineOffset = '-2px';
+      });
+      renderFlags();
+    }
+
+    // ── Flag Type Chart ────────────────────────────────────────────────────────
+    function renderFlagTypeChart() {
+      const counts = {};
+      const LABELS = {
+        listing_price_outlier: 'Price outlier', promoter_name_cluster: 'Name cluster',
+        rera_escrow_deficit: 'Escrow deficit', repeat_offender_new_project: 'Repeat offender',
+        stalled_projects: 'Stalled projects', repeated_complaints: 'Repeated complaints',
+        complaint_velocity: 'Complaint velocity', locality_price_spike: 'Price spike',
+      };
+      allFlags.forEach(f => {
+        if (f.status === 'dismissed') return;
+        const t = f.flag_type || 'other';
+        counts[t] = (counts[t] || 0) + 1;
+      });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const max = sorted[0]?.[1] || 1;
+      const COLORS = ['var(--red)', 'var(--gold)', 'var(--blue)', 'var(--green)', 'var(--purple)', 'var(--amber)', 'var(--green)', 'var(--muted)'];
+      document.getElementById('flagTypeTotal').textContent = `${allFlags.filter(f => f.status !== 'dismissed').length} active`;
+      document.getElementById('flagTypeChart').innerHTML = `
+      <div class="chart-title">Active flags by type</div>
+      ${sorted.map(([type, count], i) => `
+        <div class="chart-bar-row">
+          <div class="chart-bar-label">${LABELS[type] || type.replace(/_/g, ' ')}</div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width:${Math.round(count / max * 100)}%;background:${COLORS[i % COLORS.length]}">
+              <span class="chart-bar-val" style="color:#000">${count}</span>
+            </div>
+          </div>
+        </div>`).join('')}`;
+    }
+
+    // ── BHK Distribution Chart ────────────────────────────────────────────────
+    function renderBHKChart() {
+      const counts = {};
+      const prices = {};
+      allListings.filter(l => l.bedrooms && l.bedrooms >= 1 && l.bedrooms <= 5).forEach(l => {
+        const b = l.bedrooms;
+        counts[b] = (counts[b] || 0) + 1;
+        if (l.price_per_sqft && Number(l.price_per_sqft) < 200000) {
+          if (!prices[b]) prices[b] = [];
+          prices[b].push(Number(l.price_per_sqft));
+        }
+      });
+      const bhks = Object.keys(counts).map(Number).sort((a, b) => a - b);
+      if (!bhks.length) { document.getElementById('bhkChart').innerHTML = `<div class="empty">No BHK data.</div>`; return; }
+      const max = Math.max(...bhks.map(b => counts[b]));
+      const COLORS = ['var(--blue)', 'var(--green)', 'var(--gold)', 'var(--purple)', 'var(--red)'];
+      document.getElementById('bhkTotal').textContent = `${allListings.filter(l => l.bedrooms).length} listings`;
+      document.getElementById('bhkChart').innerHTML = `
+      <div class="chart-title">Listings by BHK — sale units</div>
+      <div class="chart-bhk-row">
+        ${bhks.map((b, i) => {
+        const pct = Math.round(counts[b] / max * 100);
+        const avgP = prices[b]?.length ? Math.round(prices[b].reduce((s, v) => s + v, 0) / prices[b].length) : null;
+        return `<div class="chart-bhk-col">
+            <div class="chart-bhk-val">${counts[b]}</div>
+            <div class="chart-bhk-bar" style="height:${Math.max(pct, 4)}%;background:${COLORS[i % COLORS.length]}"></div>
+            <div class="chart-bhk-label">${b} BHK</div>
+            ${avgP ? `<div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">₹${(avgP / 1000).toFixed(0)}k</div>` : ''}
+          </div>`;
+      }).join('')}
+      </div>`;
+    }
+
+    // ── Projects ──────────────────────────────────────────────────────────────
     async function loadProjects(city) {
       try {
         allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=500`);
@@ -1288,9 +1875,7 @@
         loadPromoterRisk(city);
         renderProjects(allProjects);
         updateMap(allProjects, allListings, city);
-      } catch (e) {
-        document.getElementById('projectsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-      }
+      } catch (e) { document.getElementById('projectsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
     function renderStats(projects, city) {
@@ -1308,7 +1893,7 @@
       <div class="stat s-green" style="animation-delay:.04s"><div class="stat-label">RERA Projects</div><div class="stat-val">${total}</div><div class="stat-sub">${city.name}</div></div>
       <div class="stat s-blue" style="animation-delay:.08s"><div class="stat-label">99acres Listings</div><div class="stat-val">${allListings.length || '—'}</div><div class="stat-sub">${avgPsqft ? '₹' + avgPsqft.toLocaleString('en-IN') + '/sqft avg' : 'Active'}</div></div>
       <div class="stat ${flagged > 0 ? 's-gold' : 's-green'}" style="animation-delay:.12s"><div class="stat-label">Flagged Projects</div><div class="stat-val">${flagged}</div><div class="stat-sub">of ${total} total</div></div>
-      <div class="stat ${critical > 0 ? 's-red' : 's-gold'}" style="animation-delay:.16s"><div class="stat-label">Active Flags</div><div class="stat-val">${allFlags.length}</div><div class="stat-sub">${critical} critical · ${high} high</div></div>
+      <div class="stat ${critical > 0 ? 's-red' : 's-gold'}" style="animation-delay:.16s"><div class="stat-label">Active Flags</div><div class="stat-val">${allFlags.filter(f => f.status !== 'dismissed').length}</div><div class="stat-sub">${critical} critical · ${high} high</div></div>
       <div class="stat ${lapsed > 0 ? 's-gold' : 's-green'}" style="animation-delay:.20s"><div class="stat-label">Lapsed</div><div class="stat-val">${lapsed}</div><div class="stat-sub">${completed} completed</div></div>`;
       document.getElementById('statusRow').innerHTML = `
       <div class="status-card"><span class="status-card-label">Registered</span><span class="status-card-val" style="color:var(--green)">${registered}</span></div>
@@ -1374,9 +1959,7 @@
           <div class="p-count" style="color:var(--red)">${p.projects}</div>
         </div>`;
         }).join('');
-      } catch (e) {
-        document.getElementById('promoterList').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-      }
+      } catch (e) { document.getElementById('promoterList').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
     function renderProjects(projects) {
@@ -1399,6 +1982,7 @@
         `<table><thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
+    // ── Price Intelligence ────────────────────────────────────────────────────
     function renderLocalityPrices() {
       const lmap = {};
       allListings.forEach(l => {
@@ -1502,6 +2086,92 @@
       const note = list.length > 100 ? `<div style="padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Showing 100 of ${list.length}</div>` : '';
       document.getElementById('listingsTable').innerHTML =
         `<table><thead><tr><th>Locality / Type</th><th>Price</th><th>Area</th><th>Listing</th><th>By</th></tr></thead><tbody>${rows}</tbody></table>${note}`;
+    }
+
+    // ── Price Trend Sparkline ─────────────────────────────────────────────────
+    async function renderPriceTrend() {
+      const el = document.getElementById('trendChart');
+      if (!el) return;
+      try {
+        const raw = await sb(`price_history?city=eq.${activeCity.name}&select=snapshot_date,avg_price_sqft,listing_count&order=snapshot_date.asc&limit=60`);
+        // collapse duplicate snapshot_dates → weighted avg
+        const byDate = {};
+        raw.forEach(r => {
+          if (!byDate[r.snapshot_date]) byDate[r.snapshot_date] = { total: 0, count: 0 };
+          byDate[r.snapshot_date].total += Number(r.avg_price_sqft) * Number(r.listing_count);
+          byDate[r.snapshot_date].count += Number(r.listing_count);
+        });
+        const pts = Object.entries(byDate)
+          .map(([d, v]) => ({ date: d, avg: Math.round(v.total / v.count) }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        if (pts.length < 2) {
+          el.innerHTML = `<div class="empty" style="padding:20px">More snapshots needed — scraper runs daily.</div>`;
+          document.getElementById('trendLabel').textContent = `${pts.length} snapshot`;
+          return;
+        }
+
+        const vals = pts.map(p => p.avg);
+        const mn = Math.min(...vals), mx = Math.max(...vals);
+        const pad = Math.max((mx - mn) * 0.25, 200);
+        const W = 480, H = 72;
+        const xi = i => Math.round(i / (pts.length - 1) * W);
+        const yi = v => Math.round(H - ((v - mn + pad) / (mx - mn + pad * 2)) * H);
+        const polyPts = pts.map((p, i) => `${xi(i)},${yi(p.avg)}`).join(' ');
+        const areaPath = `${xi(0)},${H} ${polyPts} ${xi(pts.length-1)},${H}`;
+        const trend = pts[pts.length-1].avg - pts[0].avg;
+        const trendColor = trend > 0 ? '#e05252' : trend < 0 ? '#4ecba8' : '#c9a84c';
+        const trendArrow = trend > 0 ? '↑' : trend < 0 ? '↓' : '→';
+
+        document.getElementById('trendLabel').textContent = `${pts.length} snapshots · ${activeCity.name}`;
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">${pts[0].date} → ${pts[pts.length-1].date}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${trendColor}">${trendArrow} ₹${Math.abs(trend).toLocaleString('en-IN')}/sqft</span>
+          </div>
+          <svg viewBox="0 0 ${W} ${H+24}" width="100%" style="overflow:visible;display:block">
+            <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+            </linearGradient></defs>
+            <polygon points="${areaPath}" fill="url(#tg)"/>
+            <polyline points="${polyPts}" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            ${pts.map((p, i) => `
+              <circle cx="${xi(i)}" cy="${yi(p.avg)}" r="3" fill="#c9a84c" stroke="#060810" stroke-width="1.5"/>
+              <text x="${xi(i)}" y="${H+14}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.3)">${p.date.slice(5)}</text>
+              <text x="${xi(i)}" y="${yi(p.avg)-7}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.65)">₹${(p.avg/1000).toFixed(1)}k</text>
+            `).join('')}
+          </svg>`;
+      } catch(e) {
+        el.innerHTML = `<div class="empty">Error loading trend: ${e.message}</div>`;
+      }
+    }
+
+    // ── Act Now — high/critical + confidence ≥70, not dismissed ──────────────
+    function renderActNow() {
+      const el = document.getElementById('actNowList');
+      const countEl = document.getElementById('actNowCount');
+      if (!el) return;
+      const actNow = allFlags
+        .filter(f => (f.severity === 'critical' || f.severity === 'high') && (f.confidence ?? 0) >= 70 && f.status !== 'dismissed')
+        .sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))
+        .slice(0, 12);
+      if (countEl) countEl.textContent = `${actNow.length} flags`;
+      if (!actNow.length) {
+        el.innerHTML = `<div class="empty">No high-priority flags — or all reviewed.</div>`;
+        return;
+      }
+      el.innerHTML = `<table>
+        <thead><tr><th>Flag</th><th>Conf</th><th>Action</th></tr></thead>
+        <tbody>${actNow.map(f => `<tr data-id="${f.id}">
+          <td><div class="flag-title" style="font-size:12px">${esc(f.title || '—')}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px">${(f.flag_type||'').replace(/_/g,' ')}</div></td>
+          <td>${confBadge(f.confidence)}</td>
+          <td><div class="review-btn-wrap">
+            <button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓</button>
+            <button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕</button>
+          </div></td>
+        </tr>`).join('')}</tbody></table>`;
     }
 
     function formatPrice(n) {

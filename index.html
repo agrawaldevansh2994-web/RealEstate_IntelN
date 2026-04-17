@@ -1585,7 +1585,8 @@
   <script>
     const SB_URL = 'https://bmiunaojlqwscybcayyk.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
-    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }];
+    const FLAG_REVIEW_TOKEN_KEY = 'reintel.flagReviewToken';
+    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }, { id: 2, name: 'Nagpur' }];
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
     let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
 
@@ -1595,13 +1596,30 @@
       return r.json();
     }
 
-    async function sbPatch(table, id, body) {
-      const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
-        method: 'PATCH',
-        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify(body)
+    async function reviewFlagRpc(id, newStatus, reviewToken) {
+      const r = await fetch(`${SB_URL}/rest/v1/rpc/review_flag_secure`, {
+        method: 'POST',
+        headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_flag_id: id, p_new_status: newStatus, p_review_token: reviewToken })
       });
-      return r.ok;
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }
+
+    function getStoredReviewToken() {
+      return (localStorage.getItem(FLAG_REVIEW_TOKEN_KEY) || '').trim();
+    }
+
+    function askReviewToken(forcePrompt = false) {
+      if (!forcePrompt) {
+        const stored = getStoredReviewToken();
+        if (stored) return stored;
+      }
+
+      const entered = (window.prompt('Enter the dashboard review token to confirm or dismiss flags:') || '').trim();
+      if (!entered) return '';
+      localStorage.setItem(FLAG_REVIEW_TOKEN_KEY, entered);
+      return entered;
     }
 
     function buildCityTabs() {
@@ -1772,11 +1790,55 @@
     }
 
     async function reviewFlag(id, newStatus, btn) {
-      const ok = await sbPatch('suspicious_flags', id, { status: newStatus, reviewed_at: new Date().toISOString(), reviewed_by: 'dashboard' });
-      if (!ok) { btn.textContent = 'Error'; return; }
-      const flag = allFlags.find(f => f.id === id);
-      if (flag) flag.status = newStatus;
-      renderFlags(); renderMatrix(); renderActNow();
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      let reviewToken = askReviewToken(false);
+      if (!reviewToken) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        return;
+      }
+
+      try {
+        let result = await reviewFlagRpc(id, newStatus, reviewToken);
+
+        if (!result?.ok && result?.error === 'invalid_token') {
+          localStorage.removeItem(FLAG_REVIEW_TOKEN_KEY);
+          reviewToken = askReviewToken(true);
+          if (!reviewToken) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+            return;
+          }
+          result = await reviewFlagRpc(id, newStatus, reviewToken);
+        }
+
+        if (!result?.ok) {
+          btn.textContent = result?.error === 'invalid_token' ? 'Bad token' : 'Error';
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }, 1200);
+          return;
+        }
+
+        const flag = allFlags.find(f => f.id === id);
+        if (flag) {
+          flag.status = newStatus;
+          flag.reviewed_at = new Date().toISOString();
+          flag.reviewed_by = 'dashboard';
+        }
+        renderFlags(); renderMatrix(); renderActNow();
+      } catch (e) {
+        btn.textContent = 'Error';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }, 1200);
+        return;
+      }
     }
 
     // ── Confidence × Severity Matrix ──────────────────────────────────────────
@@ -2230,7 +2292,11 @@
       '444601': [20.9374, 77.7796], '444602': [20.9300, 77.7700], '444603': [20.9450, 77.7900],
       '444604': [20.9200, 77.7600], '444605': [20.9550, 77.8000], '444606': [20.9100, 77.7500],
     };
-    const CITY_CENTRES = { 'Akola': [20.7068, 77.0040], 'Amravati': [20.9374, 77.7796] };
+    const CITY_CENTRES = {
+      'Akola': [20.7068, 77.0040],
+      'Amravati': [20.9374, 77.7796],
+      'Nagpur': [21.1458, 79.0882]
+    };
     let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [], mapFilter = 'all';
 
     function initMap(city) {

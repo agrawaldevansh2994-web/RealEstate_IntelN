@@ -932,7 +932,11 @@
       color: var(--red)
     }
 
-    .map-legend {
+    .map-btn.active-heatmap {
+      background: rgba(255, 140, 66, 0.15);
+      border-color: #ff8c42;
+      color: #ff8c42;
+
       display: flex;
       gap: 14px;
       align-items: center
@@ -1336,286 +1340,6 @@
       color: var(--muted);
       margin-bottom: 12px
     }
-
-    /* ── EVIDENCE EXPANDABLE ROW ─────────────────────── */
-    .flag-row-main {
-      cursor: pointer
-    }
-
-    .flag-row-main:hover td {
-      background: rgba(255, 255, 255, 0.025)
-    }
-
-    .flag-evidence-row {
-      display: none
-    }
-
-    .flag-evidence-row.open {
-      display: table-row
-    }
-
-    .flag-evidence-cell {
-      padding: 10px 16px 14px;
-      background: rgba(255, 255, 255, 0.025);
-      border-bottom: 1px solid var(--border2)
-    }
-
-    .ev-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 20px
-    }
-
-    .ev-item {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px
-    }
-
-    .ev-label {
-      color: var(--muted);
-      display: block;
-      margin-bottom: 2px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 9px
-    }
-
-    .ev-val {
-      color: var(--text);
-      font-size: 11px
-    }
-
-    .ev-tag {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border2);
-      border-radius: 3px;
-      padding: 1px 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      margin: 1px 2px 1px 0
-    }
-
-    .ev-arrow {
-      color: var(--gold);
-      font-size: 12px;
-      margin: 0 4px
-    }
-
-    .flag-expand-hint {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      color: var(--muted);
-      margin-left: 4px;
-      opacity: 0.5
-    }
-
-    .dup-badge {
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(167, 139, 250, 0.12);
-      border: 1px solid rgba(167, 139, 250, 0.25);
-      color: var(--purple);
-      margin-left: 5px;
-      vertical-align: middle
-    }
-
-    /* ── PROJECT DETAIL DRAWER ───────────────────────── */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s
-    }
-
-    .drawer-overlay.open {
-      opacity: 1;
-      pointer-events: all
-    }
-
-    .drawer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 380px;
-      background: var(--bg2);
-      border-left: 1px solid var(--border2);
-      z-index: 201;
-      transform: translateX(100%);
-      transition: transform 0.25s ease;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column
-    }
-
-    .drawer.open {
-      transform: translateX(0)
-    }
-
-    .drawer-header {
-      padding: 18px 20px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      position: sticky;
-      top: 0;
-      background: var(--bg2);
-      z-index: 1
-    }
-
-    .drawer-title {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1.3
-    }
-
-    .drawer-close {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0 4px;
-      flex-shrink: 0;
-      line-height: 1
-    }
-
-    .drawer-close:hover {
-      color: var(--text)
-    }
-
-    .drawer-body {
-      padding: 16px 20px;
-      flex: 1
-    }
-
-    .drawer-section {
-      margin-bottom: 20px
-    }
-
-    .drawer-section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border)
-    }
-
-    .drawer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px
-    }
-
-    .drawer-row:last-child {
-      border-bottom: none
-    }
-
-    .drawer-key {
-      color: var(--muted);
-      font-size: 10px
-    }
-
-    .drawer-val {
-      color: var(--text);
-      text-align: right;
-      max-width: 58%
-    }
-
-    .drawer-val a {
-      color: var(--blue);
-      text-decoration: none;
-      font-size: 10px
-    }
-
-    .drawer-val a:hover {
-      text-decoration: underline
-    }
-
-    tr.project-row-clickable {
-      cursor: pointer
-    }
-
-    tr.project-row-clickable:hover td {
-      background: rgba(255, 255, 255, 0.03)
-    }
-
-    /* ── PROMOTER SEARCH ─────────────────────────────── */
-    .project-search-wrap {
-      padding: 8px 16px;
-      border-bottom: 1px solid var(--border)
-    }
-
-    .project-search {
-      width: 100%;
-      background: var(--bg3);
-      border: 1px solid var(--border2);
-      border-radius: 5px;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      padding: 5px 10px;
-      outline: none
-    }
-
-    .project-search::placeholder {
-      color: var(--muted)
-    }
-
-    .project-search:focus {
-      border-color: var(--gold)
-    }
-
-    /* ── PIPELINE HEALTH ─────────────────────────────── */
-    .health-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      margin-right: 5px;
-      flex-shrink: 0
-    }
-
-    .health-fresh {
-      background: var(--green);
-      box-shadow: 0 0 5px var(--green)
-    }
-
-    .health-stale {
-      background: var(--gold);
-      box-shadow: 0 0 5px var(--gold)
-    }
-
-    .health-old {
-      background: var(--red);
-      box-shadow: 0 0 5px var(--red)
-    }
-
-    #pipelineHealth {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 0
-    }
   </style>
 </head>
 
@@ -1628,20 +1352,29 @@
     </div>
     <div class="city-tabs" id="cityTabs"></div>
     <div class="header-right">
-      <span id="pipelineHealth"><span class="health-dot health-fresh"></span>—</span>
+      <span id="pipelineHealth"
+        style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:0">
+        <span id="healthDot"
+          style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);margin-right:5px;flex-shrink:0"></span>
+        <span id="healthLabel">—</span>
+      </span>
       <span id="lastUpdate" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">—</span>
       <button class="btn-refresh" onclick="loadCity(activeCity)">↻ Refresh</button>
     </div>
   </header>
 
   <!-- Project detail drawer -->
-  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
-  <div class="drawer" id="projectDrawer">
-    <div class="drawer-header">
-      <div class="drawer-title" id="drawerTitle">—</div>
-      <button class="drawer-close" onclick="closeDrawer()">×</button>
+  <div id="drawerOverlay" onclick="closeDrawer()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200"></div>
+  <div id="projectDrawer"
+    style="position:fixed;top:0;right:0;bottom:0;width:380px;background:var(--bg2);border-left:1px solid var(--border2);z-index:201;transform:translateX(100%);transition:transform 0.25s ease;overflow-y:auto;display:flex;flex-direction:column">
+    <div
+      style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;position:sticky;top:0;background:var(--bg2)">
+      <div id="drawerTitle" style="flex:1;font-size:14px;font-weight:700;line-height:1.3">—</div>
+      <button onclick="closeDrawer()"
+        style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">×</button>
     </div>
-    <div class="drawer-body" id="drawerBody"></div>
+    <div id="drawerBody" style="padding:16px 20px;flex:1"></div>
   </div>
 
   <main>
@@ -1834,13 +1567,29 @@
           <button class="map-btn" onclick="setMapFilter('rera',this)">RERA only</button>
           <button class="map-btn" onclick="setMapFilter('listings',this)">Listings only</button>
           <button class="map-btn" onclick="setMapFilter('flagged',this)">Flagged only</button>
+          <button class="map-btn" onclick="setMapFilter('heatmap',this)">🌡 Price Heatmap</button>
         </div>
-        <div class="map-legend">
+        <div class="map-legend" id="mapLegend">
           <span class="legend-dot"><span style="background:#e05252"></span>Flagged</span>
           <span class="legend-dot"><span style="background:#c9a84c"></span>Lapsed</span>
           <span class="legend-dot"><span style="background:#4ecba8"></span>Active RERA</span>
           <span class="legend-dot"><span style="background:#a78bfa;border-radius:2px"></span>Sale</span>
           <span class="legend-dot"><span style="background:#f59e0b;border-radius:2px"></span>Rent</span>
+        </div>
+        <div class="map-legend" id="heatmapLegend" style="display:none">
+          <span
+            style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-right:6px">PRICE/SQFT</span>
+          <span class="legend-dot"><span style="background:#4ecba8"></span>Affordable</span>
+          <span class="legend-dot"><span style="background:#c9a84c"></span>Mid</span>
+          <span class="legend-dot"><span style="background:#e05252"></span>Premium</span>
+          <span style="margin-left:8px;display:flex;gap:4px">
+            <button class="map-btn" id="hmSale" onclick="setHeatmapType('sale')"
+              style="padding:3px 8px;font-size:9px">Sale</button>
+            <button class="map-btn" id="hmRent" onclick="setHeatmapType('rent')"
+              style="padding:3px 8px;font-size:9px">Rent</button>
+            <button class="map-btn" id="hmAll" onclick="setHeatmapType('all')"
+              style="padding:3px 8px;font-size:9px;border-color:var(--gold);color:var(--gold)">All</button>
+          </span>
         </div>
         <span class="map-count-chip" id="mapCount">— pins</span>
       </div>
@@ -1870,9 +1619,10 @@
     <div class="panel" style="margin-bottom:40px">
       <div class="panel-head"><span class="panel-title">📋 All Projects</span><span class="panel-count"
           id="projCount">—</span></div>
-      <div class="project-search-wrap">
-        <input class="project-search" id="projectSearch" type="text" placeholder="Search project or promoter…"
-          oninput="filterProjects(this.value)">
+      <div style="padding:8px 16px;border-bottom:1px solid var(--border)">
+        <input id="projectSearch" type="text" placeholder="Search project or promoter…"
+          oninput="filterProjects(this.value)"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;outline:none">
       </div>
       <div class="tbl-wrap" id="projectsTable">
         <div class="loading">
@@ -1947,7 +1697,7 @@
     // ── Listings ──────────────────────────────────────────────────────────────
     async function loadListings(city) {
       try {
-        allListings = await sb(`listings?city_id=eq.${city.id}&source=eq.99acres&listing_status=eq.active&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at&order=last_seen_at.desc.nullslast&limit=5000`);
+        allListings = await sb(`listings?city_id=eq.${city.id}&source=eq.99acres&listing_status=eq.active&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at&order=last_seen_at.desc.nullslast&limit=2000`);
         renderLocalityPrices(); renderPropertyTypes(); renderMarketSummary();
         renderListingsTable(); renderBHKChart(); renderPriceTrend(); renderPipelineHealth();
       } catch (e) { document.getElementById('listingsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
@@ -2015,22 +1765,6 @@
         });
       }
 
-      // Dedup by (flag_type + title): keep most recent, annotate with count
-      const dedupMap = {};
-      list.forEach(f => {
-        const key = (f.flag_type || '') + '|' + (f.title || '');
-        if (!dedupMap[key]) { dedupMap[key] = { ...f, _dupCount: 1 }; }
-        else {
-          dedupMap[key]._dupCount++;
-          // keep the highest-confidence or most recent
-          if ((f.confidence ?? 0) > (dedupMap[key].confidence ?? 0) ||
-            (f.created_at > dedupMap[key].created_at && f.confidence === dedupMap[key].confidence)) {
-            dedupMap[key] = { ...f, _dupCount: dedupMap[key]._dupCount };
-          }
-        }
-      });
-      list = Object.values(dedupMap);
-
       // sort: confirmed first, then by confidence×severity score desc
       list = [...list].sort((a, b) => {
         const score = f => ({ critical: 4, high: 3, medium: 2, low: 1 }[f.severity] || 1) * ((f.confidence ?? 50) / 100);
@@ -2038,6 +1772,20 @@
         if (b.status === 'confirmed' && a.status !== 'confirmed') return 1;
         return score(b) - score(a);
       });
+
+      // Dedup: group by (flag_type + title), keep highest confidence copy, annotate count
+      const dedupMap = {};
+      list.forEach(f => {
+        const key = (f.flag_type || '') + '|' + (f.title || '');
+        if (!dedupMap[key]) { dedupMap[key] = { ...f, _dupCount: 1 }; }
+        else {
+          dedupMap[key]._dupCount++;
+          if ((f.confidence ?? 0) > (dedupMap[key].confidence ?? 0)) {
+            dedupMap[key] = { ...f, _dupCount: dedupMap[key]._dupCount };
+          }
+        }
+      });
+      list = Object.values(dedupMap);
 
       const visible = list.filter(f => f.status !== 'dismissed');
       const dismissed = list.filter(f => f.status === 'dismissed');
@@ -2079,10 +1827,10 @@
         const eff = effectiveSeverity(f);
         const isDismissed = f.status === 'dismissed';
         const isConfirmed = f.status === 'confirmed';
-        const rowClass = `flag-row-main ${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''}`.trim();
+        const rowClass = `${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''}`.trim();
         const sevDisplay = eff === 'downgraded' ? 'medium' : f.severity || 'medium';
         const evId = `ev-${f.id.replace(/-/g, '')}`;
-        const dupCount = f._dupCount > 1 ? `<span class="dup-badge">×${f._dupCount}</span>` : '';
+        const dupBadge = f._dupCount > 1 ? `<span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);color:var(--purple);margin-left:5px">×${f._dupCount}</span>` : '';
 
         const reviewBtns = isDismissed
           ? `<div class="review-btn-wrap"><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Reopen</button></div>`
@@ -2090,20 +1838,16 @@
             ? `<div class="review-btn-wrap"><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Open</button></div>`
             : `<div class="review-btn-wrap"><button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓ Confirm</button><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button></div>`;
 
-        const mainRow = `<tr class="${rowClass}" data-id="${f.id}" data-status="${f.status || 'open'}" onclick="toggleEvidence('${evId}', event)">
-          <td><div class="flag-title">${esc(f.title || '—')}${dupCount}<span class="flag-expand-hint">▸ details</span></div><div class="flag-desc">${esc(f.description || '')}</div></td>
+        const mainRow = `<tr class="${rowClass}" style="cursor:pointer" data-id="${f.id}" data-status="${f.status || 'open'}" onclick="toggleEvidence('${evId}',event)">
+          <td><div class="flag-title">${esc(f.title || '—')}${dupBadge}<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-left:4px;opacity:0.55">▸ details</span></div><div class="flag-desc">${esc(f.description || '')}</div></td>
           <td><span class="badge b-${sevDisplay}">${f.severity || '—'}</span>${eff === 'downgraded' ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">low conf</span>' : ''}</td>
           <td>${confBadge(f.confidence)}</td>
           <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span>${f._crossCity ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--purple)">cross-city</span>' : ''}</td>
           <td><span class="ts">${dt}</span></td>
           <td>${reviewBtns}</td>
         </tr>`;
-
-        const evidenceRow = `<tr class="flag-evidence-row" id="${evId}">
-          <td class="flag-evidence-cell" colspan="6">${renderEvidence(f)}</td>
-        </tr>`;
-
-        return mainRow + evidenceRow;
+        const evRow = `<tr id="${evId}" style="display:none"><td colspan="6" style="padding:10px 16px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--border2)">${renderEvidence(f)}</td></tr>`;
+        return mainRow + evRow;
       };
 
       document.getElementById('flagsTable').innerHTML =
@@ -2275,7 +2019,7 @@
     // ── Projects ──────────────────────────────────────────────────────────────
     async function loadProjects(city) {
       try {
-        allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=5000`);
+        allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=500`);
         renderStats(allProjects, city);
         renderRERAIntelligence(allProjects);
         loadPromoterRisk(city);
@@ -2378,8 +2122,8 @@
     function renderProjects(projects) {
       _drawerProjects = projects;
       _projectSearchTerm = '';
-      const searchEl = document.getElementById('projectSearch');
-      if (searchEl) searchEl.value = '';
+      const el = document.getElementById('projectSearch');
+      if (el) el.value = '';
       document.getElementById('projCount').textContent = `${projects.length} projects`;
       if (!projects.length) { document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects.</div>`; return; }
       renderProjectRows(projects);
@@ -2585,145 +2329,122 @@
         </tr>`).join('')}</tbody></table>`;
     }
 
+    // ── Pipeline health ───────────────────────────────────────────────────────
+    function renderPipelineHealth() {
+      const dot = document.getElementById('healthDot');
+      const lbl = document.getElementById('healthLabel');
+      if (!dot || !lbl) return;
+      const lastSeen = allListings[0]?.last_seen_at;
+      if (!lastSeen) { dot.style.background = 'var(--red)'; dot.style.boxShadow = '0 0 5px var(--red)'; lbl.textContent = 'No scrape data'; return; }
+      const hrs = (Date.now() - new Date(lastSeen).getTime()) / 3600000;
+      const color = hrs < 24 ? 'var(--green)' : hrs < 48 ? 'var(--gold)' : 'var(--red)';
+      dot.style.background = color; dot.style.boxShadow = `0 0 5px ${color}`;
+      lbl.textContent = hrs < 24 ? `Scraped ${Math.round(hrs)}h ago` : hrs < 48 ? `Scraped ${Math.round(hrs)}h ago` : `Last scraped ${Math.floor(hrs / 24)}d ago`;
+    }
+
     // ── Evidence expandable rows ──────────────────────────────────────────────
     function toggleEvidence(evId, event) {
-      // Don't toggle if clicking a review button
       if (event.target.closest('.review-btn-wrap')) return;
       const row = document.getElementById(evId);
       if (!row) return;
-      row.classList.toggle('open');
-      // update hint arrow
-      const mainRow = row.previousElementSibling;
-      const hint = mainRow?.querySelector('.flag-expand-hint');
-      if (hint) hint.textContent = row.classList.contains('open') ? '▾ details' : '▸ details';
+      const open = row.style.display !== 'table-row';
+      row.style.display = open ? 'table-row' : 'none';
+      const hint = row.previousElementSibling?.querySelector('.flag-expand-hint');
+      if (hint) hint.textContent = open ? '▾ details' : '▸ details';
     }
 
     function renderEvidence(f) {
       const ev = f.evidence;
-      if (!ev || typeof ev !== 'object') {
-        return `<div class="ev-grid"><div class="ev-item"><span class="ev-label">Description</span><span class="ev-val">${esc(f.description || 'No evidence available.')}</span></div></div>`;
-      }
+      if (!ev || typeof ev !== 'object') return `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(f.description || 'No evidence.')}</div>`;
       const items = [];
-      const row = (label, val, color) =>
-        `<div class="ev-item"><span class="ev-label">${label}</span><span class="ev-val"${color ? ` style="color:${color}"` : ''}>${val}</span></div>`;
-
-      // Shared fields
-      if (ev.promoter_name) items.push(row('Promoter', esc(ev.promoter_name)));
-
-      // Per flag type
+      const item = (label, val) => `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;min-width:120px"><span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">${label}</span><span style="color:var(--text);font-size:11px">${val}</span></div>`;
+      const tag = v => `<span style="display:inline-block;background:rgba(255,255,255,0.06);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;font-size:9px;color:var(--muted);margin:1px 2px 1px 0">${esc(String(v))}</span>`;
+      if (ev.promoter_name) items.push(item('Promoter', esc(ev.promoter_name)));
       switch (f.flag_type) {
-        case 'complaint_velocity':
-        case 'repeated_complaints':
-          if (ev.total_complaints) items.push(row('Complaints', ev.total_complaints, 'var(--gold)'));
-          if (ev.affected_projects) items.push(row('Projects affected', ev.affected_projects));
-          if (ev.project_names?.length) items.push(row('Projects', ev.project_names.map(n => `<span class="ev-tag">${esc(n)}</span>`).join('')));
+        case 'complaint_velocity': case 'repeated_complaints':
+          if (ev.total_complaints) items.push(item('Complaints', `<span style="color:var(--gold)">${ev.total_complaints}</span>`));
+          if (ev.affected_projects) items.push(item('Projects', ev.affected_projects));
+          if (ev.project_names?.length) items.push(item('Project list', ev.project_names.map(tag).join('')));
           break;
         case 'stalled_projects':
-          if (ev.lapsed_count || ev.project_count) items.push(row('Stalled / total', `${ev.lapsed_count ?? '?'} / ${ev.project_count ?? '?'}`, 'var(--gold)'));
-          if (ev.project_names?.length) items.push(row('Projects', ev.project_names.map(n => `<span class="ev-tag">${esc(n)}</span>`).join('')));
+          if (ev.lapsed_count != null) items.push(item('Stalled / total', `<span style="color:var(--gold)">${ev.lapsed_count}</span> / ${ev.project_count ?? '?'}`));
+          if (ev.project_names?.length) items.push(item('Projects', ev.project_names.map(tag).join('')));
           break;
-        case 'price_trend_spike':
+        case 'price_trend_spike': case 'locality_price_spike':
           if (ev.price_start && ev.price_end) {
-            const dir = ev.price_end > ev.price_start ? '↑' : '↓';
-            const col = ev.price_end > ev.price_start ? 'var(--red)' : 'var(--green)';
-            items.push(row('Price move', `₹${Number(ev.price_start).toLocaleString('en-IN')} <span class="ev-arrow">${dir}</span> ₹${Number(ev.price_end).toLocaleString('en-IN')}`, col));
+            const up = ev.price_end > ev.price_start;
+            items.push(item('Price move', `₹${Number(ev.price_start).toLocaleString('en-IN')} <span style="color:var(--gold)">${up ? '↑' : '↓'}</span> <span style="color:${up ? '#e05252' : '#4ecba8'}">₹${Number(ev.price_end).toLocaleString('en-IN')}</span>`));
           }
-          if (ev.change_pct != null) items.push(row('Change', `${ev.change_pct > 0 ? '+' : ''}${Number(ev.change_pct).toFixed(1)}%`, ev.change_pct > 0 ? 'var(--red)' : 'var(--green)'));
-          if (ev.window_days) items.push(row('Window', `${ev.window_days} days`));
-          if (ev.locality) items.push(row('Locality', esc(ev.locality)));
-          if (ev.listing_count) items.push(row('Listings', ev.listing_count));
-          if (ev.property_type) items.push(row('Type', esc(ev.property_type)));
+          if (ev.change_pct != null) items.push(item('Change', `<span style="color:${ev.change_pct > 0 ? '#e05252' : '#4ecba8'}">${ev.change_pct > 0 ? '+' : ''}${Number(ev.change_pct).toFixed(1)}%</span>`));
+          if (ev.window_days) items.push(item('Window', `${ev.window_days} days`));
+          if (ev.locality) items.push(item('Locality', esc(ev.locality)));
+          if (ev.listing_count) items.push(item('Listings', ev.listing_count));
           break;
         case 'listing_price_outlier':
-        case 'locality_price_spike':
-          if (ev.price != null) items.push(row('Listed price', `₹${Number(ev.price).toLocaleString('en-IN')}/sqft`, 'var(--gold)'));
-          if (ev.median != null || ev.city_median != null) items.push(row('City median', `₹${Number(ev.median ?? ev.city_median).toLocaleString('en-IN')}/sqft`));
-          if (ev.deviation_pct != null) items.push(row('Deviation', `${Number(ev.deviation_pct).toFixed(0)}% above median`, 'var(--red)'));
-          if (ev.locality) items.push(row('Locality', esc(ev.locality)));
+          if (ev.price != null) items.push(item('Listed', `<span style="color:var(--gold)">₹${Number(ev.price).toLocaleString('en-IN')}/sqft</span>`));
+          if (ev.median != null || ev.city_median != null) items.push(item('City median', `₹${Number(ev.median ?? ev.city_median).toLocaleString('en-IN')}/sqft`));
+          if (ev.deviation_pct != null) items.push(item('Deviation', `<span style="color:#e05252">${Number(ev.deviation_pct).toFixed(0)}% above</span>`));
+          if (ev.locality) items.push(item('Locality', esc(ev.locality)));
           break;
         case 'repeat_offender_new_project':
-          if (ev.new_project_name) items.push(row('New project', esc(ev.new_project_name)));
-          if (ev.existing_flag_count) items.push(row('Existing flags', ev.existing_flag_count, 'var(--red)'));
-          if (ev.project_names?.length) items.push(row('Prior projects', ev.project_names.map(n => `<span class="ev-tag">${esc(n)}</span>`).join('')));
-          break;
-        case 'promoter_name_cluster':
-          if (ev.names?.length) items.push(row('Similar names', ev.names.map(n => `<span class="ev-tag">${esc(n)}</span>`).join('')));
-          if (ev.registration_count) items.push(row('Registrations', ev.registration_count));
+          if (ev.new_project_name) items.push(item('New project', esc(ev.new_project_name)));
+          if (ev.existing_flag_count) items.push(item('Prior flags', `<span style="color:var(--red)">${ev.existing_flag_count}</span>`));
+          if (ev.project_names?.length) items.push(item('Prior projects', ev.project_names.map(tag).join('')));
           break;
         default:
-          // Generic: render all top-level string/number evidence fields
           Object.entries(ev).forEach(([k, v]) => {
-            if (typeof v === 'string' || typeof v === 'number') items.push(row(k.replace(/_/g, ' '), esc(String(v))));
+            if (typeof v === 'string' || typeof v === 'number') items.push(item(k.replace(/_/g, ' '), esc(String(v))));
           });
       }
-
-      if (!items.length) return `<div class="ev-grid"><div class="ev-item"><span class="ev-label">Raw Evidence</span><span class="ev-val" style="font-size:9px;opacity:0.7">${esc(JSON.stringify(ev))}</span></div></div>`;
-      return `<div class="ev-grid">${items.join('')}</div>`;
+      if (!items.length) return `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${esc(JSON.stringify(ev))}</div>`;
+      return `<div style="display:flex;flex-wrap:wrap;gap:10px 20px;padding:4px 0">${items.join('')}</div>`;
     }
 
     // ── Project detail drawer ─────────────────────────────────────────────────
     let _drawerProjects = [];
     function openDrawer(idx) {
-      const p = _drawerProjects[idx];
-      if (!p) return;
+      const p = _drawerProjects[idx]; if (!p) return;
       document.getElementById('drawerTitle').textContent = p.project_name || '—';
       const st = p.rera_status || '—';
       const stColor = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
-      const dRow = (k, v, color) => `<div class="drawer-row"><span class="drawer-key">${k}</span><span class="drawer-val"${color ? ` style="color:${color}"` : ''}>${v}</span></div>`;
-      const fmt = v => v != null && v !== '' ? v : '—';
+      const dr = (k, v) => `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'JetBrains Mono',monospace;font-size:11px"><span style="color:var(--muted);font-size:10px">${k}</span><span style="text-align:right;max-width:58%;color:var(--text)">${v}</span></div>`;
+      const fmt = v => (v != null && v !== '') ? v : '—';
       const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-      const fmtNum = v => v != null ? Number(v).toLocaleString('en-IN') : '—';
-
-      // Unit sale rate
-      const saleRate = (p.total_units && p.units_sold != null)
-        ? Math.round(p.units_sold / p.total_units * 100) + '%' : '—';
-      const saleColor = p.total_units ? (p.units_sold / p.total_units > 0.6 ? 'var(--green)' : p.units_sold / p.total_units > 0.3 ? 'var(--gold)' : 'var(--red)') : null;
-
-      document.getElementById('drawerBody').innerHTML = `
-        <div class="drawer-section">
-          <div class="drawer-section-label">Registration</div>
-          ${dRow('RERA No.', fmt(p.rera_registration))}
-          ${dRow('Status', `<span style="color:${stColor};text-transform:capitalize">${fmt(st)}</span>`)}
-          ${dRow('District', fmt(p.district))}
-          ${dRow('PIN Code', fmt(p.pin_code))}
-          ${p.source_url ? dRow('RERA Link', `<a href="${p.source_url}" target="_blank" rel="noopener">View on MahaRERA ↗</a>`) : ''}
-        </div>
-        <div class="drawer-section">
-          <div class="drawer-section-label">Promoter</div>
-          ${dRow('Name', esc(fmt(p.promoter_name)))}
-          ${dRow('Type', fmt(p.promoter_type))}
-          ${p.promoter_pan ? dRow('PAN', `<span style="letter-spacing:0.1em">${esc(p.promoter_pan)}</span>`) : ''}
-        </div>
-        <div class="drawer-section">
-          <div class="drawer-section-label">Project</div>
-          ${dRow('Type', fmt(p.project_type))}
-          ${dRow('Proposed completion', fmtDate(p.proposed_completion))}
-          ${dRow('Revised completion', fmtDate(p.revised_completion))}
-          ${p.delay_months ? dRow('Delay', `${p.delay_months} months`, 'var(--gold)') : ''}
-        </div>
-        <div class="drawer-section">
-          <div class="drawer-section-label">Units & Sales</div>
-          ${dRow('Total units', fmtNum(p.total_units))}
-          ${dRow('Units sold', fmtNum(p.units_sold))}
-          ${dRow('Sale rate', saleRate, saleColor)}
-          ${dRow('Units available', fmtNum(p.units_available))}
-        </div>
-        <div class="drawer-section">
-          <div class="drawer-section-label">Risk Signals</div>
-          ${dRow('Complaints', p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '0')}
-          ${dRow('Flagged', p.is_flagged ? '<span style="color:var(--red)">⚠ Yes</span>' : '<span style="color:var(--muted)">No</span>')}
-          ${p.flag_reasons?.length ? dRow('Reasons', p.flag_reasons.map(r => `<span class="ev-tag">${esc(r)}</span>`).join('')) : ''}
-        </div>`;
-      document.getElementById('projectDrawer').classList.add('open');
-      document.getElementById('drawerOverlay').classList.add('open');
+      const fmtN = v => v != null ? Number(v).toLocaleString('en-IN') : '—';
+      const sr = (p.total_units && p.units_sold != null) ? Math.round(p.units_sold / p.total_units * 100) + '%' : '—';
+      const srColor = p.total_units ? (p.units_sold / p.total_units > 0.6 ? 'var(--green)' : p.units_sold / p.total_units > 0.3 ? 'var(--gold)' : 'var(--red)') : 'var(--text)';
+      const section = (label, rows) => `<div style="margin-bottom:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${label}</div>${rows}</div>`;
+      document.getElementById('drawerBody').innerHTML =
+        section('Registration',
+          dr('RERA No.', fmt(p.rera_registration)) +
+          dr('Status', `<span style="color:${stColor};text-transform:capitalize">${fmt(st)}</span>`) +
+          dr('District', fmt(p.district)) + dr('PIN Code', fmt(p.pin_code)) +
+          (p.source_url ? dr('Link', `<a href="${p.source_url}" target="_blank" rel="noopener" style="color:var(--blue);font-size:10px">View on MahaRERA ↗</a>`) : '')) +
+        section('Promoter',
+          dr('Name', esc(fmt(p.promoter_name))) + dr('Type', fmt(p.promoter_type)) +
+          (p.promoter_pan ? dr('PAN', `<span style="letter-spacing:0.1em">${esc(p.promoter_pan)}</span>`) : '')) +
+        section('Timeline',
+          dr('Proposed completion', fmtDate(p.proposed_completion)) +
+          dr('Revised completion', fmtDate(p.revised_completion)) +
+          (p.delay_months ? dr('Delay', `<span style="color:var(--gold)">${p.delay_months} months</span>`) : '')) +
+        section('Units & Sales',
+          dr('Total units', fmtN(p.total_units)) + dr('Units sold', fmtN(p.units_sold)) +
+          dr('Sale rate', `<span style="color:${srColor}">${sr}</span>`) +
+          dr('Available', fmtN(p.units_available))) +
+        section('Risk',
+          dr('Complaints', p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '0') +
+          dr('Flagged', p.is_flagged ? '<span style="color:var(--red)">⚠ Yes</span>' : '<span style="color:var(--muted)">No</span>'));
+      const drawer = document.getElementById('projectDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      drawer.style.transform = 'translateX(0)';
+      overlay.style.display = 'block';
     }
-
     function closeDrawer() {
-      document.getElementById('projectDrawer').classList.remove('open');
-      document.getElementById('drawerOverlay').classList.remove('open');
+      document.getElementById('projectDrawer').style.transform = 'translateX(100%)';
+      document.getElementById('drawerOverlay').style.display = 'none';
     }
 
-    // ── Promoter / project search ─────────────────────────────────────────────
+    // ── Project search / filter ───────────────────────────────────────────────
     let _projectSearchTerm = '';
     function filterProjects(term) {
       _projectSearchTerm = term.toLowerCase().trim();
@@ -2739,15 +2460,12 @@
     }
 
     function renderProjectRows(projects) {
-      if (!projects.length) {
-        document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects match "${esc(_projectSearchTerm)}".</div>`;
-        return;
-      }
+      if (!projects.length) { document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects match "${esc(_projectSearchTerm)}".</div>`; return; }
       const rows = projects.map((p, i) => {
         const st = (p.rera_status || '—').toLowerCase();
         const sc = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
         const flag = p.is_flagged ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
-        return `<tr class="project-row-clickable" onclick="openDrawer(${i})" title="Click for details">
+        return `<tr style="cursor:pointer" onclick="openDrawer(${i})" title="Click for details">
           <td style="max-width:220px"><div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div></td>
           <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
@@ -2758,20 +2476,6 @@
       }).join('');
       document.getElementById('projectsTable').innerHTML =
         `<table><thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead><tbody>${rows}</tbody></table>`;
-    }
-
-    // ── Pipeline health indicator ─────────────────────────────────────────────
-    function renderPipelineHealth() {
-      const el = document.getElementById('pipelineHealth');
-      if (!el) return;
-      const lastSeen = allListings[0]?.last_seen_at;
-      if (!lastSeen) { el.innerHTML = `<span class="health-dot health-old"></span>No scrape data`; return; }
-      const hrs = (Date.now() - new Date(lastSeen).getTime()) / 3600000;
-      const cls = hrs < 24 ? 'health-fresh' : hrs < 48 ? 'health-stale' : 'health-old';
-      const label = hrs < 24 ? `Scraped ${Math.round(hrs)}h ago`
-        : hrs < 48 ? `Scraped ${Math.round(hrs)}h ago`
-          : `Last scraped ${Math.floor(hrs / 24)}d ago`;
-      el.innerHTML = `<span class="health-dot ${cls}"></span>${label}`;
     }
 
     function formatPrice(n) {
@@ -2800,12 +2504,18 @@
       'Amravati': [20.9374, 77.7796],
       'Nagpur': [21.1458, 79.0882]
     };
-    let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [], mapFilter = 'all';
+    let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [];
+    let mapFilter = 'all', heatmapType = 'all';
 
     function initMap(city) {
       if (mapInstance) { mapInstance.remove(); mapInstance = null; }
-      mapInstance = L.map('cityMap', { center: CITY_CENTRES[city.name] || [20.7068, 77.0040], zoom: 12, scrollWheelZoom: true });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 19 }).addTo(mapInstance);
+      mapInstance = L.map('cityMap', {
+        center: CITY_CENTRES[city.name] || [20.7068, 77.0040],
+        zoom: 12, scrollWheelZoom: true
+      });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 19
+      }).addTo(mapInstance);
     }
 
     function mkPin(color) {
@@ -2844,8 +2554,113 @@
       return [lat + r * Math.sin(a), lon + r * Math.cos(a)];
     }
 
+    // ── Heatmap colour scale: blue (cheap) → gold (mid) → red (premium) ──────
+    function priceColor(psqft, minP, maxP) {
+      const t = Math.max(0, Math.min(1, (psqft - minP) / Math.max(maxP - minP, 1)));
+      if (t < 0.5) {
+        // blue #4ecba8 → gold #c9a84c
+        const u = t * 2;
+        const r = Math.round(78 + (201 - 78) * u);
+        const g = Math.round(203 + (168 - 203) * u);
+        const b = Math.round(168 + (76 - 168) * u);
+        return `rgb(${r},${g},${b})`;
+      } else {
+        // gold #c9a84c → red #e05252
+        const u = (t - 0.5) * 2;
+        const r = Math.round(201 + (224 - 201) * u);
+        const g = Math.round(168 + (82 - 168) * u);
+        const b = Math.round(76 + (82 - 76) * u);
+        return `rgb(${r},${g},${b})`;
+      }
+    }
+
+    function priceTier(t) {
+      if (t < 0.33) return 'Affordable';
+      if (t < 0.66) return 'Mid-range';
+      return 'Premium';
+    }
+
+    function renderHeatmap() {
+      if (!mapInstance) return;
+      allMapMarkers.forEach(m => m.remove());
+      allMapMarkers = [];
+
+      // Filter listings by heatmap type
+      const src = heatmapType === 'all' ? mapL99
+        : mapL99.filter(l => l.listing_type === heatmapType);
+
+      // Group by locality using lat/lon centroid
+      const locMap = {};
+      src.forEach(l => {
+        if (!l.latitude || !l.longitude) return;
+        if (!l.price_per_sqft || Number(l.price_per_sqft) < 500 || Number(l.price_per_sqft) > 200000) return;
+        const loc = (l.locality || 'Unknown').replace(/,\s*[A-Za-z\s]+$/, '').trim();
+        if (!locMap[loc]) locMap[loc] = { lats: [], lons: [], prices: [], type: heatmapType };
+        locMap[loc].lats.push(Number(l.latitude));
+        locMap[loc].lons.push(Number(l.longitude));
+        locMap[loc].prices.push(Number(l.price_per_sqft));
+      });
+
+      const localities = Object.entries(locMap)
+        .map(([name, d]) => ({
+          name,
+          lat: d.lats.reduce((s, v) => s + v, 0) / d.lats.length,
+          lon: d.lons.reduce((s, v) => s + v, 0) / d.lons.length,
+          avg: Math.round(d.prices.reduce((s, v) => s + v, 0) / d.prices.length),
+          count: d.prices.length,
+        }))
+        .filter(loc => loc.count >= 1);
+
+      if (!localities.length) {
+        document.getElementById('mapCount').textContent = 'No geocoded listings for heatmap';
+        return;
+      }
+
+      const prices = localities.map(l => l.avg);
+      const minP = Math.min(...prices), maxP = Math.max(...prices);
+
+      localities.forEach(loc => {
+        const t = (loc.avg - minP) / Math.max(maxP - minP, 1);
+        const color = priceColor(loc.avg, minP, maxP);
+        // radius scaled by listing count: min 8, max 30
+        const radius = Math.max(6, Math.min(20, 6 + Math.sqrt(loc.count) * 2));
+
+        const circle = L.circleMarker([loc.lat, loc.lon], {
+          radius,
+          fillColor: color,
+          color: 'rgba(0,0,0,0.4)',
+          weight: 1,
+          fillOpacity: 0.82,
+        });
+
+        const tier = priceTier(t);
+        const tierColor = t < 0.33 ? '#4ecba8' : t < 0.66 ? '#c9a84c' : '#e05252';
+        circle.bindPopup(`
+          <div class="map-popup-name">${esc(loc.name)}</div>
+          <div class="map-popup-row" style="margin-top:4px">
+            <span style="font-size:16px;font-weight:700;color:${color}">₹${loc.avg.toLocaleString('en-IN')}</span>
+            <span style="color:rgba(255,255,255,0.4);font-size:10px">/sqft</span>
+          </div>
+          <div class="map-popup-row"><b>Listings:</b> ${loc.count}</div>
+          <div style="margin-top:6px">
+            <span class="map-popup-badge" style="background:${tierColor}22;border:1px solid ${tierColor};color:${tierColor}">${tier}</span>
+            <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">${heatmapType === 'all' ? 'ALL' : heatmapType.toUpperCase()}</span>
+          </div>`, { maxWidth: 220 });
+
+        circle.addTo(mapInstance);
+        allMapMarkers.push(circle);
+      });
+
+      document.getElementById('mapCount').textContent =
+        `${localities.length} localities · ₹${Math.round(minP / 1000)}k–₹${Math.round(maxP / 1000)}k/sqft`;
+      if (allMapMarkers.length > 0)
+        mapInstance.fitBounds(L.featureGroup(allMapMarkers).getBounds().pad(0.1));
+    }
+
     function renderMapMarkers() {
       if (!mapInstance) return;
+      if (mapFilter === 'heatmap') { renderHeatmap(); return; }
+
       allMapMarkers.forEach(m => m.remove());
       allMapMarkers = [];
       const showR = mapFilter === 'all' || mapFilter === 'rera' || mapFilter === 'flagged';
@@ -2896,8 +2711,7 @@
 
       const geocodedListings = mapL99.filter(l => l.latitude && l.longitude).length;
       const coverageNote = mapL99.length > 0 && geocodedListings < mapL99.length
-        ? ` · ${geocodedListings}/${mapL99.length} listings geocoded`
-        : '';
+        ? ` · ${geocodedListings}/${mapL99.length} listings geocoded` : '';
       document.getElementById('mapCount').textContent = `${allMapMarkers.length} pins${coverageNote}`;
       if (allMapMarkers.length > 0) mapInstance.fitBounds(L.featureGroup(allMapMarkers).getBounds().pad(0.15));
     }
@@ -2906,7 +2720,25 @@
       mapFilter = f;
       document.querySelectorAll('.map-btn').forEach(b => b.className = 'map-btn');
       btn.classList.add(`active-${f}`);
+      // toggle legend visibility
+      const isHeatmap = f === 'heatmap';
+      document.getElementById('mapLegend').style.display = isHeatmap ? 'none' : 'flex';
+      document.getElementById('heatmapLegend').style.display = isHeatmap ? 'flex' : 'none';
       renderMapMarkers();
+    }
+
+    function setHeatmapType(type) {
+      heatmapType = type;
+      ['hmSale', 'hmRent', 'hmAll'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.borderColor = '';
+        el.style.color = '';
+      });
+      const idMap = { sale: 'hmSale', rent: 'hmRent', all: 'hmAll' };
+      const el = document.getElementById(idMap[type]);
+      if (el) { el.style.borderColor = 'var(--gold)'; el.style.color = 'var(--gold)'; }
+      renderHeatmap();
     }
 
     function updateMap(projects, listings, city) {

@@ -474,7 +474,28 @@
       border-color: rgba(91, 141, 239, 0.35)
     }
 
-    .tbl-wrap {
+    .chip.on-monitoring {
+      background: rgba(167, 139, 250, 0.12);
+      color: var(--purple);
+      border-color: rgba(167, 139, 250, 0.35)
+    }
+
+    .chip.on-confirmed {
+      background: rgba(78, 203, 168, 0.12);
+      color: var(--green);
+      border-color: rgba(78, 203, 168, 0.35)
+    }
+
+    .review-btn.btn-monitor {
+      background: rgba(167, 139, 250, 0.1);
+      color: var(--purple);
+      border-color: rgba(167, 139, 250, 0.3)
+    }
+
+    .review-btn.btn-monitor:hover {
+      background: rgba(167, 139, 250, 0.2);
+
+
       overflow: auto;
       max-height: 420px
     }
@@ -935,8 +956,10 @@
     .map-btn.active-heatmap {
       background: rgba(255, 140, 66, 0.15);
       border-color: #ff8c42;
-      color: #ff8c42;
+      color: #ff8c42
+    }
 
+    .map-legend {
       display: flex;
       gap: 14px;
       align-items: center
@@ -1064,6 +1087,11 @@
     .flag-row-confirmed td:first-child::before {
       content: '✓ ';
       color: var(--green);
+      font-size: 10px
+    }
+
+    .flag-row-monitoring td:first-child::before {
+      content: '👁 ';
       font-size: 10px
     }
 
@@ -1549,6 +1577,7 @@
         <button class="chip" onclick="setFilter('high',this)">High</button>
         <button class="chip" onclick="setFilter('medium',this)">Medium</button>
         <button class="chip" onclick="setFilter('open',this)">Open</button>
+        <button class="chip" onclick="setFilter('monitoring',this)">Monitoring</button>
         <button class="chip" onclick="setFilter('confirmed',this)">Confirmed</button>
       </div>
       <div class="tbl-wrap" id="flagsTable">
@@ -1723,7 +1752,8 @@
       activeFilter = f;
       document.querySelectorAll('.chips .chip').forEach(b => b.className = 'chip');
       btn.classList.add('on');
-      if (f === 'critical' || f === 'high' || f === 'medium') btn.classList.add(`on-${f}`);
+      const styled = ['critical', 'high', 'medium', 'low', 'monitoring', 'confirmed'];
+      if (styled.includes(f)) btn.classList.add(`on-${f}`);
       renderFlags();
     }
 
@@ -1753,6 +1783,7 @@
       const sevFilter = ['critical', 'high', 'medium', 'low'];
       let list = allFlags;
       if (activeFilter === 'open') list = allFlags.filter(f => f.status === 'open' || !f.status);
+      else if (activeFilter === 'monitoring') list = allFlags.filter(f => f.status === 'monitoring');
       else if (activeFilter === 'confirmed') list = allFlags.filter(f => f.status === 'confirmed');
       else if (sevFilter.includes(activeFilter)) list = allFlags.filter(f => f.severity === activeFilter);
 
@@ -1773,14 +1804,21 @@
         return score(b) - score(a);
       });
 
-      // Dedup: group by (flag_type + title), keep highest confidence copy, annotate count
+      // Dedup: group by (flag_type + title), keep highest-STATUS copy, annotate count
+      // Priority: confirmed > monitoring > open > dismissed
+      const statusPriority = { confirmed: 4, monitoring: 3, open: 2, dismissed: 1 };
       const dedupMap = {};
       list.forEach(f => {
         const key = (f.flag_type || '') + '|' + (f.title || '');
-        if (!dedupMap[key]) { dedupMap[key] = { ...f, _dupCount: 1 }; }
-        else {
+        const fPriority = statusPriority[f.status] ?? 2;
+        if (!dedupMap[key]) {
+          dedupMap[key] = { ...f, _dupCount: 1 };
+        } else {
           dedupMap[key]._dupCount++;
-          if ((f.confidence ?? 0) > (dedupMap[key].confidence ?? 0)) {
+          const existPriority = statusPriority[dedupMap[key].status] ?? 2;
+          // prefer higher status, break ties by confidence
+          if (fPriority > existPriority ||
+            (fPriority === existPriority && (f.confidence ?? 0) > (dedupMap[key].confidence ?? 0))) {
             dedupMap[key] = { ...f, _dupCount: dedupMap[key]._dupCount };
           }
         }
@@ -1792,6 +1830,7 @@
 
       // review summary counters — always based on full allFlags
       const tOpen = allFlags.filter(f => f.status === 'open' || !f.status).length;
+      const tMon = allFlags.filter(f => f.status === 'monitoring').length;
       const tConf = allFlags.filter(f => f.status === 'confirmed').length;
       const tDism = allFlags.filter(f => f.status === 'dismissed').length;
       const actN = allFlags.filter(f => (f.severity === 'critical' || f.severity === 'high') && (f.confidence ?? 0) >= 70 && f.status !== 'dismissed').length;
@@ -1800,6 +1839,8 @@
       if (summaryEl) {
         summaryEl.innerHTML =
           `<span style="color:var(--gold)">${tOpen} open</span>
+           <span style="color:var(--muted);margin:0 5px">·</span>
+           <span style="color:var(--purple)">${tMon} monitoring</span>
            <span style="color:var(--muted);margin:0 5px">·</span>
            <span style="color:var(--green)">${tConf} confirmed</span>
            <span style="color:var(--muted);margin:0 5px">·</span>
@@ -1827,16 +1868,30 @@
         const eff = effectiveSeverity(f);
         const isDismissed = f.status === 'dismissed';
         const isConfirmed = f.status === 'confirmed';
-        const rowClass = `${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''}`.trim();
+        const rowClass = `${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''} ${isMonitoring ? 'flag-row-monitoring' : ''}`.trim();
         const sevDisplay = eff === 'downgraded' ? 'medium' : f.severity || 'medium';
         const evId = `ev-${f.id.replace(/-/g, '')}`;
         const dupBadge = f._dupCount > 1 ? `<span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);color:var(--purple);margin-left:5px">×${f._dupCount}</span>` : '';
 
+        const isMonitoring = f.status === 'monitoring';
         const reviewBtns = isDismissed
           ? `<div class="review-btn-wrap"><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Reopen</button></div>`
           : isConfirmed
-            ? `<div class="review-btn-wrap"><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Open</button></div>`
-            : `<div class="review-btn-wrap"><button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓ Confirm</button><button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button></div>`;
+            ? `<div class="review-btn-wrap">
+                <button class="review-btn btn-monitor" onclick="reviewFlag('${f.id}','monitoring',this)" title="Move to monitoring">👁 Monitor</button>
+                <button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button>
+               </div>`
+            : isMonitoring
+              ? `<div class="review-btn-wrap">
+                <button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓ Confirm</button>
+                <button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button>
+                <button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Open</button>
+               </div>`
+              : `<div class="review-btn-wrap">
+                <button class="review-btn btn-confirm" onclick="reviewFlag('${f.id}','confirmed',this)">✓ Confirm</button>
+                <button class="review-btn btn-monitor" onclick="reviewFlag('${f.id}','monitoring',this)" title="Watch this flag">👁 Monitor</button>
+                <button class="review-btn btn-dismiss" onclick="reviewFlag('${f.id}','dismissed',this)">✕ Dismiss</button>
+               </div>`;
 
         const mainRow = `<tr class="${rowClass}" style="cursor:pointer" data-id="${f.id}" data-status="${f.status || 'open'}" onclick="toggleEvidence('${evId}',event)">
           <td><div class="flag-title">${esc(f.title || '—')}${dupBadge}<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-left:4px;opacity:0.55">▸ details</span></div><div class="flag-desc">${esc(f.description || '')}</div></td>
@@ -2623,7 +2678,7 @@
         const t = (loc.avg - minP) / Math.max(maxP - minP, 1);
         const color = priceColor(loc.avg, minP, maxP);
         // radius scaled by listing count: min 8, max 30
-        const radius = Math.max(6, Math.min(20, 6 + Math.sqrt(loc.count) * 2));
+        const radius = Math.max(8, Math.min(30, 8 + Math.sqrt(loc.count) * 3));
 
         const circle = L.circleMarker([loc.lat, loc.lon], {
           radius,

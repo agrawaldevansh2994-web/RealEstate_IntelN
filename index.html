@@ -493,12 +493,40 @@
     }
 
     .review-btn.btn-monitor:hover {
-      background: rgba(167, 139, 250, 0.2);
+      background: rgba(167, 139, 250, 0.2)
+    }
 
-
+    .tbl-wrap {
       overflow: auto;
       max-height: 420px
     }
+
+    /* ── PAGINATION ───────────────────────────────────── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .pg-btns { display: flex; gap: 4px; }
+    .pg-btn {
+      padding: 4px 10px;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      transition: all 0.15s;
+    }
+    .pg-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .pg-btn.pg-active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .pg-btn:disabled { opacity: 0.3; cursor: default; }
 
     table {
       width: 100%;
@@ -1668,6 +1696,8 @@
     const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }, { id: 2, name: 'Nagpur' }];
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
     let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
+    let projectPage = 1, listingPage = 1;
+    const PAGE_SIZE = 50;
 
     async function sb(path) {
       const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
@@ -1710,6 +1740,7 @@
     function switchCity(id) {
       activeCity = CITIES.find(c => c.id === id);
       activeListingFilter = 'all'; activeFilter = 'all';
+      projectPage = 1; listingPage = 1;
       buildCityTabs(); loadCity(activeCity);
     }
 
@@ -1866,14 +1897,14 @@
       const renderRow = f => {
         const dt = f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
         const eff = effectiveSeverity(f);
-        const isDismissed = f.status === 'dismissed';
-        const isConfirmed = f.status === 'confirmed';
+        const isDismissed  = f.status === 'dismissed';
+        const isConfirmed  = f.status === 'confirmed';
+        const isMonitoring = f.status === 'monitoring';
         const rowClass = `${eff === 'downgraded' ? 'flag-row-downgraded' : ''} ${isDismissed ? 'flag-row-dismissed' : ''} ${isConfirmed ? 'flag-row-confirmed' : ''} ${isMonitoring ? 'flag-row-monitoring' : ''}`.trim();
         const sevDisplay = eff === 'downgraded' ? 'medium' : f.severity || 'medium';
         const evId = `ev-${f.id.replace(/-/g, '')}`;
         const dupBadge = f._dupCount > 1 ? `<span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);color:var(--purple);margin-left:5px">×${f._dupCount}</span>` : '';
 
-        const isMonitoring = f.status === 'monitoring';
         const reviewBtns = isDismissed
           ? `<div class="review-btn-wrap"><button class="review-btn btn-reopen" onclick="reviewFlag('${f.id}','open',this)">↺ Reopen</button></div>`
           : isConfirmed
@@ -2085,10 +2116,10 @@
 
     function renderStats(projects, city) {
       const total = projects.length;
-      const active = projects.filter(p => p.rera_status === 'active').length;
-      const lapsed = projects.filter(p => p.rera_status === 'lapsed').length;
+      const active    = projects.filter(p => p.rera_status === 'active' || p.rera_status === 'registered').length;
+      const lapsed    = projects.filter(p => p.rera_status === 'lapsed').length;
       const completed = projects.filter(p => p.rera_status === 'completed').length;
-      const deReg = projects.filter(p => p.rera_status === 'de-registered').length;
+      const deReg     = projects.filter(p => p.rera_status === 'de-registered').length;
       const other = total - active - lapsed - completed - deReg;
       const flagged = projects.filter(p => p.is_flagged).length;
       const critical = allFlags.filter(f => f.severity === 'critical').length;
@@ -2177,6 +2208,7 @@
     function renderProjects(projects) {
       _drawerProjects = projects;
       _projectSearchTerm = '';
+      projectPage = 1;
       const el = document.getElementById('projectSearch');
       if (el) el.value = '';
       document.getElementById('projCount').textContent = `${projects.length} projects`;
@@ -2261,6 +2293,7 @@
 
     function setListingFilter(f, btn) {
       activeListingFilter = f;
+      listingPage = 1;
       document.querySelectorAll('.listing-filters .chip').forEach(b => b.className = 'chip');
       btn.classList.add('on');
       renderListingsTable();
@@ -2271,27 +2304,41 @@
       const list = activeListingFilter === 'all' ? allListings
         : tf.includes(activeListingFilter) ? allListings.filter(l => l.property_type === activeListingFilter)
           : allListings.filter(l => l.listing_type === activeListingFilter);
+
+      const totalPages = Math.ceil(list.length / PAGE_SIZE);
+      listingPage = Math.min(listingPage, Math.max(1, totalPages));
+      const start = (listingPage - 1) * PAGE_SIZE;
+      const page  = list.slice(start, start + PAGE_SIZE);
+
       document.getElementById('listingsTableCount').textContent = `${list.length} listings`;
       if (!list.length) { document.getElementById('listingsTable').innerHTML = `<div class="empty">No listings.</div>`; return; }
-      const rows = list.slice(0, 100).map(l => {
+
+      const rows = page.map(l => {
         const price = l.listed_price ? '₹' + formatPrice(Number(l.listed_price)) : '—';
         const psqft = l.price_per_sqft ? '₹' + Math.round(l.price_per_sqft).toLocaleString('en-IN') + '/sqft' : '';
         const badge = `<span class="listing-type-badge ${l.listing_type === 'rent' ? 'rent' : ''}">${l.listing_type || '—'}</span>`;
-        const beds = l.bedrooms ? `${l.bedrooms} BHK · ` : '';
-        const area = l.area_sqft ? Math.round(l.area_sqft).toLocaleString('en-IN') + ' sqft' : '—';
-        const loc = (l.locality || '—').replace(/,\s*[A-Za-z\s]+$/, '').trim();
+        const beds  = l.bedrooms ? `${l.bedrooms} BHK · ` : '';
+        const area  = l.area_sqft ? Math.round(l.area_sqft).toLocaleString('en-IN') + ' sqft' : '—';
+        const loc   = (l.locality || '—').replace(/,\s*[A-Za-z\s]+$/, '').trim();
         return `<tr>
-        <td style="max-width:200px"><div style="font-weight:600;font-size:13px">${esc(loc)}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:capitalize">${beds}${(l.property_type || '').replace(/_/g, ' ')}</div></td>
-        <td><div class="listing-price">${price}</div><div class="listing-psqft">${psqft}</div></td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${area}</td>
-        <td>${badge}</td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:capitalize">${esc(l.listed_by || '—')}</td>
-      </tr>`;
+          <td style="max-width:200px"><div style="font-weight:600;font-size:13px">${esc(loc)}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:capitalize">${beds}${(l.property_type || '').replace(/_/g, ' ')}</div></td>
+          <td><div class="listing-price">${price}</div><div class="listing-psqft">${psqft}</div></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${area}</td>
+          <td>${badge}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:capitalize">${esc(l.listed_by || '—')}</td>
+        </tr>`;
       }).join('');
-      const note = list.length > 100 ? `<div style="padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Showing 100 of ${list.length}</div>` : '';
+
       document.getElementById('listingsTable').innerHTML =
-        `<table><thead><tr><th>Locality / Type</th><th>Price</th><th>Area</th><th>Listing</th><th>By</th></tr></thead><tbody>${rows}</tbody></table>${note}`;
+        `<table><thead><tr><th>Locality / Type</th><th>Price</th><th>Area</th><th>Listing</th><th>By</th></tr></thead>
+         <tbody>${rows}</tbody></table>
+         ${totalPages > 1 ? renderPagination(listingPage, totalPages, 'goListingPage') : ''}`;
+    }
+
+    function goListingPage(p) {
+      listingPage = p;
+      renderListingsTable();
     }
 
     // ── Price Trend Sparkline ─────────────────────────────────────────────────
@@ -2461,7 +2508,7 @@
       const p = _drawerProjects[idx]; if (!p) return;
       document.getElementById('drawerTitle').textContent = p.project_name || '—';
       const st = p.rera_status || '—';
-      const stColor = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
+      const stColor = st === 'active' || st === 'registered' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
       const dr = (k, v) => `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'JetBrains Mono',monospace;font-size:11px"><span style="color:var(--muted);font-size:10px">${k}</span><span style="text-align:right;max-width:58%;color:var(--text)">${v}</span></div>`;
       const fmt = v => (v != null && v !== '') ? v : '—';
       const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -2503,6 +2550,7 @@
     let _projectSearchTerm = '';
     function filterProjects(term) {
       _projectSearchTerm = term.toLowerCase().trim();
+      projectPage = 1;
       const filtered = _projectSearchTerm
         ? allProjects.filter(p =>
           (p.project_name || '').toLowerCase().includes(_projectSearchTerm) ||
@@ -2515,12 +2563,21 @@
     }
 
     function renderProjectRows(projects) {
-      if (!projects.length) { document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects match "${esc(_projectSearchTerm)}".</div>`; return; }
-      const rows = projects.map((p, i) => {
+      if (!projects.length) {
+        document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects match "${esc(_projectSearchTerm)}".</div>`;
+        return;
+      }
+      const totalPages = Math.ceil(projects.length / PAGE_SIZE);
+      projectPage = Math.min(projectPage, totalPages);
+      const start = (projectPage - 1) * PAGE_SIZE;
+      const page  = projects.slice(start, start + PAGE_SIZE);
+
+      const rows = page.map((p, i) => {
         const st = (p.rera_status || '—').toLowerCase();
-        const sc = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
+        const sc = st === 'active' || st === 'registered' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
         const flag = p.is_flagged ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
-        return `<tr style="cursor:pointer" onclick="openDrawer(${i})" title="Click for details">
+        const globalIdx = start + i;
+        return `<tr style="cursor:pointer" onclick="openDrawer(${globalIdx})" title="Click for details">
           <td style="max-width:220px"><div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div></td>
           <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
@@ -2529,8 +2586,37 @@
           <td>${flag}</td>
         </tr>`;
       }).join('');
+
       document.getElementById('projectsTable').innerHTML =
-        `<table><thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead><tbody>${rows}</tbody></table>`;
+        `<table><thead><tr><th>Project / Promoter</th><th>RERA Reg.</th><th>Status</th><th>Complaints</th><th>Flag</th></tr></thead>
+         <tbody>${rows}</tbody></table>
+         ${totalPages > 1 ? renderPagination(projectPage, totalPages, 'goProjectPage') : ''}`;
+    }
+
+    function goProjectPage(p) {
+      projectPage = p;
+      renderProjectRows(_drawerProjects.length ? _drawerProjects : allProjects);
+    }
+
+    // ── Pagination helper ─────────────────────────────────────────────────────
+    function renderPagination(current, total, handler) {
+      const pages = [];
+      // Always show: first, last, current, and 1 neighbour each side
+      const show = new Set([1, total, current, current - 1, current + 1].filter(p => p >= 1 && p <= total));
+      const sorted = [...show].sort((a, b) => a - b);
+      let html = `<div class="pagination">
+        <span>${((current-1)*PAGE_SIZE)+1}–${Math.min(current*PAGE_SIZE, current*PAGE_SIZE)} of ${total*PAGE_SIZE}+</span>
+        <div class="pg-btns">
+          <button class="pg-btn" onclick="${handler}(${current-1})" ${current===1?'disabled':''}>← Prev</button>`;
+      let prev = 0;
+      for (const p of sorted) {
+        if (p - prev > 1) html += `<span style="padding:0 4px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px">…</span>`;
+        html += `<button class="pg-btn ${p===current?'pg-active':''}" onclick="${handler}(${p})">${p}</button>`;
+        prev = p;
+      }
+      html += `<button class="pg-btn" onclick="${handler}(${current+1})" ${current===total?'disabled':''}>Next →</button>
+        </div></div>`;
+      return html;
     }
 
     function formatPrice(n) {

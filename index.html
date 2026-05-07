@@ -1928,7 +1928,7 @@
           <td><div class="flag-title">${esc(f.title || '—')}${dupBadge}<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-left:4px;opacity:0.55">▸ details</span></div><div class="flag-desc">${esc(f.description || '')}</div></td>
           <td><span class="badge b-${sevDisplay}">${f.severity || '—'}</span>${eff === 'downgraded' ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">low conf</span>' : ''}</td>
           <td>${confBadge(f.confidence)}</td>
-          <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span>${f._crossCity ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--purple)">cross-city</span>' : ''}</td>
+          <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span>${f._crossCity ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--purple)">cross-city</span>' : ''}${!f.rera_project_id ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">market-level</span>' : ''}</td>
           <td><span class="ts">${dt}</span></td>
           <td>${reviewBtns}</td>
         </tr>`;
@@ -2116,7 +2116,7 @@
 
     function renderStats(projects, city) {
       const total = projects.length;
-      const active    = projects.filter(p => p.rera_status === 'active' || p.rera_status === 'registered').length;
+      const active    = projects.filter(p => p.rera_status === 'active').length;
       const lapsed    = projects.filter(p => p.rera_status === 'lapsed').length;
       const completed = projects.filter(p => p.rera_status === 'completed').length;
       const deReg     = projects.filter(p => p.rera_status === 'de-registered').length;
@@ -2421,7 +2421,7 @@
         <tbody>${actNow.map(f => `<tr data-id="${f.id}">
           <td>
             <div class="flag-title" style="font-size:12px">${esc(f.title || '—')}</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px">${(f.flag_type || '').replace(/_/g, ' ')}${f._crossCity ? ' · cross-city' : ''}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px">${(f.flag_type || '').replace(/_/g, ' ')}${f._crossCity ? ' · cross-city' : ''}${!f.rera_project_id ? ' · market-level' : ''}</div>
           </td>
           <td>${confBadge(f.confidence)}</td>
           <td><div class="review-btn-wrap">
@@ -2457,7 +2457,10 @@
 
     function renderEvidence(f) {
       const ev = f.evidence;
-      if (!ev || typeof ev !== 'object') return `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(f.description || 'No evidence.')}</div>`;
+      const marketNote = !f.rera_project_id
+        ? `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">📊 Market-level flag — not linked to a specific RERA project</div>`
+        : '';
+      if (!ev || typeof ev !== 'object') return marketNote + `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(f.description || 'No evidence.')}</div>`;
       const items = [];
       const item = (label, val) => `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;min-width:120px"><span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">${label}</span><span style="color:var(--text);font-size:11px">${val}</span></div>`;
       const tag = v => `<span style="display:inline-block;background:rgba(255,255,255,0.06);border:1px solid var(--border2);border-radius:3px;padding:1px 6px;font-size:9px;color:var(--muted);margin:1px 2px 1px 0">${esc(String(v))}</span>`;
@@ -2498,8 +2501,8 @@
             if (typeof v === 'string' || typeof v === 'number') items.push(item(k.replace(/_/g, ' '), esc(String(v))));
           });
       }
-      if (!items.length) return `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${esc(JSON.stringify(ev))}</div>`;
-      return `<div style="display:flex;flex-wrap:wrap;gap:10px 20px;padding:4px 0">${items.join('')}</div>`;
+      if (!items.length) return marketNote + `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${esc(JSON.stringify(ev))}</div>`;
+      return marketNote + `<div style="display:flex;flex-wrap:wrap;gap:10px 20px;padding:4px 0">${items.join('')}</div>`;
     }
 
     // ── Project detail drawer ─────────────────────────────────────────────────
@@ -2508,7 +2511,7 @@
       const p = _drawerProjects[idx]; if (!p) return;
       document.getElementById('drawerTitle').textContent = p.project_name || '—';
       const st = p.rera_status || '—';
-      const stColor = st === 'active' || st === 'registered' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
+      const stColor = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
       const dr = (k, v) => `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'JetBrains Mono',monospace;font-size:11px"><span style="color:var(--muted);font-size:10px">${k}</span><span style="text-align:right;max-width:58%;color:var(--text)">${v}</span></div>`;
       const fmt = v => (v != null && v !== '') ? v : '—';
       const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -2574,7 +2577,7 @@
 
       const rows = page.map((p, i) => {
         const st = (p.rera_status || '—').toLowerCase();
-        const sc = st === 'active' || st === 'registered' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
+        const sc = st === 'active' ? 'var(--green)' : st === 'lapsed' || st === 'de-registered' ? 'var(--gold)' : st === 'completed' ? 'var(--blue)' : 'var(--muted)';
         const flag = p.is_flagged ? `<span class="badge b-flagged">⚠ Flagged</span>` : '';
         const globalIdx = start + i;
         return `<tr style="cursor:pointer" onclick="openDrawer(${globalIdx})" title="Click for details">

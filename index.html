@@ -2224,17 +2224,17 @@
         const loc = l.locality.replace(/,\s*[A-Za-z\s]+$/, '').trim();
         if (!lmap[loc]) lmap[loc] = [];
         const v = Number(l.price_per_sqft);
-        if (v > 500 && v < 200000) lmap[loc].push(v);
+        if (v > 500 && v < 50000) lmap[loc].push(v);   // 50k ceiling removes sq-yard/luxury outliers
       });
-      const rows = Object.entries(lmap).filter(([, v]) => v.length >= 1)
+      const rows = Object.entries(lmap).filter(([, v]) => v.length >= 3)  // min 3 listings for meaningful avg
         .map(([loc, vals]) => ({ loc, avg: Math.round(vals.reduce((s, v) => s + v, 0) / vals.length), count: vals.length }))
         .sort((a, b) => b.avg - a.avg).slice(0, 10);
       const totalUsed = rows.reduce((s, r) => s + r.count, 0);
       document.getElementById('localityCount').textContent = `${rows.length} localities`;
-      if (!rows.length) { document.getElementById('localityPriceList').innerHTML = `<div class="empty">No active listings with price data for ${activeCity.name}.</div>`; return; }
+      if (!rows.length) { document.getElementById('localityPriceList').innerHTML = `<div class="empty">No locality with 3+ listings in ₹500–₹50k/sqft range for ${activeCity.name}.</div>`; return; }
       const max = rows[0].avg;
       document.getElementById('localityPriceList').innerHTML =
-        `<div style="padding:6px 20px 0;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Based on ${totalUsed} active listings · avg ₹/sqft</div>` +
+        `<div style="padding:6px 20px 0;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Based on ${totalUsed} listings · ≥3 per locality · ₹500–₹50k/sqft</div>` +
         rows.map((r, i) => `
         <div class="price-locality-row">
           <div class="plr-rank">${i + 1}</div>

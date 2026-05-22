@@ -1693,7 +1693,7 @@
     const SB_URL = 'https://bmiunaojlqwscybcayyk.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
     const FLAG_REVIEW_TOKEN_KEY = 'reintel.flagReviewToken';
-    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }, { id: 2, name: 'Nagpur' }];
+    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }, { id: 2, name: 'Nagpur' }, { id: 3, name: 'Pune' }];
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
     let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
     let projectPage = 1, listingPage = 1;
@@ -2646,7 +2646,8 @@
     const CITY_CENTRES = {
       'Akola': [20.7068, 77.0040],
       'Amravati': [20.9374, 77.7796],
-      'Nagpur': [21.1458, 79.0882]
+      'Nagpur': [21.1458, 79.0882],
+      'Pune': [18.5204, 73.8567]
     };
     let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [];
     let mapFilter = 'all', heatmapType = 'all';

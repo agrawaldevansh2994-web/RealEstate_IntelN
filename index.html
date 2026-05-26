@@ -1739,7 +1739,7 @@
 
     function switchCity(id) {
       activeCity = CITIES.find(c => c.id === id);
-      activeListingFilter = 'all'; activeFilter = 'all';
+      activeListingFilter = 'all'; activeFilter = 'all'; activeMatrixFilter = null;
       projectPage = 1; listingPage = 1;
       buildCityTabs(); loadCity(activeCity);
     }
@@ -1750,6 +1750,9 @@
       document.getElementById('lastUpdate').textContent = 'Refreshing...';
       await loadListings(city);
       await Promise.all([loadFlags(city), loadProjects(city)]);
+      // Re-render stats now both are loaded — fixes race where renderStats ran
+      // inside loadProjects before loadFlags had populated allFlags
+      if (allProjects.length) renderStats(allProjects, city);
       document.getElementById('lastUpdate').textContent =
         new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     }
@@ -1800,7 +1803,6 @@
     function confBadge(c) {
       if (c === null || c === undefined) return '';
       const cls = c >= 70 ? 'conf-high' : c >= 40 ? 'conf-mid' : 'conf-low';
-      const bar = '█'.repeat(Math.round(c / 20)) + '░'.repeat(5 - Math.round(c / 20));
       return `<span class="conf-badge ${cls}" title="Confidence: ${c}%">${c}%</span>`;
     }
 
@@ -2603,12 +2605,11 @@
 
     // ── Pagination helper ─────────────────────────────────────────────────────
     function renderPagination(current, total, handler) {
-      const pages = [];
       // Always show: first, last, current, and 1 neighbour each side
       const show = new Set([1, total, current, current - 1, current + 1].filter(p => p >= 1 && p <= total));
       const sorted = [...show].sort((a, b) => a - b);
       let html = `<div class="pagination">
-        <span>${((current-1)*PAGE_SIZE)+1}–${Math.min(current*PAGE_SIZE, current*PAGE_SIZE)} of ${total*PAGE_SIZE}+</span>
+        <span>Page ${current} of ${total}</span>
         <div class="pg-btns">
           <button class="pg-btn" onclick="${handler}(${current-1})" ${current===1?'disabled':''}>← Prev</button>`;
       let prev = 0;
@@ -2637,11 +2638,29 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script>
     const PINCODE_COORDS = {
+      // Akola
       '444001': [20.7068, 77.0040], '444002': [20.7110, 77.0130], '444004': [20.6980, 76.9980],
       '444005': [20.7200, 77.0200], '444101': [20.7750, 77.0850], '444104': [20.6500, 77.1200],
       '444107': [20.7400, 76.9200], '445206': [20.5300, 77.2100],
+      // Amravati
       '444601': [20.9374, 77.7796], '444602': [20.9300, 77.7700], '444603': [20.9450, 77.7900],
       '444604': [20.9200, 77.7600], '444605': [20.9550, 77.8000], '444606': [20.9100, 77.7500],
+      // Nagpur
+      '441108': [20.9616, 79.0166], '440034': [21.1011, 79.1187], '440013': [21.1777, 79.0440],
+      '440010': [21.1325, 79.0653], '440023': [21.1542, 78.9870], '441110': [21.0832, 78.9630],
+      '441122': [20.9264, 78.9330], '440015': [21.1107, 79.0726], '440030': [21.1928, 79.0719],
+      '440022': [21.1208, 79.0531], '440026': [21.1949, 79.0911], '441111': [21.2442, 79.0853],
+      '440027': [21.1083, 79.0919], '440008': [21.1377, 79.1341], '440024': [21.0856, 79.0241],
+      '440036': [21.1164, 79.0274], '441501': [21.2247, 78.9554], '440018': [21.1506, 79.0990],
+      '440012': [21.1374, 79.0816], '440001': [21.1541, 79.0768], '440016': [21.1269, 79.0064],
+      '440014': [21.1769, 79.0885], '440002': [21.1431, 79.0840], '440009': [21.1298, 79.1136],
+      '440037': [21.0863, 79.0879], '440007': [21.1653, 79.0336], '440025': [21.0997, 79.0667],
+      '441203': [20.8353, 79.3292],
+      // Pune
+      '411057': [18.5907, 73.7390], '411028': [18.5042, 73.9349], '412105': [18.6597, 73.8862],
+      '412101': [18.6611, 73.7335], '412207': [18.5855, 73.9843], '411001': [18.5350, 73.8805],
+      '411017': [18.6105, 73.7917], '411021': [18.5295, 73.7760], '411062': [18.6763, 73.8160],
+      '411036': [18.5313, 73.9380], '411033': [18.6244, 73.7727], '411018': [18.5885, 73.8369],
     };
     const CITY_CENTRES = {
       'Akola': [20.7068, 77.0040],
@@ -2829,7 +2848,7 @@
           <div class="map-popup-row"><b>Promoter:</b> ${esc(p.promoter_name || '—')}</div>
           <div class="map-popup-row"><b>Status:</b> ${st} · <b>PIN:</b> ${p.pin_code || '—'}</div>
           ${p.complaint_count > 0 ? `<div class="map-popup-row"><b>Complaints:</b> <span style="color:#c9a84c">${p.complaint_count}</span></div>` : ''}
-          <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${p.is_flagged ? '⚠ FLAGGED' : st.toUpperCase()}</span>
+          <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${p.is_flagged ? '⚠ FLAGGED' : (st === 'registered' ? 'ACTIVE' : st.toUpperCase())}</span>
           <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">RERA</span></div>`;
           allMapMarkers.push(L.marker([lat, lon], { icon: rIcon(p) }).bindPopup(popup, { maxWidth: 260 }).addTo(mapInstance));
         });

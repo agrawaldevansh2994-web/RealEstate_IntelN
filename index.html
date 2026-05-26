@@ -2107,7 +2107,7 @@
     // ── Projects ──────────────────────────────────────────────────────────────
     async function loadProjects(city) {
       try {
-        allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=500`);
+        allProjects = await sb(`rera_projects?city_id=eq.${city.id}&select=*&order=created_at.desc&limit=1000`);
         renderStats(allProjects, city);
         renderRERAIntelligence(allProjects);
         loadPromoterRisk(city);
@@ -2118,7 +2118,7 @@
 
     function renderStats(projects, city) {
       const total = projects.length;
-      const active    = projects.filter(p => p.rera_status === 'active').length;
+      const active    = projects.filter(p => p.rera_status === 'active' || p.rera_status === 'registered').length;
       const lapsed    = projects.filter(p => p.rera_status === 'lapsed').length;
       const completed = projects.filter(p => p.rera_status === 'completed').length;
       const deReg     = projects.filter(p => p.rera_status === 'de-registered').length;

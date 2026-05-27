@@ -137,6 +137,14 @@
       font-weight: 700
     }
 
+    .city-tab-divider {
+      width: 1px;
+      background: var(--border2);
+      margin: 4px 2px;
+      align-self: stretch;
+      flex-shrink: 0
+    }
+
     .header-right {
       display: flex;
       align-items: center;
@@ -1693,7 +1701,14 @@
     const SB_URL = 'https://bmiunaojlqwscybcayyk.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtaXVuYW9qbHF3c2N5YmNheXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjQ5MzcsImV4cCI6MjA4OTY0MDkzN30.r72M4RD8fSvFlQtpzNK6h2Dwiptb74VBL1hN6w0wN40';
     const FLAG_REVIEW_TOKEN_KEY = 'reintel.flagReviewToken';
-    const CITIES = [{ id: 1, name: 'Akola' }, { id: 9, name: 'Amravati' }, { id: 2, name: 'Nagpur' }, { id: 3, name: 'Pune' }];
+    const CITIES = [
+      { id: 2, name: 'Nagpur',     tier: 1 },
+      { id: 3, name: 'Pune',       tier: 1 },
+      { id: 1, name: 'Akola',      tier: 2 },
+      { id: 9, name: 'Amravati',   tier: 2 },
+      { id: 5, name: 'Nashik',     tier: 2 },
+      { id: 10, name: 'Aurangabad', tier: 2 },
+    ];
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
     let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
     let projectPage = 1, listingPage = 1;
@@ -1732,9 +1747,14 @@
     }
 
     function buildCityTabs() {
-      document.getElementById('cityTabs').innerHTML = CITIES.map(c =>
-        `<button class="city-tab ${c.id === activeCity.id ? 'active' : ''}" onclick="switchCity(${c.id})">${c.name}</button>`
-      ).join('');
+      let html = '', lastTier = null;
+      CITIES.forEach(c => {
+        if (lastTier !== null && c.tier !== lastTier)
+          html += `<span class="city-tab-divider"></span>`;
+        html += `<button class="city-tab ${c.id === activeCity.id ? 'active' : ''}" onclick="switchCity(${c.id})">${c.name}</button>`;
+        lastTier = c.tier;
+      });
+      document.getElementById('cityTabs').innerHTML = html;
     }
 
     function switchCity(id) {
@@ -2661,12 +2681,28 @@
       '412101': [18.6611, 73.7335], '412207': [18.5855, 73.9843], '411001': [18.5350, 73.8805],
       '411017': [18.6105, 73.7917], '411021': [18.5295, 73.7760], '411062': [18.6763, 73.8160],
       '411036': [18.5313, 73.9380], '411033': [18.6244, 73.7727], '411018': [18.5885, 73.8369],
+      // Nashik
+      '422003': [20.0182, 73.8141], '422009': [19.9715, 73.7733], '422101': [19.9569, 73.8367],
+      '422010': [19.9566, 73.7535], '422002': [19.9904, 73.7799], '422013': [20.0052, 73.7638],
+      '422011': [19.9884, 73.7995], '422006': [19.9878, 73.8225], '422005': [20.0058, 73.7666],
+      '422004': [20.0476, 73.8035], '422008': [20.0239, 73.7607], '422401': [19.8994, 73.8310],
+      '422007': [20.0126, 73.7298], '422001': [20.0008, 73.7994], '422403': [19.7179, 73.5841],
+      '422502': [19.8451, 73.8492], '422012': [19.9969, 73.7171], '422103': [19.8284, 73.9954],
+      // Aurangabad
+      '431001': [19.8888, 75.3254], '431005': [19.8710, 75.3274], '431007': [19.8682, 75.3362],
+      '431136': [19.8364, 75.2551], '431010': [19.9037, 75.3419], '431210': [19.8682, 75.3362],
+      '431003': [19.8682, 75.3362], '431008': [19.9037, 75.3419], '431002': [19.9037, 75.3419],
+      '431102': [20.0821, 75.1510], '431154': [19.9007, 75.3030], '431133': [19.8292, 75.2937],
+      '431101': [19.9007, 75.3030], '431201': [19.9037, 75.3419], '431105': [19.8292, 75.2937],
+      '431112': [19.9037, 75.3419], '431116': [19.9007, 75.3030], '431132': [19.9037, 75.3419],
     };
     const CITY_CENTRES = {
-      'Akola': [20.7068, 77.0040],
-      'Amravati': [20.9374, 77.7796],
-      'Nagpur': [21.1458, 79.0882],
-      'Pune': [18.5204, 73.8567]
+      'Akola':      [20.7068, 77.0040],
+      'Amravati':   [20.9374, 77.7796],
+      'Nagpur':     [21.1458, 79.0882],
+      'Pune':       [18.5204, 73.8567],
+      'Nashik':     [20.0059, 73.7898],
+      'Aurangabad': [19.8762, 75.3433]
     };
     let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [];
     let mapFilter = 'all', heatmapType = 'all';

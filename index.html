@@ -9,6 +9,8 @@
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
   <style>
     :root {
       --bg: #060810;
@@ -401,6 +403,58 @@
       }
     }
 
+    /* ── Hottest Localities Ticker ── */
+    .ticker-strip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      height: 38px;
+      overflow: hidden;
+    }
+    .ticker-label {
+      flex-shrink: 0;
+      padding: 0 14px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gold);
+      border-right: 1px solid var(--border2);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      background: var(--bg3);
+      letter-spacing: .06em;
+    }
+    .ticker-track-wrap {
+      flex: 1;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .ticker-track {
+      display: inline-flex;
+      animation: ticker-scroll 28s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      border-right: 1px solid var(--border);
+    }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
     .panel {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -706,9 +760,10 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       font-weight: 600;
-      width: 22px;
+      width: 34px;
       text-align: right;
-      flex-shrink: 0
+      flex-shrink: 0;
+      line-height: 1.2;
     }
 
     .loading {
@@ -832,6 +887,38 @@
       width: 72px;
       text-align: right;
       flex-shrink: 0
+    }
+
+    .plr-spark { flex-shrink: 0; width: 50px; margin: 0 4px; opacity: 0.85; display: block }
+
+    .pv-toggle { display: flex; gap: 3px; margin-left: 8px }
+
+    .pv-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s
+    }
+
+    .pv-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700 }
+
+    .city-pill {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid;
+      margin: 1px 2px 1px 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase
     }
 
     .prop-type-row {
@@ -1483,11 +1570,18 @@
       </div>
     </div>
 
+    <div class="ticker-strip" id="localityTicker" style="display:none">
+      <div class="ticker-label">🔥 HOT LOCALITIES</div>
+      <div class="ticker-track-wrap">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+
     <div class="sec">Price Intelligence</div>
     <div class="three-col">
       <div class="panel">
         <div class="panel-head"><span class="panel-title">📍 Locality Prices</span><span class="panel-count"
-            id="localityCount" style="font-size:9px">99acres</span></div>
+            id="localityCount" style="font-size:9px">Listings</span></div>
         <div id="localityPriceList">
           <div class="loading">
             <div class="spin"></div>Loading...
@@ -1496,7 +1590,7 @@
       </div>
       <div class="panel">
         <div class="panel-head"><span class="panel-title">🏠 Property Types</span><span class="panel-count"
-            id="propTypeCount" style="font-size:9px">99acres</span></div>
+            id="propTypeCount" style="font-size:9px">Listings</span></div>
         <div id="propTypeList">
           <div class="loading">
             <div class="spin"></div>Loading...
@@ -1505,7 +1599,7 @@
       </div>
       <div class="panel">
         <div class="panel-head"><span class="panel-title">📊 Market Summary</span><span class="panel-count"
-            id="marketSummaryLabel" style="font-size:9px">99acres</span></div>
+            id="marketSummaryLabel" style="font-size:9px">Listings</span></div>
         <div id="marketSummary">
           <div class="loading">
             <div class="spin"></div>Loading...
@@ -1525,8 +1619,7 @@
         </div>
       </div>
       <div class="panel">
-        <div class="panel-head"><span class="panel-title">🎯 Promoter Risk</span><span class="panel-count"
-            id="promoterCount">—</span></div>
+        <div class="panel-head"><span class="panel-title">🎯 Promoter Risk</span><div class="pv-toggle"><button class="pv-btn active" id="pvCity" onclick="setPromoterView('city')">City</button><button class="pv-btn" id="pvCross" onclick="setPromoterView('cross')">Cross-City</button></div><span class="panel-count" id="promoterCount">—</span></div>
         <div id="promoterList">
           <div class="loading">
             <div class="spin"></div>Loading...
@@ -1626,7 +1719,7 @@
     <div class="sec">Project Map</div>
     <div class="map-panel">
       <div class="map-toolbar">
-        <span class="map-toolbar-title">📍 RERA projects + 99acres listings</span>
+        <span class="map-toolbar-title">📍 RERA projects + listings</span>
         <div class="map-toggle">
           <button class="map-btn active-all" onclick="setMapFilter('all',this)">All</button>
           <button class="map-btn" onclick="setMapFilter('rera',this)">RERA only</button>
@@ -1661,7 +1754,7 @@
       <div id="cityMap"></div>
     </div>
 
-    <div class="sec">99acres Listings</div>
+    <div class="sec">Listings</div>
     <div class="panel" style="margin-bottom:24px">
       <div class="panel-head"><span class="panel-title">🏷 Active Listings</span><span class="panel-count"
           id="listingsTableCount">—</span></div>
@@ -1712,7 +1805,9 @@
     let activeCity = CITIES[0], allFlags = [], allListings = [], allProjects = [];
     let activeFilter = 'all', activeListingFilter = 'all', showDismissed = false, activeMatrixFilter = null;
     let projectPage = 1, listingPage = 1;
+    let allLocalityHistory = {}, promoterViewMode = 'city';
     const PAGE_SIZE = 50;
+    const LISTINGS_BATCH = 1000; // fetch listings in batches to stay under Supabase row limits
 
     async function sb(path) {
       const r = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
@@ -1780,9 +1875,19 @@
     // ── Listings ──────────────────────────────────────────────────────────────
     async function loadListings(city) {
       try {
-        allListings = await sb(`listings?city_id=eq.${city.id}&source=eq.99acres&listing_status=eq.active&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at&order=last_seen_at.desc.nullslast&limit=2000`);
+        const base = `listings?city_id=eq.${city.id}&listing_status=eq.active` +
+          `&select=id,listing_type,property_type,listed_price,price_per_sqft,area_sqft,bedrooms,locality,listed_by,latitude,longitude,last_seen_at,source` +
+          `&order=last_seen_at.desc.nullslast,id.asc`;
+        let all = [], offset = 0, batch;
+        do {
+          batch = await sb(`${base}&limit=${LISTINGS_BATCH}&offset=${offset}`);
+          all = all.concat(batch);
+          offset += LISTINGS_BATCH;
+        } while (batch.length === LISTINGS_BATCH);
+        allListings = all;
+        await loadLocalityHistory(city);
         renderLocalityPrices(); renderPropertyTypes(); renderMarketSummary();
-        renderListingsTable(); renderBHKChart(); renderPriceTrend(); renderPipelineHealth();
+        renderListingsTable(); renderBHKChart(); renderPriceTrend(); renderPipelineHealth(); renderTicker();
       } catch (e) { document.getElementById('listingsTable').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
@@ -1950,7 +2055,7 @@
           <td><div class="flag-title">${esc(f.title || '—')}${dupBadge}<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-left:4px;opacity:0.55">▸ details</span></div><div class="flag-desc">${esc(f.description || '')}</div></td>
           <td><span class="badge b-${sevDisplay}">${f.severity || '—'}</span>${eff === 'downgraded' ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">low conf</span>' : ''}</td>
           <td>${confBadge(f.confidence)}</td>
-          <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span>${f._crossCity ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--purple)">cross-city</span>' : ''}${!f.rera_project_id ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">market-level</span>' : ''}</td>
+          <td><span class="flag-type">${(f.flag_type || '—').replace(/_/g, ' ')}</span>${f._crossCity ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--purple)">cross-city</span>' : ''}${!f.rera_project_id ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--muted)">market-level</span>' : ''}${f.flag_type === 'locality_price_spike' && KNOWN_PREMIUM_LOCALITIES.has((f.title || '').toLowerCase().replace(/^price spike in ([^:]+).*$/i, '$1').trim()) ? '<br><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--green)">known premium</span>' : ''}</td>
           <td><span class="ts">${dt}</span></td>
           <td>${reviewBtns}</td>
         </tr>`;
@@ -2199,15 +2304,16 @@
         const map = {};
         data.forEach(p => {
           if (!p.promoter_name) return;
-          const k = p.promoter_name.trim();
-          if (!map[k]) map[k] = { projects: 0, lapsed: 0, complaints: 0, flagged: 0 };
-          map[k].projects++;
-          if (p.rera_status === 'lapsed' || p.rera_status === 'de-registered') map[k].lapsed++;
-          map[k].complaints += Number(p.complaint_count || 0);
-          if (p.is_flagged) map[k].flagged++;
+          const bk = brandKey(p.promoter_name);
+          if (!map[bk]) map[bk] = { displayName: p.promoter_name.trim(), names: new Set(), projects: 0, lapsed: 0, complaints: 0, flagged: 0 };
+          map[bk].names.add(p.promoter_name.trim());
+          map[bk].projects++;
+          if (p.rera_status === 'lapsed' || p.rera_status === 'de-registered') map[bk].lapsed++;
+          map[bk].complaints += Number(p.complaint_count || 0);
+          if (p.is_flagged) map[bk].flagged++;
         });
         const scored = Object.entries(map)
-          .map(([name, d]) => ({ name, ...d, score: d.flagged * 3 + d.lapsed * 2 + d.complaints }))
+          .map(([, d]) => ({ ...d, entityCount: d.names.size, score: d.flagged * 3 + d.lapsed * 2 + d.complaints }))
           .filter(p => p.score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
         const max = scored[0]?.score || 1;
         document.getElementById('promoterCount').textContent = `${scored.length} at-risk`;
@@ -2217,14 +2323,77 @@
           if (p.flagged) tags.push(`<span style="color:var(--red);font-size:9px">${p.flagged} flagged</span>`);
           if (p.lapsed) tags.push(`<span style="color:var(--gold);font-size:9px">${p.lapsed} lapsed</span>`);
           if (p.complaints) tags.push(`<span style="color:var(--blue);font-size:9px">${p.complaints} complaints</span>`);
+          const consolidatedLabel = p.entityCount > 1
+            ? `<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--purple);margin-left:4px">${p.entityCount} entities</span>` : '';
           return `<div class="promoter-item">
           <div class="p-rank">${String(i + 1).padStart(2, '0')}</div>
-          <div class="p-info"><div class="p-name">${esc(p.name)}</div><div class="p-meta">${tags.join('')}</div></div>
+          <div class="p-info"><div class="p-name">${esc(fmtPromoterName(p.displayName))}${consolidatedLabel}</div><div class="p-meta">${tags.join('')}</div></div>
           <div class="p-bar"><div class="p-bar-bg"><div class="p-bar-fill" style="width:${Math.round(p.score / max * 100)}%;background:var(--red)"></div></div></div>
-          <div class="p-count" style="color:var(--red)">${p.projects}</div>
+          <div class="p-count" style="color:var(--red)">${p.score}<div style="font-size:8px;color:var(--muted);font-weight:400">score</div></div>
         </div>`;
         }).join('');
       } catch (e) { document.getElementById('promoterList').innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
+    }
+
+    function setPromoterView(mode) {
+      promoterViewMode = mode;
+      document.getElementById('pvCity').classList.toggle('active', mode === 'city');
+      document.getElementById('pvCross').classList.toggle('active', mode === 'cross');
+      if (mode === 'city') loadPromoterRisk(activeCity);
+      else loadCrossCityPromoters();
+    }
+
+    async function loadCrossCityPromoters() {
+      const el = document.getElementById('promoterList');
+      const countEl = document.getElementById('promoterCount');
+      el.innerHTML = `<div class="loading"><div class="spin"></div>Loading...</div>`;
+      try {
+        const cityIds = CITIES.map(c => c.id).join(',');
+        const data = await sb(`rera_projects?city_id=in.(${cityIds})&select=promoter_name,promoter_pan,city_id,rera_status,complaint_count,is_flagged&limit=6000`);
+        const CITY_MAP = {}, CITY_COLOR = { 2: '#4ecba8', 3: '#5b8def', 1: '#ffffff50', 9: '#a78bfa', 5: '#c9a84c', 10: '#f59e0b' };
+        CITIES.forEach(c => CITY_MAP[c.id] = c.name);
+        const map = {};
+        data.forEach(p => {
+          if (!p.promoter_name) return;
+          const bk = brandKey(p.promoter_name);
+          if (!map[bk]) map[bk] = { displayName: p.promoter_name.trim(), names: new Set(), pan: p.promoter_pan, cities: new Set(), projects: 0, complaints: 0, flagged: 0, lapsed: 0 };
+          map[bk].names.add(p.promoter_name.trim());
+          map[bk].cities.add(p.city_id);
+          map[bk].projects++;
+          map[bk].complaints += Number(p.complaint_count || 0);
+          if (p.is_flagged) map[bk].flagged++;
+          if (p.rera_status === 'lapsed' || p.rera_status === 'de-registered') map[bk].lapsed++;
+        });
+        const multi = Object.entries(map)
+          .filter(([, d]) => d.cities.size >= 2)
+          .map(([, d]) => ({ ...d, entityCount: d.names.size, cities: [...d.cities], score: d.flagged * 3 + d.lapsed * 2 + d.complaints + d.cities.size }))
+          .sort((a, b) => b.score - a.score);
+        if (countEl) countEl.textContent = `${multi.length} cross-city`;
+        if (!multi.length) { el.innerHTML = `<div class="empty">No promoters found across multiple cities yet.</div>`; return; }
+        el.innerHTML = multi.map((p, i) => {
+          const pills = p.cities.map(cid => {
+            const col = CITY_COLOR[cid] || 'rgba(255,255,255,0.3)';
+            return `<span class="city-pill" style="color:${col};border-color:${col};background:${col}18">${CITY_MAP[cid] || cid}</span>`;
+          }).join('');
+          const tags = [];
+          if (p.flagged) tags.push(`<span style="color:var(--red);font-size:9px">${p.flagged} flagged</span>`);
+          if (p.lapsed) tags.push(`<span style="color:var(--gold);font-size:9px">${p.lapsed} lapsed</span>`);
+          if (p.complaints) tags.push(`<span style="color:var(--blue);font-size:9px">${p.complaints} complaints</span>`);
+          const consolidatedLabel = p.entityCount > 1
+            ? `<span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--purple);margin-left:4px">${p.entityCount} entities</span>` : '';
+          return `<div class="promoter-item">
+            <div class="p-rank">${String(i + 1).padStart(2, '0')}</div>
+            <div class="p-info">
+              <div class="p-name">${esc(fmtPromoterName(p.displayName))}${consolidatedLabel}</div>
+              <div class="p-meta" style="flex-direction:column;gap:3px">
+                <div>${pills}</div>
+                ${tags.length ? `<div style="display:flex;gap:6px">${tags.join('')}</div>` : ''}
+              </div>
+            </div>
+            <div class="p-count" style="color:var(--purple)">${p.cities.length}&#xA0;cities</div>
+          </div>`;
+        }).join('');
+      } catch(e) { el.innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
     }
 
     function renderProjects(projects) {
@@ -2236,6 +2405,82 @@
       document.getElementById('projCount').textContent = `${projects.length} projects`;
       if (!projects.length) { document.getElementById('projectsTable').innerHTML = `<div class="empty">No projects.</div>`; return; }
       renderProjectRows(projects);
+    }
+
+    // ── Locality history helpers ──────────────────────────────────────────────
+    function normLoc(s) {
+      return (s || '').replace(/,\s*[A-Za-z\s]+$/, '').trim().toLowerCase();
+    }
+
+    function localitySparkline(history) {
+      if (!history || history.length < 2) return '';
+      const vals = history.map(h => h.avg);
+      const mn = Math.min(...vals), mx = Math.max(...vals);
+      const pad = Math.max((mx - mn) * 0.2, 100);
+      const W = 50, H = 18;
+      const xi = i => Math.round(i / (vals.length - 1) * W);
+      const yi = v => Math.round(H - ((v - mn + pad) / (mx - mn + pad * 2)) * H);
+      const pts = vals.map((v, i) => `${xi(i)},${yi(v)}`).join(' ');
+      const delta = vals[vals.length - 1] - vals[0];
+      const color = delta > 200 ? '#e05252' : delta < -200 ? '#4ecba8' : '#c9a84c';
+      return `<svg class="plr-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+        <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${xi(vals.length - 1)}" cy="${yi(vals[vals.length - 1])}" r="2" fill="${color}"/>
+      </svg>`;
+    }
+
+    async function loadLocalityHistory(city) {
+      try {
+        const raw = await sb(`price_history?city=eq.${city.name}&locality=not.is.null&select=locality,snapshot_date,avg_price_sqft&order=snapshot_date.asc&limit=3000`);
+        const map = {};
+        raw.forEach(r => {
+          const v = Number(r.avg_price_sqft);
+          if (!v || v < 500 || v > 50000) return;
+          const key = normLoc(r.locality);
+          if (!map[key]) map[key] = [];
+          map[key].push({ date: r.snapshot_date, avg: Math.round(v) });
+        });
+        allLocalityHistory = map;
+      } catch(e) { allLocalityHistory = {}; }
+    }
+
+    // ── Hottest Localities Ticker ─────────────────────────────────────────────
+    function renderTicker() {
+      const strip = document.getElementById('localityTicker');
+      const track = document.getElementById('tickerTrack');
+      if (!strip || !track) return;
+
+      // Compute % momentum first→last snapshot per locality (min 3 snapshots)
+      const movers = Object.entries(allLocalityHistory)
+        .filter(([, snaps]) => snaps.length >= 3)
+        .map(([loc, snaps]) => {
+          const first = snaps[0].avg, last = snaps[snaps.length - 1].avg;
+          const pct = Math.round((last - first) / first * 100);
+          return { loc, pct, last };
+        })
+        .filter(m => Math.abs(m.pct) >= 1)
+        .sort((a, b) => b.pct - a.pct);
+
+      if (!movers.length) { strip.style.display = 'none'; return; }
+
+      const gainers = movers.filter(m => m.pct > 0).slice(0, 7);
+      const losers  = movers.filter(m => m.pct < 0).slice(-3);
+      const items   = [...gainers, ...losers];
+      if (!items.length) { strip.style.display = 'none'; return; }
+
+      const mkItem = m => {
+        const up  = m.pct > 0;
+        const col = up ? (m.pct > 10 ? '#e05252' : '#c9a84c') : '#4ecba8';
+        return `<div class="ticker-item">
+          <span style="color:var(--text)">${esc(m.loc)}</span>
+          <span style="color:${col};font-weight:700">${up ? '▲' : '▼'} ${up ? '+' : ''}${m.pct}%</span>
+          <span style="color:var(--muted);font-size:9px">₹${m.last.toLocaleString('en-IN')}</span>
+        </div>`;
+      };
+      const inner = items.map(mkItem).join('');
+      track.innerHTML = inner + inner; // duplicate for seamless loop
+      track.style.animationDuration = `${Math.max(20, items.length * 3.5)}s`;
+      strip.style.display = 'flex';
     }
 
     // ── Price Intelligence ────────────────────────────────────────────────────
@@ -2262,6 +2507,7 @@
           <div class="plr-rank">${i + 1}</div>
           <div class="plr-name" title="${esc(r.loc)}">${esc(r.loc)}</div>
           <div class="plr-bar-wrap"><div class="plr-bar-bg"><div class="plr-bar-fill" style="width:${Math.round(r.avg / max * 100)}%;background:var(--gold)"></div></div></div>
+          ${localitySparkline(allLocalityHistory[normLoc(r.loc)])}
           <div class="plr-val">₹${r.avg.toLocaleString('en-IN')}<span style="font-size:8px;opacity:0.45;margin-left:4px" title="${r.count} listing${r.count > 1 ? 's' : ''}">(${r.count})</span></div>
         </div>`).join('');
     }
@@ -2340,7 +2586,11 @@
         const psqft = l.price_per_sqft ? '₹' + Math.round(l.price_per_sqft).toLocaleString('en-IN') + '/sqft' : '';
         const badge = `<span class="listing-type-badge ${l.listing_type === 'rent' ? 'rent' : ''}">${l.listing_type || '—'}</span>`;
         const beds  = l.bedrooms ? `${l.bedrooms} BHK · ` : '';
-        const area  = l.area_sqft ? Math.round(l.area_sqft).toLocaleString('en-IN') + ' sqft' : '—';
+        const rawArea = l.area_sqft ? Number(l.area_sqft) : null;
+        const area = !rawArea ? '—'
+          : rawArea > 10000
+            ? (rawArea / 43560).toFixed(2) + ' acres'
+            : Math.round(rawArea).toLocaleString('en-IN') + ' sqft';
         const loc   = (l.locality || '—').replace(/,\s*[A-Za-z\s]+$/, '').trim();
         return `<tr>
           <td style="max-width:200px"><div style="font-weight:600;font-size:13px">${esc(loc)}</div>
@@ -2348,7 +2598,7 @@
           <td><div class="listing-price">${price}</div><div class="listing-psqft">${psqft}</div></td>
           <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${area}</td>
           <td>${badge}</td>
-          <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:capitalize">${esc(l.listed_by || '—')}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:capitalize">${esc(l.listed_by || '—')}<br><span style="font-size:8px;opacity:0.6">${(l.source || '99acres').toUpperCase()}</span></td>
         </tr>`;
       }).join('');
 
@@ -2548,7 +2798,7 @@
           dr('District', fmt(p.district)) + dr('PIN Code', fmt(p.pin_code)) +
           (p.source_url ? dr('Link', `<a href="${p.source_url}" target="_blank" rel="noopener" style="color:var(--blue);font-size:10px">View on MahaRERA ↗</a>`) : '')) +
         section('Promoter',
-          dr('Name', esc(fmt(p.promoter_name))) + dr('Type', fmt(p.promoter_type)) +
+          dr('Name', esc(fmtPromoterName(fmt(p.promoter_name)))) + dr('Type', fmt(p.promoter_type)) +
           (p.promoter_pan ? dr('PAN', `<span style="letter-spacing:0.1em">${esc(p.promoter_pan)}</span>`) : '')) +
         section('Timeline',
           dr('Proposed completion', fmtDate(p.proposed_completion)) +
@@ -2604,7 +2854,7 @@
         const globalIdx = start + i;
         return `<tr style="cursor:pointer" onclick="openDrawer(${globalIdx})" title="Click for details">
           <td style="max-width:220px"><div style="font-weight:600;font-size:13px">${esc(p.project_name || '—')}</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(p.promoter_name || '—')}</div></td>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${esc(fmtPromoterName(p.promoter_name || '—'))}</div></td>
           <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">${esc(p.rera_registration || '—')}</td>
           <td style="color:${sc};font-size:12px;font-weight:600;text-transform:capitalize">${esc(p.rera_status || '—')}</td>
           <td>${p.complaint_count > 0 ? `<span style="color:var(--gold)">${p.complaint_count}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
@@ -2651,11 +2901,44 @@
 
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
+    // Converts all-caps MahaRERA promoter names to readable title case
+    // Leaves fused no-space tokens (e.g. NAIKNAVAREHOUSINGDEVELOPEMENTSPVTLTD) unchanged
+    function fmtPromoterName(name) {
+      if (!name) return '—';
+      const n = name.trim();
+      if (!n.includes(' ')) return n; // fused token — can't safely reformat
+      if (n !== n.toUpperCase()) return n; // already mixed case
+      const KEEP_UPPER = new Set(['PVT', 'LTD', 'LLP', 'AOP', 'PLC', 'LLC', 'NRI', 'JV', 'HUF', 'REIT']);
+      const LOWER_WORDS = new Set(['AND', 'OF', 'THE', 'FOR', 'AT', 'IN', 'BY', 'TO']);
+      return n.split(/\s+/).map((w, i) => {
+        if (KEEP_UPPER.has(w)) return w;
+        if (i > 0 && LOWER_WORDS.has(w)) return w.toLowerCase();
+        return w.charAt(0) + w.slice(1).toLowerCase();
+      }).join(' ');
+    }
+
+    // Extracts brand key for grouping related promoter entities (e.g. Marvel Landmarks, Marvel Sigma → 'MARVEL')
+    function brandKey(name) {
+      if (!name) return '';
+      const SKIP = new Set(['THE', 'A', 'AN', 'SRI', 'SHRI', 'M/S', 'MR', 'MS', 'DR', 'NEW']);
+      const words = (name.trim().toUpperCase()).replace(/[^A-Z0-9\s]/g, '').split(/\s+/)
+        .filter(w => w.length > 1 && !SKIP.has(w));
+      return words[0] || name.trim().toUpperCase();
+    }
+
+    // Pune premium localities — legitimate high-price zones, suppress false-positive styling
+    const KNOWN_PREMIUM_LOCALITIES = new Set([
+      'kothrud', 'kharadi', 'wakad', 'baner', 'aundh', 'koregaon park', 'viman nagar',
+      'kalyani nagar', 'boat club', 'camp', 'deccan gymkhana', 'erandwane', 'senapati bapat road',
+      'magarpatta', 'hadapsar', 'hinjewadi', 'balewadi', 'sus', 'nibm', 'kondhwa'
+    ]);
+
     buildCityTabs();
     loadCity(activeCity);
   </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
   <script>
     const PINCODE_COORDS = {
       // Akola
@@ -2705,7 +2988,7 @@
       'Aurangabad': [19.8762, 75.3433]
     };
     let mapInstance = null, allMapMarkers = [], mapRERA = [], mapL99 = [];
-    let mapFilter = 'all', heatmapType = 'all';
+    let mapFilter = 'all', heatmapType = 'all', mapClusterGroup = null;
 
     function initMap(city) {
       if (mapInstance) { mapInstance.remove(); mapInstance = null; }
@@ -2861,8 +3144,20 @@
       if (!mapInstance) return;
       if (mapFilter === 'heatmap') { renderHeatmap(); return; }
 
+      // Remove previous cluster group and markers
+      if (mapClusterGroup) { mapInstance.removeLayer(mapClusterGroup); mapClusterGroup = null; }
       allMapMarkers.forEach(m => m.remove());
       allMapMarkers = [];
+
+      // Create cluster group for this render
+      mapClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 45,
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        disableClusteringAtZoom: 16,
+      });
+
       const showR = mapFilter === 'all' || mapFilter === 'rera' || mapFilter === 'flagged';
       const showL = mapFilter === 'all' || mapFilter === 'listings';
       const onlyF = mapFilter === 'flagged';
@@ -2881,12 +3176,14 @@
           const st = p.rera_status || '';
           const bc = p.is_flagged ? '#e05252' : st === 'lapsed' || st === 'de-registered' ? '#c9a84c' : st === 'completed' ? '#5b8def' : '#4ecba8';
           const popup = `<div class="map-popup-name">${esc(p.project_name || '—')}</div>
-          <div class="map-popup-row"><b>Promoter:</b> ${esc(p.promoter_name || '—')}</div>
+          <div class="map-popup-row"><b>Promoter:</b> ${esc(fmtPromoterName(p.promoter_name || '—'))}</div>
           <div class="map-popup-row"><b>Status:</b> ${st} · <b>PIN:</b> ${p.pin_code || '—'}</div>
           ${p.complaint_count > 0 ? `<div class="map-popup-row"><b>Complaints:</b> <span style="color:#c9a84c">${p.complaint_count}</span></div>` : ''}
           <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${p.is_flagged ? '⚠ FLAGGED' : (st === 'registered' ? 'ACTIVE' : st.toUpperCase())}</span>
           <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">RERA</span></div>`;
-          allMapMarkers.push(L.marker([lat, lon], { icon: rIcon(p) }).bindPopup(popup, { maxWidth: 260 }).addTo(mapInstance));
+          const marker = L.marker([lat, lon], { icon: rIcon(p) }).bindPopup(popup, { maxWidth: 260 });
+          mapClusterGroup.addLayer(marker);
+          allMapMarkers.push(marker);
         });
       }
 
@@ -2904,11 +3201,14 @@
           <div class="map-popup-row"><b>Price:</b> ${price}${psqft ? ' · ' + psqft : ''}</div>
           <div class="map-popup-row">${beds}${(l.property_type || '').replace(/_/g, ' ')}</div>
           <div style="margin-top:6px"><span class="map-popup-badge" style="background:${bc}22;border:1px solid ${bc};color:${bc}">${(l.listing_type || 'sale').toUpperCase()}</span>
-          <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">99ACRES</span></div>`;
-          allMapMarkers.push(L.marker([jlat, jlon], { icon: l.listing_type === 'rent' ? LI.rent : LI.sale }).bindPopup(popup, { maxWidth: 260 }).addTo(mapInstance));
+          <span class="map-popup-badge" style="background:#ffffff10;border:1px solid #ffffff15;color:#ffffff50;margin-left:4px">${(l.source || '99acres').toUpperCase()}</span></div>`;
+          const marker = L.marker([jlat, jlon], { icon: l.listing_type === 'rent' ? LI.rent : LI.sale }).bindPopup(popup, { maxWidth: 260 });
+          mapClusterGroup.addLayer(marker);
+          allMapMarkers.push(marker);
         });
       }
 
+      mapInstance.addLayer(mapClusterGroup);
       const geocodedListings = mapL99.filter(l => l.latitude && l.longitude).length;
       const coverageNote = mapL99.length > 0 && geocodedListings < mapL99.length
         ? ` · ${geocodedListings}/${mapL99.length} listings geocoded` : '';

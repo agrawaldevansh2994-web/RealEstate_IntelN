@@ -8,7 +8,7 @@ you correlate listings + rera_projects + suspicious_flags together.
 Patterns detected:
   1. Cross-source promoter risk   — same promoter flagged in RERA AND has overpriced listings
   2. Promoter name clustering     — similar names likely same entity (shell company signal)
-  3. Stale project + active sales — RERA lapsed but still selling on 99acres
+  3. Stale project + active sales — RERA lapsed but still selling online
   4. Complaint velocity           — promoter accumulating complaints across projects
   5. Price locality spike         — locality avg price jumped vs rest of city
   6. Repeat offender escalation   — promoter already flagged, now has NEW project
@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from db.connection import insert_row, select_rows, update_rows
+from models.listing_sources import MARKETPLACE_SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,10 @@ class PatternDetector:
     # need at least 3 listings to compute locality median
     MIN_LISTINGS_FOR_LOCALITY = 3
     NAME_SIMILARITY_THRESHOLD = 0.85  # stricter Jaccard similarity for promoter names
+    MIN_CLUSTER_PROJECTS = 3          # cluster must have ≥3 total projects to fire
     # projects — if promoter has complaints on 2+ projects
     COMPLAINT_VELOCITY_WINDOW = 2
+    COMPLAINT_VELOCITY_MIN_TOTAL = 5   # total complaints across all projects must reach this
     STALE_RERA_KEYWORDS = {"lapsed", "revoked", "expired", "cancelled"}
     TRUSTED_REPEAT_PARENT_FLAGS = {
         "repeated_complaints",
@@ -49,6 +52,9 @@ class PatternDetector:
         "locality_price_spike",
         "repeat_offender_new_project",
     }
+    HISTORICAL_DEDUPE_PATTERN_TYPES = {
+        "locality_price_spike",
+    }
     PROMOTER_STOPWORDS = {
         "the", "a", "an", "and", "or", "of", "for", "in",
         "ltd", "pvt", "limited", "llp", "builders", "builder",
@@ -62,6 +68,20 @@ class PatternDetector:
         self._existing_pattern_keys: set[str] = set()
         self._existing_pattern_titles: set[tuple[str, str]] = set()
         self._load_existing_patterns()
+
+    def _active_marketplace_listings(self, limit_per_source: int = 1000) -> list[dict]:
+        listings = []
+        for source in MARKETPLACE_SOURCES:
+            listings.extend(select_rows(
+                "listings",
+                filters={
+                    "city_id": self.city_id,
+                    "source": source,
+                    "listing_status": "active",
+                },
+                limit=limit_per_source,
+            ))
+        return listings
 
     # ------------------------------------------------------------------ #
 
@@ -94,17 +114,14 @@ class PatternDetector:
         """
         Find promoters who:
           - Have at least one entry in suspicious_flags (RERA side)
-          - Also appear as seller/builder in overpriced 99acres listings
+          - Also appear as seller/builder in overpriced marketplace listings
         Cross-source corroboration = much higher confidence signal.
         """
         flags = select_rows("suspicious_flags", filters={
                             "city_id": self.city_id}, limit=2000)
         projects = select_rows("rera_projects", filters={
                                "city_id": self.city_id}, limit=1000)
-        listings = select_rows("listings", filters={
-                               "city_id": self.city_id,
-                               "source": "99acres",
-                               "listing_status": "active"}, limit=1000)
+        listings = self._active_marketplace_listings()
 
         if not flags or not projects or not listings:
             return 0
@@ -141,6 +158,7 @@ class PatternDetector:
         count = 0
         for listing in listings:
             builder = self._listing_builder_name(listing).lower()
+            listing_source = (listing.get("source") or "marketplace").lower()
 
             if not builder:
                 continue
@@ -172,11 +190,12 @@ class PatternDetector:
             if not self._write_pattern(
                 pattern_type="cross_source_promoter_risk",
                 severity="critical",
-                title=f"Cross-source risk: {builder} flagged in both RERA & 99acres",
+                title=f"Cross-source risk: {builder} flagged in both RERA & {listing_source}",
                 description=reason,
                 listing_id=str(listing["id"]),
                 evidence={
                     "listing_id":        listing["id"],
+                    "listing_source":    listing_source,
                     "builder_name":      builder,
                     "matched_promoter":  matched_promoter,
                     "rera_flag_count":   len(rera_reasons),
@@ -201,7 +220,7 @@ class PatternDetector:
         return count
 
     # ================================================================ #
-    # PATTERN 2: Lapsed RERA project but still actively listing on 99acres
+    # PATTERN 2: Lapsed RERA project but still actively listed online
     # Classic fraud: RERA registration died, still selling to buyers
     # ================================================================ #
 
@@ -212,10 +231,7 @@ class PatternDetector:
         """
         projects = select_rows("rera_projects", filters={
                                "city_id": self.city_id}, limit=1000)
-        listings = select_rows("listings", filters={
-                               "city_id": self.city_id,
-                               "source": "99acres",
-                               "listing_status": "active"}, limit=1000)
+        listings = self._active_marketplace_listings()
 
         if not projects or not listings:
             return 0
@@ -238,6 +254,7 @@ class PatternDetector:
                 continue
 
             for listing in listings:
+                listing_source = (listing.get("source") or "marketplace").lower()
                 l_title = self._listing_title(listing).lower()
                 l_builder = self._listing_builder_name(listing).lower()
                 l_locality = self._normalize_locality(
@@ -266,7 +283,7 @@ class PatternDetector:
                     f"Project '{project.get('project_name')}' by "
                     f"'{project.get('promoter_name')}' has RERA status "
                     f"'{project.get('rera_status')}' but a matching listing "
-                    f"is still active on 99acres in {listing.get('locality')}. "
+                    f"is still active on {listing_source} in {listing.get('locality')}. "
                     f"Selling without valid RERA registration is illegal under RERA Act 2016."
                 )
 
@@ -282,6 +299,7 @@ class PatternDetector:
                         "rera_status":   project.get("rera_status"),
                         "promoter_name": project.get("promoter_name"),
                         "listing_title": self._listing_title(listing),
+                        "listing_source": listing_source,
                         "locality":      listing.get("locality"),
                         "listed_price":  self._listing_price(listing),
                     }
@@ -369,6 +387,13 @@ class PatternDetector:
             if len(reg_numbers) < 2:
                 continue
 
+            # Require minimum total projects — 2 entities with 1 project each is too thin
+            if len(cluster_projects) < self.MIN_CLUSTER_PROJECTS:
+                continue
+
+            # Severity scales with cluster size — a 2-name cluster is weaker signal
+            cluster_severity = "high" if len(cluster_names) >= 3 else "medium"
+
             reason = (
                 f"Promoter names {cluster_names} are highly similar ({len(cluster_names)} entities) "
                 f"but registered separately under RERA ({len(reg_numbers)} registration numbers). "
@@ -377,7 +402,7 @@ class PatternDetector:
 
             if not self._write_pattern(
                 pattern_type="promoter_name_cluster",
-                severity="high",
+                severity=cluster_severity,
                 title=f"Possible shell entity cluster: {cluster_names[0]} + {len(cluster_names)-1} similar names",
                 description=reason,
                 evidence={
@@ -428,6 +453,17 @@ class PatternDetector:
 
             total_complaints = sum(int(p.get("complaint_count") or 0)
                                    for p in affected_projects)
+
+            # Gate: require meaningful volume, not just scattered single complaints
+            if total_complaints < self.COMPLAINT_VELOCITY_MIN_TOTAL:
+                continue
+
+            severity = (
+                "critical" if total_complaints >= 30 else
+                "high"     if total_complaints >= 10 else
+                "medium"
+            )
+
             project_names = [p.get("project_name", "?")
                              for p in affected_projects]
 
@@ -440,7 +476,7 @@ class PatternDetector:
 
             if not self._write_pattern(
                 pattern_type="complaint_velocity",
-                severity="high",
+                severity=severity,
                 title=f"Systemic complaints: {promoter} ({len(affected_projects)} projects affected)",
                 description=reason,
                 evidence={
@@ -466,10 +502,7 @@ class PatternDetector:
         Compare median price_per_sqft per locality vs city-wide median.
         Localities significantly above median warrant investigation.
         """
-        listings = select_rows("listings", filters={
-                               "city_id": self.city_id,
-                               "source": "99acres",
-                               "listing_status": "active"}, limit=1000)
+        listings = self._active_marketplace_listings()
         if not listings:
             return 0
 
@@ -675,7 +708,7 @@ class PatternDetector:
             flag_type = str(row.get("flag_type") or "")
             if flag_type not in self.PATTERN_FLAG_TYPES:
                 continue
-            if not self._is_open_flag(row):
+            if not self._should_dedupe_existing_pattern(flag_type, row):
                 continue
 
             title_key = self._title_key(flag_type, row.get("title"))
@@ -740,7 +773,7 @@ class PatternDetector:
             return False
 
         for row in rows:
-            if not self._is_open_flag(row):
+            if not self._should_dedupe_existing_pattern(pattern_type, row):
                 continue
 
             existing_title_key = self._title_key(pattern_type, row.get("title"))
@@ -826,6 +859,13 @@ class PatternDetector:
     @staticmethod
     def _is_open_flag(row: dict[str, Any]) -> bool:
         return str(row.get("status") or "").strip().lower() in ("", "open")
+
+    @classmethod
+    def _should_dedupe_existing_pattern(cls, pattern_type: str, row: dict[str, Any]) -> bool:
+        return (
+            cls._is_open_flag(row)
+            or pattern_type in cls.HISTORICAL_DEDUPE_PATTERN_TYPES
+        )
 
     @staticmethod
     def _normalize_title(title: str) -> str:

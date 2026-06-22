@@ -71,7 +71,7 @@ class ScraperMahaRERA(BaseScraper):
     delay_min = 1.5
     delay_max = 3.0
 
-    def __init__(self, district="Akola", max_pages=20):
+    def __init__(self, district="Akola", max_pages=70):
         super().__init__()
         self.district = district
         self.city = district
@@ -239,6 +239,7 @@ class ScraperMahaRERA(BaseScraper):
 
                 page_num = 1
                 total_yielded = 0
+                stop_reason = "complete"
 
                 while True:
                     self._log_dom_state(page, f"page_{page_num}_loaded")
@@ -257,8 +258,15 @@ class ScraperMahaRERA(BaseScraper):
 
                     page_num += 1
                     if page_num > self.max_pages:
-                        self.logger.info("Reached max_pages limit")
+                        stop_reason = "cap_hit"
+                        self.logger.warning(
+                            f"[CAP HIT] Stopped at max_pages={self.max_pages} "
+                            f"({total_yielded} projects scraped) — "
+                            f"MahaRERA may have more projects for {self.district}. "
+                            f"Raise max_pages if DB count equals {total_yielded}."
+                        )
                         break
+
                     next_url = (
                         f"{SEARCH_URL}?project_state=27"
                         f"&project_division={self.division_code}"
@@ -275,7 +283,10 @@ class ScraperMahaRERA(BaseScraper):
                         self.logger.info("No more results pages")
                         break
 
-                self.logger.info(f"Total projects scraped: {total_yielded}")
+                self.logger.info(
+                    f"Scrape {stop_reason} — "
+                    f"{total_yielded} projects total for {self.district}"
+                )
             except Exception:
                 self._save_debug_snapshot(page, "fatal_scrape_error")
                 self._log_dom_state(page, "fatal_scrape_error")
@@ -333,7 +344,7 @@ class ScraperMahaRERA(BaseScraper):
                                     district: distMatch ? distMatch[1].trim() : '',
                                     rera_status: 'registered',
                                     source_url: detailUrl,
-                                    approval_date: modifiedMatch ? modifiedMatch[1] : '',
+                                    last_modified_at: modifiedMatch ? modifiedMatch[1] : '',
                                     raw_data: text.substring(0, 500),
                                 });
                             }
@@ -362,12 +373,13 @@ class ScraperMahaRERA(BaseScraper):
             "rera_registration", "project_name", "promoter_name",
             "promoter_type", "district", "address_raw", "pin_code",
             "project_type", "rera_status", "application_date",
-            "approval_date", "proposed_completion", "revised_completion",
+            "last_modified_at", "proposed_completion", "revised_completion",
             "is_completed", "delay_months", "total_units", "units_sold",
             "units_available", "total_area_sqm", "land_area_sqm",
             "project_cost", "amount_collected", "escrow_balance",
             "loan_amount", "complaint_count", "is_flagged",
             "flag_reasons", "promoter_pan", "raw_data", "city_id",
+            "source_url",
         }
 
         raw_payload = record.get("raw_data")
@@ -388,6 +400,12 @@ class ScraperMahaRERA(BaseScraper):
                 record_clean[key] = value.isoformat(
                 ) if isinstance(value, date) else value
 
+        # MahaRERA list page uses "registered" but our DB/dashboard canonical
+        # status is "active". Normalise so every run stays consistent and
+        # never overwrites enrichment-set statuses with the raw scraper value.
+        if record_clean.get("rera_status") == "registered":
+            record_clean["rera_status"] = "active"
+
         existing = []
         if record_clean.get("rera_registration"):
             existing = select_rows(
@@ -396,7 +414,7 @@ class ScraperMahaRERA(BaseScraper):
             )
 
         if not existing:
-            candidates = select_rows(table, {"city_id": city_id}, limit=500)
+            candidates = select_rows(table, {"city_id": city_id}, limit=2000)
             source_url = record.get("source_url")
             if source_url:
                 existing = [

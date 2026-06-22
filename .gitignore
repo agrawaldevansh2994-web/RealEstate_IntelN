@@ -1,0 +1,37 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python environments and caches
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Runtime logs and scraped/debug output
+*.log
+*.bat
+%LOG%
+raw_dump.txt
+logs/*.txt
+logs/*.html
+
+# Generated screenshots and reports
+rera_*.png
+
+# Local editor and assistant settings
+.claude/settings.local.json
+.agents/
+.DS_Store
+Thumbs.db

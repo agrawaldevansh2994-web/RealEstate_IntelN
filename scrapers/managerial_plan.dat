@@ -1,0 +1,264 @@
+================================================================================
+PROJECT CONTEXT — REAL ESTATE RISK INTELLIGENCE PLATFORM
+Maharashtra Tier-2/3 Focus | Strategy + Financial Plan
+Generated: May 2026
+================================================================================
+
+NOTE: This file contains the complete strategic and financial context for the
+project. It is intentionally stripped of any account, credential, or identity
+references. Safe to carry forward to a new environment.
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 1: WHAT WE ARE BUILDING
+────────────────────────────────────────────────────────────────────────────────
+
+Project type: Real estate risk intelligence platform
+Core focus: Tier-2 and Tier-3 cities in Maharashtra, India
+Starting cities: Akola, Amravati (Vidarbha region)
+Expansion targets: Nagpur, Wardha, Yavatmal (after quality is proven)
+
+The product is NOT a listing portal. It is a risk, due diligence, and
+anomaly intelligence platform. The core question it answers:
+
+  "Is this project, builder, locality, or listing risky before someone
+   puts serious money into it?"
+
+This is the gap in the Indian market. Big portals (99acres, MagicBricks,
+Housing.com) solve DISCOVERY. Nobody solves TRUST, RISK, and VERIFICATION
+— especially outside metro cities.
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 2: MARKET CONTEXT
+────────────────────────────────────────────────────────────────────────────────
+
+India real estate market size: projected ~US$970 billion by 2030 (IBEF).
+PropTech is a growing category with increasing institutional deal flow.
+MahaRERA has large public complaint and project datasets — a free foundation.
+
+Competitive landscape:
+  - Propstack: largest private repository of registered sale/lease/mortgage
+    data in India. Claims 1M+ residential transactions, $100B+ in loans.
+    Metro-focused (Mumbai, Pune, Hyderabad, Bangalore). Entire business is
+    built on IGR (registration data) collected via field researchers at SRO
+    offices, paid e-search portal access, and direct state govt data licensing.
+    Does NOT cover Vidarbha. Akola and Amravati don't exist in their database.
+  - Liases Foras: quarterly supply/demand/price research across 60+ cities.
+    Consulting model, not a live data pipeline. Paid access only.
+  - PropEquity: project-level data for 44 cities, subscription for PE funds.
+    Metro-focused, behind paywall.
+  - ANAROCK: consultancy with city-wise residential trends. Not a platform.
+
+The gap: None of the above cover Tier-2 Maharashtra. The entire Vidarbha
+region is commercially blank. That is the whitespace this project occupies.
+
+Our edge over all of them: Three-way data cross-reference that nobody else
+is doing for these cities —
+
+  IGR actual transacted price
+       vs
+  RERA declared project cost/unit price
+       vs
+  99acres asking/listing price
+
+A mismatch across all three is a strong anomaly and potential fraud signal.
+This combination is not available from any commercial platform for Akola
+or Amravati today.
+
+────────────────────────────────────────────────────────────────────────────────
+
+SOURCE 3 — IGR Maharashtra (IN PROGRESS, scraper being built)
+  What: Inspector General of Registration — all registered property transactions.
+  Contains: Actual sale price (consideration value), buyer/seller names,
+            survey/CTS/plot number, property description, area, doc type
+            (sale deed, mortgage, gift deed, etc.), registration date.
+  Trust: Government. Real transacted prices. The most important data source
+         for price intelligence.
+  Portal: freesearchigrservice.maharashtra.gov.in (free, limited)
+          pay2igr.igrmaharashtra.gov.in (paid e-search)
+  Scraping method: Document number enumeration per SRO per year (sequential
+                   integers). Each SRO has ~hundreds to thousands per year.
+  Coverage: Data available from 1985 (Mumbai) and ~2002 (rest of Maharashtra).
+  Status: Scraper under development. CAPTCHA handling is the current challenge.
+  Note: Propstack's entire business model is built on this same data at scale. But currently without paid api
+        its not useful so kept at side.
+
+SOURCE 4 — e-ASR Ready Reckoner (PLANNED)
+  What: Government official circle rates / guidance value by locality.
+  Contains: Minimum registration value per locality per property type.
+            Updated annually by state government.
+  Trust: Government. Legally binding floor for stamp duty calculation.
+  Value: Instant sanity check — undervalued registrations (to evade stamp duty)
+         are extremely common and detectable by comparing against circle rates.
+  Status: Planned. Not yet scraped.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 5: MONETISATION PLAN
+────────────────────────────────────────────────────────────────────────────────
+
+POSITIONING: Real estate due diligence and risk intelligence for Tier-2/3
+Maharashtra markets. B2B and B2B2C, not a consumer portal.
+
+Revenue models (ranked by priority and ease of execution):
+
+  TIER 1 — START HERE (Months 1–4)
+  ┌─────────────────────────────┬──────────────────────┬─────────────────────┐
+  │ Model                       │ Customer             │ Pricing             │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ Property due diligence      │ Homebuyers, NRIs,    │ ₹499–₹2,999/report  │
+  │ reports                     │ small investors      │                     │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ Broker/investor dashboard   │ Local brokers, land  │ ₹2,999–₹15,000/mo   │
+  │ (SaaS)                      │ investors, small     │                     │
+  │                             │ funds                │                     │
+  └─────────────────────────────┴──────────────────────┴─────────────────────┘
+
+  TIER 2 — MONTHS 5–9
+  ┌─────────────────────────────┬──────────────────────┬─────────────────────┐
+  │ City market reports         │ Brokers, investors,  │ ₹1,999–₹25,000/     │
+  │ (monthly PDF/Excel)         │ media, consultants   │ report              │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ Developer intelligence      │ Builders, promoters  │ ₹10,000–₹50,000/mo  │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ Legal/litigation leads      │ Property lawyers,    │ Pay-per-lead or     │
+  │                             │ consultants          │ ₹5k–₹25k/month      │
+  └─────────────────────────────┴──────────────────────┴─────────────────────┘
+
+  TIER 3 — MONTHS 10–12+
+  ┌─────────────────────────────┬──────────────────────┬─────────────────────┐
+  │ Bank/NBFC underwriting API  │ Lenders, valuation   │ ₹25,000–₹2L/month   │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ Data/API licensing          │ PropTechs, research  │ ₹50k–₹5L/year       │
+  ├─────────────────────────────┼──────────────────────┼─────────────────────┤
+  │ White-label dashboard       │ Real estate          │ ₹1L–₹10L setup +    │
+  │                             │ consultants          │ monthly             │
+  └─────────────────────────────┴──────────────────────┴─────────────────────┘
+
+FIRST PAID PRODUCTS — detailed:
+
+  1. Basic Listing Check — ₹499
+     Contents: Price sanity check, area sanity, locality comparison,
+               RERA match or no-match flag
+     Target: First-time homebuyers, anyone evaluating a 99acres listing
+
+  2. Project Risk Report — ₹1,499
+     Contents: Builder track record, RERA status, complaint history,
+               timeline delays, anomaly flags, data inconsistencies
+     Target: Buyers evaluating a specific under-construction project
+
+  3. Investor Locality Pack — ₹4,999
+     Contents: Price trends for locality, filtered listings (bad ones removed),
+               risky project list, opportunity zones with growth signals
+     Target: Land investors, NRIs, small real estate funds
+
+  4. Monthly City Dashboard — ₹9,999/month
+     Contents: All active Akola/Amravati listings + RERA project risk status
+               + price trends, updated every month
+     Target: Local brokers, consultants, institutional investors
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 6: 12-MONTH ROADMAP
+────────────────────────────────────────────────────────────────────────────────
+
+Phase 1 — Month 1: DATA TRUST
+  Goal: Clean, reliable, consistent data before selling anything
+  Tasks: Fix scraper hygiene, schema stability, city_id consistency,
+         confidence scoring, cleanup bad rows, finish Amravati rerun,
+         get IGR scraper working reliably
+
+Phase 2 — Month 2: SELLABLE REPORTS
+  Goal: Generate clean, professional due diligence reports
+  Tasks: Build PDF/HTML report generator, design report templates,
+         Basic Listing Check + Project Risk Report formats
+
+Phase 3 — Months 3–4: FIRST REVENUE
+  Goal: Validate pricing and demand with real buyers
+  Tasks: Manually sell 10–20 reports to local brokers, investors, homebuyers
+         in Akola and Amravati. Learn what they actually want to see.
+
+Phase 4 — Months 5–6: DASHBOARD SAAS
+  Goal: Move from manual report delivery to self-serve product
+  Tasks: Login system, city filters, report export, payment integration
+         (Razorpay), broker dashboard with recurring subscription
+
+Phase 5 — Months 7–9: EXPAND CITIES
+  Goal: Prove the model scales beyond founding cities
+  Tasks: Add Nagpur, Wardha, Yavatmal after quality checks.
+         Replicate scraper + enrichment + anomaly pipeline for each city.
+
+Phase 6 — Months 10–12: B2B / API
+  Goal: Enterprise and institutional revenue
+  Tasks: Pitch lenders, lawyers, valuation firms, PropTechs.
+         Builder competitor intelligence product.
+         API access for underwriting and data licensing.
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 7: WHAT NOT TO DO
+────────────────────────────────────────────────────────────────────────────────
+
+1. Do not make ML the main selling point yet.
+   The current rules-based anomaly and flag logic is already valuable if the
+   data is clean. Make it reliable and explainable first. ML improves it
+   later — it does not create the core value.
+
+2. Do not use the word "fraud" in any product, report, or marketing.
+   Legal and commercial risk is too high. Use safe language:
+     - "risk signal"
+     - "pricing anomaly"
+     - "RERA concern"
+     - "data inconsistency"
+     - "requires verification"
+
+3. Do not position as a listing portal.
+   That market is completely saturated and dominated by portals with huge
+   SEO and brand advantages. The moat is RISK and VERIFICATION, not listings.
+
+4. Do not expand cities before quality is proven.
+   Better to have excellent coverage of Akola and Amravati than shallow
+   coverage of ten cities. Buyers will not trust a risk report if the data
+   is incomplete or inconsistent.
+
+5. Do not wait for perfect data before selling.
+   Sell rough reports early (Phase 3). Learn from real buyers what fields
+   they actually care about. Perfect later based on feedback.
+
+6. Do not compete with Propstack on metros.
+   Their moat in Mumbai, Pune, Hyderabad is deep — field teams, paid API
+   access, data licensing deals. The opportunity is the 400+ cities they
+   have not covered.
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 8: COMPETITIVE POSITIONING SUMMARY
+────────────────────────────────────────────────────────────────────────────────
+
+Propstack parallel:
+  Propstack built a ₹100B+ transaction database by systematically collecting
+  IGR registration data through physical SRO presence, paid portal access, and
+  govt data agreements — then layering analytics on top. Their product is
+  essentially "Cotality (formerly CoreLogic) for India metros."
+
+  We are building "Propstack for Vidarbha" — but with a key difference:
+  we are adding the RERA data layer and cross-referencing it against IGR
+  and listing prices for anomaly detection. Propstack has IGR but does not
+  do this three-way cross-reference for fraud/risk signals.
+
+Cotality (US) parallel:
+  Cotality (formerly CoreLogic, rebranded 2024) is the 50-year-old US
+  equivalent — property data, AVM (automated valuation), fraud detection,
+  HPI (home price index), climate risk. Their fraud notification product,
+  HPI forecasts, and scoring models are the productised versions of our
+  anomaly detection, --trends, and --score pipeline respectively.
+
+  Cotality is the long-term product roadmap reference. We are building the
+  same stack, but for 400+ Indian cities that have never had it.
+
+Financial soundness verdict:
+  Good chance — but only as B2B/B2B2C real estate risk intelligence.
+  The strongest wedge: "Real estate due diligence and risk intelligence
+  for Tier-2/3 Maharashtra markets." Big portals focus on discovery.
+  This project focuses on trust, risk, and abnormality. That is a sharper
+  and largely uncontested market position.
+
+────────────────────────────────────────────────────────────────────────────────
+END OF CONTEXT FILE
+================================================================================

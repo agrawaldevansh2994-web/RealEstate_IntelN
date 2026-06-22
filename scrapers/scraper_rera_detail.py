@@ -21,8 +21,10 @@ Debug tip:
 import json
 import logging
 import re
+import threading
 import time
-from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 
 import requests
 from playwright.sync_api import sync_playwright
@@ -90,6 +92,23 @@ ZERO_ALLOWED_FIELDS = {
     "loan_amount",
 }
 
+# Canonical rera_status values: active | completed | lapsed
+# Maps any raw statusName from the MahaRERA API to one of those three.
+# "de-registered" / "cancelled" → lapsed so stalled_projects detection catches them.
+# Keep this in sync with scraper_rera.py's normalisation.
+_RERA_STATUS_MAP: dict[str, str] = {
+    "active":          "active",
+    "registered":      "active",      # list-page variant; safety net
+    "new":             "active",
+    "completed":       "completed",
+    "lapsed":          "lapsed",
+    "expired":         "lapsed",
+    "de-registered":   "lapsed",      # MahaRERA active removal — treat as lapsed
+    "deregistered":    "lapsed",      # alternate spelling
+    "de registered":   "lapsed",      # space variant (no hyphen)
+    "cancelled":       "lapsed",
+}
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -155,6 +174,20 @@ def _find_numeric_values(value, candidate_keys: set[str]) -> list[float]:
     return values
 
 
+def _sum_finance_parts(obj: dict | None) -> float | None:
+    """Sum secured + unsecured borrowed funds from a means-of-finance sub-object."""
+    if not isinstance(obj, dict):
+        return None
+    secured = _safe_float(
+        obj.get("totalBorrowedFundsSecured"),   allow_zero=True)
+    unsecured = _safe_float(
+        obj.get("totalBorrowedFundsUnsecured"), allow_zero=True)
+    values = [v for v in (secured, unsecured) if v is not None]
+    if not values:
+        return None
+    return round(sum(values), 2)
+
+
 # ── Main class ─────────────────────────────────────────────────────────────────
 
 class RERADetailScraper:
@@ -167,6 +200,7 @@ class RERADetailScraper:
         self._geocode_cache: dict[str, tuple[float, float] | None] = {}
         self._last_geocode = 0.0
         self._logged_raw = False   # log raw response once per run
+        self._token_lock = threading.Lock()
         self._playwright = None
         self._browser = None
         self._search_page = None
@@ -235,8 +269,9 @@ class RERADetailScraper:
             raise
 
     def _ensure_token(self):
-        if not self.token or (time.time() - self.token_time) > 3300:
-            self.authenticate()
+        with self._token_lock:
+            if not self.token or (time.time() - self.token_time) > 3300:
+                self.authenticate()
 
     # ── URL resolver ───────────────────────────────────────────────────────────
 
@@ -295,13 +330,109 @@ class RERADetailScraper:
                 f"resolve_detail_url failed for {registration}: {e}")
         return ""
 
+    def _resolve_api_project_id(self, url_id: int, detail_url: str) -> int | None:
+        """
+        Returns the working API projectId for this project.
+
+        For cities like Akola/Amravati/Nagpur the URL view-ID is the real
+        API projectId — confirmed with a quick probe (no extra cost).
+
+        For Pune, the URL view-ID is a CMS node ID that doesn't match the
+        API's internal projectId. We fall back to loading the detail page
+        with Playwright and intercepting the real ID from the first XHR call
+        the page makes to the MahaRERA project API.
+
+        Results are cached per run (url_id → real_id) so each project is
+        only probed/intercepted once even if the run loops encounter it again.
+        """
+        cache_key = f"pid_{url_id}"
+        if cache_key in self.url_cache:
+            cached = self.url_cache[cache_key]
+            return int(cached) if cached else None
+
+        # Quick probe — try the URL ID directly (fast path for all working cities)
+        probe_url = f"{PROJ_API}{ENDPOINTS['general']}"
+        try:
+            self._ensure_token()
+            resp = self.session.post(
+                probe_url, json={"projectId": url_id}, timeout=10
+            )
+            if resp.status_code == 200:
+                self.url_cache[cache_key] = str(url_id)
+                return url_id
+        except Exception:
+            pass
+
+        # URL ID doesn't work — intercept real ID from the detail page
+        real_id = self._intercept_project_id_from_page(detail_url)
+        self.url_cache[cache_key] = str(real_id) if real_id else ""
+        return real_id
+
+    def _intercept_project_id_from_page(self, detail_url: str) -> int | None:
+        """
+        Load the project detail page and intercept the projectId from the
+        first XHR/fetch call the page makes to the MahaRERA project API.
+
+        Used as fallback for cities (Pune) where the URL view-ID is a CMS
+        node ID that does not match the API's internal projectId. The detail
+        page JS resolves this mapping at runtime — we just listen to the
+        outgoing request to read the real value.
+        """
+        if not detail_url or "http" not in detail_url:
+            return None
+
+        captured: list[int] = []
+        page = self._ensure_search_page()
+
+        def on_request(request) -> None:
+            if captured:
+                return
+            if "projectregistartion" not in request.url:
+                return
+            try:
+                post_data = request.post_data
+                if not post_data:
+                    return
+                payload = json.loads(post_data)
+                pid = payload.get("projectId")
+                if pid is not None:
+                    captured.append(int(pid))
+            except Exception:
+                pass
+
+        page.on("request", on_request)
+        try:
+            page.goto(detail_url, wait_until="domcontentloaded", timeout=30000)
+            # Poll until first API call fires (max 8 s)
+            deadline = time.time() + 8
+            while not captured and time.time() < deadline:
+                page.wait_for_timeout(500)
+        except Exception as e:
+            logger.warning(
+                f"_intercept_project_id_from_page failed ({detail_url}): {e}"
+            )
+        finally:
+            page.remove_listener("request", on_request)
+
+        if captured:
+            logger.debug(
+                f"Intercepted real projectId={captured[0]} from {detail_url}"
+            )
+            return captured[0]
+
+        logger.warning(
+            f"Could not intercept projectId from {detail_url}"
+        )
+        return None
+
     # ── API ────────────────────────────────────────────────────────────────────
 
     def _post_with_auth(self, url: str, payload: dict):
         self._ensure_token()
         resp = self.session.post(url, json=payload, timeout=30)
         if resp.status_code == 401:
-            self.authenticate()
+            with self._token_lock:
+                self.authenticate()
             resp = self.session.post(url, json=payload, timeout=30)
         resp.raise_for_status()
         return resp.json()
@@ -391,22 +522,64 @@ class RERADetailScraper:
 
     # ── Enrich ─────────────────────────────────────────────────────────────────
 
-    def enrich_project(self, db_id: str, rera_project_id: int) -> dict:
-        time.sleep(0.5)
+    def _should_skip(self, proj: dict) -> bool:
+        """Return True if this project can be safely skipped this run.
 
-        general = self.call_api("general", rera_project_id)
-        status = self.call_api("status", rera_project_id)
-        comp_raw = self.call_api("complaints", rera_project_id)
-        units_list = self.call_api("units", rera_project_id)
-        promoter = self.call_api("promoter", rera_project_id)
-        address = self.call_api("address", rera_project_id)
-        land_header = self.call_api("land_header", rera_project_id)
-        land_cc = self.call_api("land_cc", rera_project_id)
-        litigation = self.call_api("litigation", rera_project_id)
-        extensions = self.call_api("extensions", rera_project_id)
-        cost_estimation = self.call_api("cost_estimation", rera_project_id)
-        finance_bank = self.call_api("finance_bank", rera_project_id)
-        means_finance = self.call_api("means_finance", rera_project_id)
+        Rules:
+        - Never skip if updated_at is NULL (never enriched before)
+        - Never skip active projects — status, units_sold, complaints can change
+        - Never skip if total_units is NULL (core data missing)
+        - Skip completed/lapsed projects enriched within the last 30 days
+        """
+        updated_at = proj.get("updated_at")
+        if not updated_at:
+            return False  # never enriched
+
+        rera_status = str(proj.get("rera_status") or "").lower().strip()
+        if rera_status in ("active", ""):
+            return False  # active or unknown — always re-enrich
+
+        if proj.get("total_units") is None:
+            return False  # missing core data
+
+        try:
+            updated = datetime.fromisoformat(
+                str(updated_at).replace("Z", "+00:00"))
+            if updated.tzinfo is None:
+                updated = updated.replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - updated).days < 30
+        except Exception:
+            return False
+
+    def enrich_project(self, db_id: str, rera_project_id: int) -> dict:
+        time.sleep(0.1)  # reduced from 0.5s — network latency is the real throttle
+
+        # ── Batch 1: all independent endpoints fired in parallel ───────────────
+        _batch1 = [
+            "general", "status", "complaints", "units", "promoter",
+            "address", "land_header", "land_cc", "litigation", "extensions",
+            "cost_estimation", "finance_bank", "means_finance",
+        ]
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            _futures = {
+                key: executor.submit(self.call_api, key, rera_project_id)
+                for key in _batch1
+            }
+            _results = {key: fut.result() for key, fut in _futures.items()}
+
+        general         = _results["general"]
+        status          = _results["status"]
+        comp_raw        = _results["complaints"]
+        units_list      = _results["units"]
+        promoter        = _results["promoter"]
+        address         = _results["address"]
+        land_header     = _results["land_header"]
+        land_cc         = _results["land_cc"]
+        litigation      = _results["litigation"]
+        extensions      = _results["extensions"]
+        cost_estimation = _results["cost_estimation"]
+        finance_bank    = _results["finance_bank"]
+        means_finance   = _results["means_finance"]
 
         # Mark raw logged after first project
         if LOG_RAW_RESPONSES and not self._logged_raw:
@@ -529,22 +702,6 @@ class RERADetailScraper:
             if isinstance(means_finance_obj, dict) else {}
         means_estimated = means_finance_obj.get("estimated") \
             if isinstance(means_finance_obj, dict) else {}
-
-        def _sum_finance_parts(obj: dict | None) -> float | None:
-            if not isinstance(obj, dict):
-                return None
-            secured = _safe_float(
-                obj.get("totalBorrowedFundsSecured"),
-                allow_zero=True,
-            )
-            unsecured = _safe_float(
-                obj.get("totalBorrowedFundsUnsecured"),
-                allow_zero=True,
-            )
-            values = [v for v in (secured, unsecured) if v is not None]
-            if not values:
-                return None
-            return round(sum(values), 2)
 
         estimated_cost_values = _find_numeric_values(
             cost_estimation,
@@ -679,7 +836,27 @@ class RERADetailScraper:
             pin_code = str(promoter_address.get("pinCode", "")).strip()
 
         # ── Status + dates ────────────────────────────────────────────────────
-        rera_status = (status_obj.get("statusName") or "").lower()
+        # Primary: coreStatus.statusName (works for Pune/Nashik/Aurangabad).
+        # Phase 1 cities (Nagpur/Amravati) can return null coreStatus — try
+        # progressively broader fallbacks before giving up.
+        rera_status = (
+            status_obj.get("statusName")
+            or status.get("statusName")
+            or status.get("projectStatus")
+            or status.get("currentStatus")
+            or general.get("statusName")
+            or general.get("projectStatus")
+            or general.get("status")
+            or ""
+        ).lower().strip()
+        rera_status = _RERA_STATUS_MAP.get(rera_status, rera_status)
+        if not rera_status:
+            logger.warning(
+                f"[STATUS MISSING] project_id={rera_project_id} — "
+                f"status keys={list(status.keys()) if isinstance(status, dict) else type(status)}, "
+                f"coreStatus keys={list(status_obj.keys()) if status_obj else 'empty'} — "
+                f"DB value preserved"
+            )
         extension_rows = extensions if isinstance(extensions, list) else []
         if isinstance(extensions, dict):
             extension_rows = extensions.get("extensionDetails") or []
@@ -788,10 +965,6 @@ class RERADetailScraper:
         # Enrichment-only: downstream detectors own project risk.
         return record
 
-        # ── Flags ─────────────────────────────────────────────────────────────
-        # escrow deficit flag removed — escrow data not available in public API
-
-
     # ── Helpers ────────────────────────────────────────────────────────────────
 
     def _parse_date(self, val) -> str | None:
@@ -831,8 +1004,15 @@ class RERADetailScraper:
 
         city_id = city_rows[0]["id"]
         projects = select_rows(
-            "rera_projects", {"city_id": city_id}, limit=500)
-        logger.info(f"Enriching {len(projects)} RERA projects for {city}")
+            "rera_projects", {"city_id": city_id}, limit=1500)
+
+        to_enrich = [p for p in projects if not self._should_skip(p)]
+        skipped_smart = len(projects) - len(to_enrich)
+        logger.info(
+            f"{len(projects)} RERA projects for {city} — "
+            f"enriching {len(to_enrich)}, "
+            f"skipping {skipped_smart} (completed/lapsed, enriched <30d ago)"
+        )
 
         try:
             self.authenticate()
@@ -840,8 +1020,9 @@ class RERADetailScraper:
             logger.error("Unable to start enrichment without MahaRERA auth")
             return
 
+        total = len(to_enrich)
         try:
-            for proj in projects:
+            for idx, proj in enumerate(to_enrich, 1):
                 raw_data = proj.get("raw_data")
                 source_url = proj.get("source_url") or ""
                 if not source_url and isinstance(raw_data, dict):
@@ -867,7 +1048,10 @@ class RERADetailScraper:
                             }
                             update_rows("rera_projects",
                                         filters={"id": str(proj["id"])},
-                                        updates={"raw_data": raw_payload})
+                                        updates={
+                                            "raw_data":   raw_payload,
+                                            "source_url": resolved,
+                                        })
 
                 if not id_match:
                     id_match = re.search(r"/view/(\d+)", str(raw_data or ""))
@@ -880,7 +1064,35 @@ class RERADetailScraper:
                 db_id = str(proj["id"])
                 rera_no = proj.get("rera_registration", "")
 
-                logger.info(f"Enriching {rera_no} (ID: {rera_project_id})")
+                # Build full detail URL for potential Playwright interception
+                detail_url = str(source_url or "")
+                if detail_url and not detail_url.startswith("http"):
+                    detail_url = (
+                        "https://maharerait.maharashtra.gov.in" + detail_url
+                    )
+
+                # Resolve real API project ID (probe fast path, then intercept)
+                url_id = rera_project_id
+                rera_project_id = self._resolve_api_project_id(
+                    url_id, detail_url)
+                if rera_project_id is None:
+                    logger.warning(
+                        f"Could not resolve API project ID for {rera_no} "
+                        f"(URL-ID: {url_id}), skipping"
+                    )
+                    self.stats["skipped"] += 1
+                    continue
+
+                if rera_project_id != url_id:
+                    logger.info(
+                        f"[{idx}/{total}] Enriching {rera_no} "
+                        f"(URL-ID: {url_id} → API-ID: {rera_project_id})"
+                    )
+                else:
+                    logger.info(
+                        f"[{idx}/{total}] Enriching {rera_no} "
+                        f"(ID: {rera_project_id})"
+                    )
 
                 try:
                     enriched = self.enrich_project(db_id, rera_project_id)
@@ -896,6 +1108,8 @@ class RERADetailScraper:
                     }
 
                     if enriched:
+                        enriched["updated_at"] = datetime.now(
+                            timezone.utc).isoformat()
                         update_rows("rera_projects",
                                     filters={"id": db_id},
                                     updates=enriched)
@@ -923,7 +1137,8 @@ class RERADetailScraper:
         logger.info(
             f"\nEnrichment complete — "
             f"updated={self.stats['updated']} "
-            f"skipped={self.stats['skipped']} "
+            f"url_skipped={self.stats['skipped']} "
+            f"smart_skipped={skipped_smart} "
             f"errors={self.stats['errors']} "
             f"geocoded={self.stats['geocoded']}"
         )

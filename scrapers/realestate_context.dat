@@ -1,0 +1,189 @@
+====================================================================
+REAL ESTATE INTELLIGENCE PLATFORM - CORE MEMORY & CONTEXT
+====================================================================
+Last Updated: 2026-05-02
+
+## Real Estate Intelligence Platform — Use Case
+This system is a **fraud detection and market intelligence platform** for the Maharashtra real estate market, built specifically to monitor RERA-registered projects and 99acres listings in cities like Akola, Amravati, and Nagpur.
+
+### Core Problem It Solves
+Maharashtra's real estate market has significant buyer risk — developers collecting money, letting RERA registrations lapse, filing false unit counts, or operating shell companies across multiple registrations. Buyers, journalists, regulators, and investors currently have no easy way to correlate signals across data sources.
+
+### What It Actually Does
+
+**Data Collection**
+- Scrapes live property listings from 99acres (prices, localities, listing types)
+- Scrapes MahaRERA's public portal for all registered projects (status, promoter details, complaints, financials)
+- Enriches RERA records via MahaRERA's internal API (units sold, amount collected, completion dates, geocoordinates)
+
+**Automated Fraud & Risk Detection**
+- Flags promoters with repeated RERA complaints across multiple projects
+- Detects escrow deficits (collected funds not properly held)
+- Identifies stalled/lapsed projects by repeat offenders
+- Cross-references RERA-flagged promoters against active 99acres listings (illegal selling without valid registration)
+- Detects shell company clusters via promoter name similarity analysis
+- Spots listing price outliers and locality-level price spikes
+
+**Market Intelligence**
+- Tracks daily price-per-sqft snapshots by locality and property type
+- Detects statistically significant price trend spikes (7/14/30-day windows)
+- Computes confidence scores (0–100) on every flag based on data quality and corroboration
+
+**Alerting**
+- Pushes high-confidence flags (score ≥ 60, severity high/critical) to a Make.com automation scenario for real-time alerts
+
+### Who Would Use This
+| User                      | Purpose                                                        |
+|---------------------------|----------------------------------------------------------------|
+| Home buyers               | Check if a project/promoter is flagged before investing        |
+| Journalists / RTI activists | Identify fraud patterns across promoters                     |
+| RERA regulators           | Prioritize enforcement using confidence-scored flags           |
+| Real estate investors     | Spot price manipulation or distressed locality signals         |
+| Banks / NBFCs             | Due diligence on project loan applications                     |
+
+--------------------------------------------------------------------
+
+## CURRENT PLATFORM STATE
+Recorded: 2026-05-02
+
+### Cities Currently Supported
+Akola, Amravati, Nagpur.
+(Pune and Mumbai exist in cities table but not yet active in pipeline.)
+
+### Live Data Snapshot
+| City      | Listings | RERA Projects | Actionable Flags  | History Days |
+|-----------|----------|---------------|-------------------|--------------|
+| Akola     | 150      | 114           | 13/29 (45%)       | 16           |
+| Amravati  | 375      | 370           | 25/57 (44%)       | 13           |
+| Nagpur    | 1,001    | 800           | 48/103 (47%)      | 8            |
+
+### Flag Type Signal Quality
+| Flag Type                | Avg Confidence | Actionable | Status         |
+|--------------------------|---------------|------------|----------------|
+| repeated_complaints      | 82.7          | 29/30      | Excellent       |
+| stalled_projects         | 68.1          | 18/18      | Solid           |
+| price_trend_spike        | 63.5          | 29/51      | Decent; needs more history |
+| locality_price_spike     | 36.2          | 0/37       | Broken — needs fix |
+| listing_price_outlier    | 23.1          | 1/41       | Effectively noise |
+
+--------------------------------------------------------------------
+
+## ENGINEERING IMPROVEMENTS TO DATE (as of 2026-04-28)
+- Removed hardcoded Supabase key from Python/batch flow; env loading now handled through `main.py`.
+- Hardened DB connection layer with session reuse, retry, and backoff.
+- Added regression tests for prior detector failures.
+- Cleaned historical duplicate flags once in Supabase.
+- Moved dashboard flag review away from direct anonymous table updates.
+- Added Nagpur support across scraper, geocode, dashboard, and city flow.
+- Improved 99acres scraper for larger cities and switched buy/sale scraping to resale route.
+- Improved 99acres area unit handling: sqft, sq-yard, sqm.
+- Improved locality normalization and alias handling.
+- Fixed sq-yard area issue so huge sq-yard listings no longer produce tiny sqft values.
+- Added confidence scoring logic for `locality_price_spike`.
+- Increased `listing_price_outlier` minimum comparable group size from 4 to 6.
+- Updated `locality_price_spike` dedupe so reviewed/closed flags do not keep returning every run.
+- Confirmed Supabase disk size is not currently a problem.
+
+--------------------------------------------------------------------
+
+## STRATEGIC ROADMAP
+
+### Phase 1 — Stabilise Current Cities (4–6 weeks)
+Priority: highest ROI — every fix here compounds into Phase 2 and 3.
+
+1. **Fix `locality_price_spike` confidence scoring**
+   - Run `--score` for all three cities and check if flags break through 60.
+   - If still flat, raise `PRICE_LOCALITY_SPIKE_PCT` from 0.40 → 0.60 in `pattern_detector.py` so only genuine outliers are flagged.
+   - Then rerun `--patterns --score`.
+
+2. **Retire or rethink `listing_price_outlier`**
+   - Avg confidence 23.1; 1/41 actionable. Root problem: Akola/Amravati localities rarely have 6+ comparable listings of same type.
+   - Option A: Lower `MIN_OUTLIER_GROUP_SIZE` to 4, raise `PRICE_DEVIATION_PCT` to 1.0 (100% deviation required).
+   - Option B: Disable entirely for cities with fewer than 300 active listings; run only for Nagpur.
+
+3. **Build 60 days of price history (passive)**
+   - Keep daily pipeline running. 60 days = statistically meaningful trend detection. 90 days = seasonal pattern detection.
+   - No code changes needed — just keep the bat file running.
+
+4. **Add confirmed/dismissed flag workflow to dashboard**
+   - Thumbs up/down button per flag = 1–2 hours of frontend work.
+   - Creates ground truth labels needed for Phase 3 ML. Without this, ML is impossible.
+
+### Phase 2 — Expand Coverage (6–10 weeks)
+Prerequisites: Phase 1 complete, 60+ days of history, some confirmed labels.
+
+5. **Add Pune (RERA only first)**
+   - Pune already exists in cities table. Scrapers support it.
+   - Start with RERA scrape only — no 99acres yet (locality normalisation not tuned for Pune).
+   - Pune + Nagpur together will yield ~6,000 RERA projects — the threshold where ML starts making sense.
+
+6. **IGR (Index of Registered Documents) integration**
+   - `scraper_igr.py` already exists in `main.py`.
+   - IGR gives actual registered sale transactions — real prices paid, not asking prices.
+   - Cross-referencing IGR sale price vs RERA listed price vs 99acres asking price = direct fraud signal.
+   - Single most powerful data addition possible.
+
+7. **Amravati locality aliases round 2**
+   - Singleton rate still 64%. Another alias pass after 2–3 more scrape runs will surface new fragmentation patterns.
+
+### Phase 3 — ML (10–16 weeks)
+Prerequisites: 90+ days history, IGR data, confirmed/dismissed labels, Pune-scale data (5,000+ RERA projects).
+
+8. **Promoter risk scoring model**
+   - Not classification — a risk score (0–100) per promoter.
+   - Features: complaint count, escrow ratio, delay months, stalled project count, PAN verification status, cross-source listing activity.
+   - Replaces current heuristic confidence scorer with a learned one.
+   - Logistic regression or gradient boosting. No deep learning needed at this data size.
+
+9. **Price anomaly detection with Isolation Forest**
+   - Requires 90 days of daily price_history per locality.
+   - Learns normal variance per locality rather than applying fixed thresholds.
+   - Replaces current 7/14/30-day window approach.
+
+10. **Promoter name deduplication with embeddings**
+    - Current `promoter_name_cluster` uses Jaccard similarity — brittle.
+    - Replace with sentence-transformers (free, runs locally) for better shell company cluster detection with fewer false positives.
+    - Relevant at 1,200+ promoters across three cities and growing.
+
+--------------------------------------------------------------------
+
+## WHY ML IS PREMATURE RIGHT NOW
+- Financials only 8–29% filled across RERA projects. Escrow ratio — the most predictive feature — missing for 71–92% of projects.
+- Price history only 8–16 days deep. Anomaly detection needs minimum 60–90 days.
+- Zero confirmed ground truth labels. Supervised fraud detection without confirmed positives = nothing to train on.
+- Total dataset (~1,284 RERA projects, ~1,526 listings) too small — models would overfit immediately.
+
+--------------------------------------------------------------------
+
+## IMMEDIATE NEXT ACTIONS (in order)
+1. Run `--score` for all 3 cities. Check `locality_price_spike` confidence output.
+   If avg still below 50, raise `PRICE_LOCALITY_SPIKE_PCT` 0.40 → 0.60 and rerun `--patterns --score`.
+2. Add confirmed/dismissed flag actions to dashboard (thumbs up/down per flag).
+3. Let daily pipeline run passively for 30 more days.
+4. Then start Pune RERA-only scrape.
+
+--------------------------------------------------------------------
+
+## BUSINESS DIRECTION
+
+**Monetisation path:** B2B/B2B2C real estate risk intelligence — not a general listing portal.
+
+**Strongest products:**
+- Buyer due-diligence reports (paid, per project/listing/locality)
+- Broker/investor dashboard (city filters, risk matrix, locality intelligence)
+- Developer competitor intelligence
+- Monthly city market report
+- Lender/NBFC risk API (later stage)
+
+**Medium-term product goals:**
+- Exportable PDF/HTML risk reports
+- Dashboard improvements: city filters, risk matrix, locality intelligence
+- Collect review labels from dashboard to build ML training data
+- Expand to more Maharashtra cities only after current pipeline is stable
+
+**ML plan (long-term):**
+First improve data quality, labels, and confidence scoring. Then apply ML for:
+- Listing anomaly detection
+- Locality price abnormality scoring
+- Confidence calibration from confirmed/dismissed flags
+- Promoter risk scoring across cities

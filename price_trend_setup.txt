@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════════
+# PRICE TREND SYSTEM — SETUP INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════════
+
+# ─── STEP 1: Run the SQL schema in Supabase ─────────────────────────────────
+# Open Supabase → SQL Editor → paste contents of price_history_schema.sql → Run
+
+
+# ─── STEP 2: Copy the 3 new files to your project ───────────────────────────
+#
+#   price_tracker.py  →  models/price_tracker.py
+#   trend_detector.py →  models/trend_detector.py
+#   price_history_schema.sql  (just for reference, already ran)
+
+
+# ─── STEP 3: Add to main.py ─────────────────────────────────────────────────
+#
+# a) Add two new CLI flags in your argparse block:
+#
+#     parser.add_argument('--snapshot', action='store_true',
+                         help='Snapshot current listings into price_history')
+     parser.add_argument('--trends', action='store_true',
+                         help='Detect price trend spikes from price_history')
+#
+# b) Add handlers after your existing --detect / --patterns blocks:
+#
+#     if args.snapshot:
+         logging.basicConfig(level=logging.INFO)
+         from models.price_tracker import PriceTracker
+         written = PriceTracker().snapshot()
+         print(f"Price snapshot complete — {written} locality rows written")
+
+     if args.trends:
+         logging.basicConfig(level=logging.INFO)
+         from models.trend_detector import TrendDetector
+         spikes = TrendDetector().run_all()
+         print(f"Trend analysis complete — {spikes} spike(s) detected")
+#
+# c) OPTIONALLY: auto-snapshot after 99acres scraper finishes.
+#    In scrapers/ninetynineacres.py (or wherever your scraper ends), add:
+#
+#     from models.price_tracker import PriceTracker
+     PriceTracker().snapshot(city=city)
+#
+#    This way every scraper run auto-snapshots without needing --snapshot
+
+
+# ─── STEP 4: Update run_scrapers.bat ────────────────────────────────────────
+#
+# Full pipeline — replace your current bat file with this:
+#
+#   cd C:\Users\agraw\Downloads\realestate_intel_v3
+#   call venv\Scripts\activate
+#   set SUPABASE_URL=https://bmiunaojlqwscybcayyk.supabase.co
+#   set SUPABASE_SERVICE_KEY=your_key_here
+#
+#   python main.py --scraper 99acres --city Akola
+#   python main.py --scraper rera --city Akola
+#   python main.py --scraper enrich --city Akola
+#   python main.py --snapshot
+#   python main.py --detect
+#   python main.py --patterns
+#   python main.py --trends
+#
+# Order matters:
+#   scrape → snapshot (saves today's prices) → detect (flags) → patterns (cross-table) → trends (spikes)
+
+
+# ─── STEP 5: Test immediately ────────────────────────────────────────────────
+#
+#   python main.py --snapshot
+#
+# This will read your 142 listings and write locality aggregates into price_history.
+# Check Supabase → Table Editor → price_history to confirm rows appeared.
+#
+# NOTE: --trends needs at least 3 days of snapshots to find anything.
+# On day 1 it will log "not enough data" — that's expected and correct.
+# After 1 week you'll start seeing real trend signals.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FULL PIPELINE ARCHITECTURE (after this step)
+# ═══════════════════════════════════════════════════════════════════
+#
+#  Daily (Task Scheduler, 2 AM):
+#  ┌─────────────────────────────────────────────────────────────┐
+#  │  99acres scraper  →  listings table (fresh data)            │
+#  │  RERA scraper     →  rera_projects table (fresh data)       │
+#  │  Enrich scraper   →  fills detail fields                    │
+#  │  --snapshot       →  price_history (1 row per locality/day) │
+#  │  --detect         →  suspicious_flags (rule-based)          │
+#  │  --patterns       →  suspicious_flags (cross-table)         │
+#  │  --trends         →  price_spikes + suspicious_flags        │
+#  └─────────────────────────────────────────────────────────────┘
+#
+#  Daily (Make, 9 AM):
+#  ┌─────────────────────────────────────────────────────────────┐
+#  │  HTTP → suspicious_flags (high + critical, status=open)     │
+#  │  Iterator → Email alert per flag                            │
+#  └─────────────────────────────────────────────────────────────┘
+#
+#  After 30 days, price_history will have ~30 snapshots per locality.
+#  TrendDetector will surface real signals — areas moving before news breaks.
+#
+# ═══════════════════════════════════════════════════════════════════

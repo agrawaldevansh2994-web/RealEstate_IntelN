@@ -15,6 +15,7 @@ from datetime import date, timedelta
 from typing import Any
 
 from db.connection import insert_row, select_rows, upsert_row
+from models.listing_sources import PRICE_HISTORY_MARKETPLACE_SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -22,30 +23,53 @@ logger = logging.getLogger(__name__)
 class TrendDetector:
 
     WINDOWS = [
-        {"days": 7,  "medium": 0.08, "high": 0.15, "critical": 0.25},
-        {"days": 14, "medium": 0.12, "high": 0.20, "critical": 0.35},
-        {"days": 30, "medium": 0.20, "high": 0.35, "critical": 0.50},
+        {"days": 7,  "medium": 0.08, "high": 0.15, "critical": 0.25, "min_snapshots": 3},
+        {"days": 14, "medium": 0.12, "high": 0.20, "critical": 0.35, "min_snapshots": 5},
+        {"days": 30, "medium": 0.20, "high": 0.35, "critical": 0.50, "min_snapshots": 14},
     ]
 
     MIN_SNAPSHOTS = 3
 
+    # Dampening: suppress re-flag if same locality was flagged within this
+    # many days, UNLESS the new spike magnitude exceeds the previous one by
+    # at least MAGNITUDE_ESCALATION_PCT percentage points (absolute).
+    DAMPEN_DAYS = 7
+    MAGNITUDE_ESCALATION_PCT = 5.0
+
     def __init__(self, city_id: int = 1, city: str = "Akola"):
         self.city_id = city_id
         self.city = city
-        self._open_trend_flag_keys: set[tuple[str, str, int]] = set()
+        # Maps (locality, property_type, window_days) →
+        #   {"flagged_at": "YYYY-MM-DD", "change_pct": float (abs, pct units)}
+        self._open_trend_flag_keys: dict[tuple[str, str, int], dict] = {}
         self._load_existing_trend_flags()
 
     def run_all(self) -> int:
         logger.info(
             f"TrendDetector: starting analysis for city_id={self.city_id} ({self.city})")
 
-        history = select_rows("price_history", filters={
-                              "city_id": self.city_id}, limit=5000)
+        # Explicitly filter marketplace sources — RERA rows store per-unit total
+        # price in avg_price_sqft (not ₹/sqft) and must not enter spike
+        # detection. PatternDetector already applies this filter; mirroring it
+        # here keeps both detectors consistent.
+        all_history = select_rows("price_history", filters={
+                                  "city_id": self.city_id}, limit=5000)
+
+        history = [
+            row for row in (all_history or [])
+            if (row.get("source") or "").lower() in PRICE_HISTORY_MARKETPLACE_SOURCES
+        ]
 
         if not history:
             logger.info(
-                "TrendDetector: no price_history data yet — run --snapshot for a few days first")
+                "TrendDetector: no marketplace price_history data yet — "
+                "run --snapshot for a few days first")
             return 0
+
+        logger.debug(
+            f"TrendDetector: {len(all_history)} total rows loaded, "
+            f"{len(history)} after filtering to marketplace sources"
+        )
 
         # Group by (locality, property_type)
         groups: dict[tuple, list[dict]] = defaultdict(list)
@@ -85,6 +109,13 @@ class TrendDetector:
         count = 0
         for window in self.WINDOWS:
             days = window["days"]
+
+            if len(snapshots) < window["min_snapshots"]:
+                logger.debug(
+                    f"Skipping {days}d window for {locality}/{property_type} "
+                    f"— only {len(snapshots)} snapshots, need {window['min_snapshots']}"
+                )
+                continue
 
             target_date = _date_minus_days(str(latest_date), days)
             baseline = _find_nearest_snapshot(snapshots[:-1], target_date)
@@ -145,9 +176,18 @@ class TrendDetector:
                 logger.warning(f"Could not write price spike: {e}")
                 continue
 
-            trend_flag_key = self._trend_flag_key(locality, property_type, days)
-            if trend_flag_key in self._open_trend_flag_keys:
-                continue
+            trend_flag_key = self._trend_flag_key(locality, property_type, days, self.city)
+            existing = self._open_trend_flag_keys.get(trend_flag_key)
+            if existing:
+                days_since = (date.today() - date.fromisoformat(existing["flagged_at"])).days
+                prev_abs_pct = existing.get("change_pct", 0.0)
+                new_abs_pct  = abs_change * 100
+                if days_since < self.DAMPEN_DAYS and new_abs_pct < prev_abs_pct + self.MAGNITUDE_ESCALATION_PCT:
+                    logger.debug(
+                        f"Dampened: {locality}/{property_type} {days}d "
+                        f"(flagged {days_since}d ago, {new_abs_pct:.1f}% vs prev {prev_abs_pct:.1f}%)"
+                    )
+                    continue
 
             # Write to suspicious_flags so Make alert picks it up
             flag_title = (
@@ -186,7 +226,11 @@ class TrendDetector:
                         "latest_date":   str(latest_date),
                     }
                 })
-                self._open_trend_flag_keys.add(trend_flag_key)
+                self._open_trend_flag_keys[trend_flag_key] = {
+                    "flagged_at": date.today().isoformat(),
+                    "change_pct": round(abs_change * 100, 2),
+                    "severity":   severity,
+                }
                 logger.info(
                     f"Spike: {locality}/{property_type} {change_pct:+.1%} in {days}d → {severity}")
                 count += 1
@@ -224,15 +268,30 @@ class TrendDetector:
             window_days = evidence.get("window_days")
             try:
                 if locality and property_type and window_days is not None:
-                    self._open_trend_flag_keys.add(
-                        self._trend_flag_key(locality, property_type, int(window_days))
-                    )
+                    flagged_at = str(row.get("created_at") or "")[:10] or date.today().isoformat()
+                    change_pct = abs(float(evidence.get("change_pct") or 0))
+                    key = self._trend_flag_key(locality, property_type, int(window_days), self.city)
+                    # Keep the most recent entry if the same key appears multiple times
+                    existing = self._open_trend_flag_keys.get(key)
+                    if not existing or flagged_at > existing["flagged_at"]:
+                        self._open_trend_flag_keys[key] = {
+                            "flagged_at": flagged_at,
+                            "change_pct": change_pct,
+                            "severity":   str(row.get("severity") or "medium"),
+                        }
             except (TypeError, ValueError):
                 continue
 
     @staticmethod
-    def _trend_flag_key(locality: str, property_type: str, window_days: int) -> tuple[str, str, int]:
-        normalized_locality = " ".join(str(locality or "").strip().lower().split())
+    def _trend_flag_key(locality: str, property_type: str, window_days: int, city: str = "") -> tuple[str, str, int]:
+        loc = str(locality or "").strip().lower()
+        if city:
+            # Strip ", CityName" suffix so "Geeta Nagar, Akola" and
+            # "Geeta Nagar" resolve to the same key.
+            suffix = f", {city.strip().lower()}"
+            if loc.endswith(suffix):
+                loc = loc[: -len(suffix)].strip()
+        normalized_locality = " ".join(loc.split())
         normalized_property_type = str(property_type or "").strip().lower()
         return (normalized_locality, normalized_property_type, int(window_days))
 

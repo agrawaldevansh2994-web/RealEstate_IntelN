@@ -164,6 +164,18 @@ MAX_SUBZONE_PAGES_PER_LOCALITY = 30
 MIN_PLAUSIBLE_RATE_SQM = 500
 MAX_PLAUSIBLE_RATE_SQM = 2_000_000
 
+# Max tolerated ratio between the highest and lowest sub-zone rate within a
+# single village/property-type aggregation. A ratio above this indicates
+# mixed-unit rows in the portal grid -- confirmed on Akola open land (खुली
+# जमीन): the grid mixes sub-zones expressed per sqm AND per are (100 sqm)
+# without distinguishing them in the unit column, producing 662-3339x spreads
+# (e.g. हिंगणा म्हैसपुर plot: ₹52/sqft min vs ₹1,73,727/sqft max). When this
+# gate fires, the bottom decile of sub-zone rates is dropped as mixed-unit
+# outliers and aggregation continues on the remaining values. If after pruning
+# the ratio still exceeds the threshold, the whole field is skipped and logged
+# as a warning rather than storing corrupt aggregate data.
+MAX_SUBZONE_RATE_RATIO = 50.0
+
 SQM_TO_SQFT = 10.764
 
 # DOM element IDs (confirmed via DevTools on Nagpur)
@@ -590,7 +602,15 @@ class ScraperEASR(BaseScraper):
         self, raw_rows: list[dict], field: str
     ) -> Optional[dict]:
         """Aggregate min/max/avg for one property-type field across all
-        sub-zone rows. Filters out-of-bounds and zero/NA values."""
+        sub-zone rows. Filters out-of-bounds, zero/NA, and mixed-unit outliers.
+
+        Mixed-unit detection: if the max/min ratio across sub-zone rates exceeds
+        MAX_SUBZONE_RATE_RATIO (confirmed issue: Akola open land mixes per-sqm
+        and per-are rates in the same grid without flagging it in the unit column),
+        the bottom decile is pruned as low-unit-outliers and ratio is re-checked.
+        If it still exceeds the threshold after pruning, the field is skipped
+        entirely rather than storing a corrupted aggregate.
+        """
         values_sqm = []
         for row in raw_rows:
             rate = self._parse_rate(row.get(field))
@@ -607,6 +627,38 @@ class ScraperEASR(BaseScraper):
         if not values_sqm:
             return None
 
+        # ── Mixed-unit ratio gate ──────────────────────────────────────────
+        # Check spread BEFORE committing to an aggregate. A ratio > 50× almost
+        # certainly means some sub-zones use a different base unit (per are,
+        # per guntha) even though the unit column claims sqm for all of them.
+        ratio = max(values_sqm) / min(values_sqm)
+        if ratio > MAX_SUBZONE_RATE_RATIO:
+            # Prune bottom decile -- the very low outliers are typically the
+            # mixed-unit (per-are/per-hectare expressed as sqm) rows.
+            values_sqm.sort()
+            cutoff = max(1, len(values_sqm) // 10)
+            pruned = values_sqm[cutoff:]
+            if not pruned:
+                self.logger.warning(
+                    f"field={field}: ratio {ratio:.0f}× after pruning left 0 "
+                    f"values -- skipping field entirely"
+                )
+                return None
+            ratio_after = max(pruned) / min(pruned)
+            if ratio_after > MAX_SUBZONE_RATE_RATIO:
+                self.logger.warning(
+                    f"field={field}: ratio {ratio:.0f}× (still {ratio_after:.0f}× "
+                    f"after bottom-decile prune) -- likely mixed-unit portal data, "
+                    f"skipping field to avoid corrupt aggregate"
+                )
+                return None
+            self.logger.info(
+                f"field={field}: pruned {cutoff} bottom-decile sub-zone rate(s) "
+                f"(ratio {ratio:.0f}× → {ratio_after:.0f}×) -- mixed-unit rows dropped"
+            )
+            values_sqm = pruned
+        # ──────────────────────────────────────────────────────────────────
+
         return {
             "min_sqm": min(values_sqm),
             "max_sqm": max(values_sqm),
@@ -618,14 +670,43 @@ class ScraperEASR(BaseScraper):
 
     def _canonicalize(self, mauja_text: str) -> str:
         """
-        Strip "मौजा : " prefix and apply best-effort normalization.
-        Government village names rarely match our canonical locality
-        strings exactly -- this is a best-effort pass, not authoritative.
-        Logs (does not block) when no alias match is found.
+        Strip portal-specific prefixes/labels and apply best-effort normalization.
+
+        Strips handled:
+          - "मौजा : " prefix (Nagpur-style urban convention)
+          - "विभागाचे नाव" label (Pune PMC/PCMC division-name form label that
+            leaks into the village dropdown text for newly-merged wards, e.g.
+            "विभागाचे नाव  ( वि.क्र.84) जांभूळवाडी नव्याने समाविष्ट (पुणे महानगरपालिका)"
+            should canonicalize to "जांभूळवाडी". Confirmed in DB: 59 Pune rows
+            were written with this label before this fix was added; cleaned via
+            a one-time SQL UPDATE on 2026-06-21.)
+          - (वि.क्र.N) division number parenthetical
+          - Trailing noise suffixes: नव्याने समाविष्ट, जुने/नवीन गट क्रमांक
+          - ALL remaining parentheticals (municipal body names, qualifier notes)
+
+        Government village names rarely match our canonical locality strings
+        exactly -- this is a best-effort pass, not authoritative. Logs (does
+        not block) when no alias match is found.
         """
-        raw = mauja_text.replace(MAUJA_PREFIX, "").replace(":", "").strip()
-        # Strip trailing parenthetical notes e.g. "(नागपूर महानगरपालिका)"
-        raw = re.sub(r"\(.*?\)", "", raw).strip()
+        raw = mauja_text
+
+        # ① Strip मौजा prefix (Nagpur-style)
+        raw = raw.replace(MAUJA_PREFIX, "").replace(":", "").strip()
+
+        # ② Strip "विभागाचे नाव" form label (Pune PMC/PCMC newly-merged wards)
+        raw = re.sub(r"विभागाचे\s*नाव\s*", "", raw).strip()
+
+        # ③ Strip (वि.क्र.N) division number
+        raw = re.sub(r"\(\s*वि\.क्र\.\d+\)\s*", "", raw).strip()
+
+        # ④ Strip trailing noise suffixes specific to Pune merged-ward entries
+        raw = re.sub(r"नव्याने\s*समाविष्ट|जुने\s*गट\s*क्रमांकानुसार|नवीन\s*गट\s*क्रमांक", "", raw).strip()
+
+        # ⑤ Strip ALL remaining parentheticals (municipal body names, etc.)
+        raw = re.sub(r"\([^)]*\)", "", raw).strip()
+
+        # ⑥ Collapse any multi-spaces left by removals
+        raw = re.sub(r"\s+", " ", raw).strip()
 
         normalized = raw.lower().strip()
         for suffix in (" ward", " layout", " colony", " nagar"):
@@ -750,7 +831,11 @@ class ScraperEASR(BaseScraper):
             city_id=city_id,
             district=district,
             taluka_text=taluka["text"],
-            village_text=village["text"].replace(MAUJA_PREFIX, "").replace(":", "").strip(),
+            # Use _canonicalize for village_text too -- raw village dropdown text
+            # can contain "विभागाचे नाव (वि.क्र.N)" prefixes (Pune PMC/PCMC
+            # merged-ward entries) that must be stripped from both columns,
+            # not just locality. Previously only stripped मौजा here.
+            village_text=self._canonicalize(village["text"]),
             locality=locality,
             raw_rows=raw_rows,
             effective_year=effective_year,
